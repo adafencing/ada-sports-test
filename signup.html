@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ADA Sports — Sign Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F5F7F2; --s1:#FFFFFF; --s2:#EBF0E8; --s3:#DFE8DA;
+  --bdr:rgba(26,41,24,0.1); --bdr2:rgba(26,41,24,0.15); --bdrc:rgba(22,101,52,0.25);
+  --tx:#1A2918; --tm:#4A6645; --tl:#8FA585;
+  --teal:#166534; --coral:#EA580C;
+  --red:#DC2626; --red2:#B91C1C;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--tx);max-width:430px;margin:0 auto;min-height:100vh;padding:24px 18px 60px;position:relative}
+.brand{font-size:1.1rem;font-weight:900;letter-spacing:-0.02em;color:var(--tx);text-align:center;margin-bottom:4px}
+.tagline{font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--tl);text-align:center;margin-bottom:28px}
+
+.role-toggle{display:flex;background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:4px;margin-bottom:22px}
+.role-btn{flex:1;padding:10px 0;border:none;background:none;font-family:'Epilogue',sans-serif;font-weight:700;font-size:0.85rem;color:var(--tm);border-radius:9px;cursor:pointer;transition:all .18s}
+.role-btn.active{background:var(--s1);color:var(--teal);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:14px;padding:18px;margin-bottom:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--mono);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--tm);margin-bottom:6px}
+.field input{width:100%;padding:11px 12px;border:1px solid var(--bdr);border-radius:9px;font-family:'Epilogue',sans-serif;font-size:0.95rem;background:var(--bg);color:var(--tx)}
+.field input:focus{outline:none;border-color:var(--teal)}
+.field-hint{font-size:0.75rem;color:var(--tl);margin-top:5px}
+
+.optional-tag{font-family:var(--mono);font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl);background:var(--s2);border:1px solid var(--bdr);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+
+.code-status{font-family:var(--mono);font-size:0.75rem;margin-top:7px;padding:7px 9px;border-radius:7px;display:none}
+.code-status.ok{display:block;background:rgba(22,101,52,0.08);color:var(--teal);border:1px solid rgba(22,101,52,0.25)}
+.code-status.err{display:block;background:rgba(220,38,38,0.08);color:var(--red);border:1px solid rgba(220,38,38,0.25)}
+.code-status.checking{display:block;background:var(--s2);color:var(--tm);border:1px solid var(--bdr)}
+
+.sport-select{width:100%;padding:11px 12px;border:1px solid var(--bdr);border-radius:9px;font-family:'Epilogue',sans-serif;font-size:0.95rem;background:var(--bg);color:var(--tx);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238FA585' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
+.sport-select:focus{outline:none;border-color:var(--teal)}
+.sport-select:disabled{opacity:0.6;cursor:not-allowed}
+.sport-select option[value=""]{color:var(--tl)}
+.sport-inherited{font-family:var(--mono);font-size:0.72rem;color:var(--teal);margin-top:6px;padding:6px 9px;background:rgba(22,101,52,0.06);border:1px solid rgba(22,101,52,0.2);border-radius:7px;display:none}
+
+.submit-btn{width:100%;padding:13px 0;border:none;border-radius:10px;background:var(--teal);color:#fff;font-family:'Epilogue',sans-serif;font-weight:800;font-size:0.95rem;cursor:pointer;margin-top:4px;transition:opacity .18s}
+.submit-btn:hover{background:#145c2e}
+.submit-btn:disabled{opacity:0.55;cursor:not-allowed}
+.submit-btn:active:not(:disabled){opacity:0.85}
+
+.form-error{font-family:var(--mono);font-size:0.78rem;color:var(--red);background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.25);border-radius:8px;padding:9px 11px;margin-bottom:14px;display:none}
+
+.switch-link{text-align:center;font-size:0.85rem;color:var(--tm);margin-top:18px}
+.switch-link a{color:var(--teal);font-weight:700;text-decoration:none}
+
+.success-card{display:none;text-align:center;padding:30px 18px}
+.success-card .check{width:48px;height:48px;border-radius:50%;background:rgba(22,101,52,0.1);border:1px solid rgba(22,101,52,0.3);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 14px}
+.success-card h2{font-size:1.1rem;margin-bottom:6px}
+.success-card p{font-size:0.85rem;color:var(--tm)}
+.invite-display{font-family:var(--mono);font-size:1.3rem;font-weight:700;letter-spacing:0.15em;color:var(--teal);background:var(--s2);border:1px dashed var(--bdrc);border-radius:9px;padding:10px;margin:14px 0;text-align:center}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:40px}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tl);padding:4px;line-height:1;font-size:1rem}
+.pw-toggle:hover{color:var(--tm)}
+.field-error{font-family:var(--mono);font-size:0.72rem;color:var(--red);margin-top:5px;display:none}
+</style>
+</head>
+<body>
+
+<div class="brand">ADA SPORTS</div>
+<div class="tagline">Create your account</div>
+
+<div class="role-toggle">
+  <button type="button" class="role-btn active" id="tab-coach">Coach</button>
+  <button type="button" class="role-btn" id="tab-athlete">Athlete</button>
+</div>
+
+<div class="card" id="form-card">
+  <div class="form-error" id="form-error"></div>
+
+  <form id="signup-form" autocomplete="off">
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="f-name" required>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="f-email" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="f-password" minlength="6" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('f-password',this)" tabindex="-1" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="field-hint">At least 6 characters.</div>
+    </div>
+    <div class="field">
+      <label>Repeat Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="f-password2" minlength="6" required>
+        <button type="button" class="pw-toggle" onclick="togglePw('f-password2',this)" tabindex="-1" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="field-error" id="pw-match-error">Passwords do not match.</div>
+    </div>
+
+    <div class="field" id="discipline-field">
+      <label>Choose your Sport</label>
+      <select class="sport-select" id="sport-select" onchange="window._selectedDiscipline=this.value||null">
+        <option value="">Select a sport…</option>
+        <option value="handball">Handball</option>
+        <option value="squash">Squash</option>
+        <option value="cycling">Cycling</option>
+        <option value="karate">Karate</option>
+        <option value="table-tennis">Table Tennis</option>
+        <option value="fencing">Fencing</option>
+        <option value="other">Other</option>
+      </select>
+      <div class="sport-inherited" id="sport-inherited"></div>
+    </div>
+
+    <div class="field" id="code-field" style="display:none">
+      <label>Coach Invite Code<span class="optional-tag">Optional</span></label>
+      <input type="text" id="f-code" maxlength="6" style="text-transform:uppercase;letter-spacing:0.1em">
+      <div class="field-hint">Have a code from your coach? Enter it now to link instantly — or skip and link later from your app.</div>
+      <div class="code-status" id="code-status"></div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">Create Account</button>
+  </form>
+
+  <div class="switch-link">Already have an account? <a href="/login.html">Log in</a></div>
+</div>
+
+<div class="card success-card" id="success-card">
+  <div class="check">✓</div>
+  <h2 id="success-title">Account created</h2>
+  <p id="success-sub">Redirecting you now…</p>
+  <div class="invite-display" id="success-invite" style="display:none"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script>firebase.initializeApp(FIREBASE_CONFIG);</script>
+
+<script>
+function togglePw(id, btn){
+  var input = document.getElementById(id);
+  if(!input) return;
+  var show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.innerHTML = show
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
+(function(){
+  var auth = firebase.auth();
+  var db   = firebase.firestore();
+
+  var role = 'coach'; // 'coach' | 'athlete'
+  window._selectedDiscipline = null;
+  var tabCoach   = document.getElementById('tab-coach');
+  var tabAthlete = document.getElementById('tab-athlete');
+  var codeField  = document.getElementById('code-field');
+  var codeInput  = document.getElementById('f-code');
+  var codeStatus = document.getElementById('code-status');
+  var formError  = document.getElementById('form-error');
+  var submitBtn  = document.getElementById('submit-btn');
+  var form       = document.getElementById('signup-form');
+
+  var resolvedCoach = null; // {uid, orgId, discipline} once a valid code is confirmed
+
+  function buildDest(role, discipline) {
+    if (role === 'admin')      return '/admin/';
+    if (role === 'superadmin') return '/superadmin/';
+    if (role === 'athlete')    return '/' + (discipline||'handball') + '/index.html';
+    if (role === 'coach') {
+      var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
+      return '/' + (discipline||'handball') + '/' + app;
+    }
+    return '/login.html';
+  }
+
+  function resetDisciplineUI() {
+    window._selectedDiscipline = null;
+    resolvedCoach = null;
+    var sel = document.getElementById('sport-select');
+    sel.value = '';
+    sel.disabled = false;
+    document.getElementById('sport-inherited').style.display = 'none';
+  }
+
+  function setRole(r){
+    role = r;
+    tabCoach.classList.toggle('active', r === 'coach');
+    tabAthlete.classList.toggle('active', r === 'athlete');
+    codeField.style.display = (r === 'athlete') ? 'block' : 'none';
+    resetDisciplineUI();
+    hideError();
+  }
+  tabCoach.addEventListener('click', function(){ setRole('coach'); });
+  tabAthlete.addEventListener('click', function(){ setRole('athlete'); });
+
+  function showError(msg){ formError.textContent = msg; formError.style.display = 'block'; }
+  function hideError(){ formError.style.display = 'none'; }
+
+  function genCode(){
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I ambiguity
+    var out = '';
+    for (var i=0;i<6;i++) out += chars[Math.floor(Math.random()*chars.length)];
+    return out;
+  }
+
+  async function uniqueInviteCode(){
+    for (var attempt=0; attempt<6; attempt++){
+      var candidate = genCode();
+      var snap = await db.collection('users').where('inviteCode','==',candidate).limit(1).get();
+      if (snap.empty) return candidate;
+    }
+    // Extremely unlikely fallback: timestamp-suffixed
+    return genCode() + Date.now().toString(36).slice(-2).toUpperCase();
+  }
+
+  var codeCheckTimer = null;
+  codeInput.addEventListener('input', function(){
+    codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    resolvedCoach = null;
+    codeStatus.className = 'code-status';
+    codeStatus.style.display = 'none';
+    clearTimeout(codeCheckTimer);
+
+    var val = codeInput.value.trim();
+    if (!val) {
+      // Code cleared — restore discipline selector
+      window._selectedDiscipline = null;
+      var sel = document.getElementById('sport-select');
+      sel.value = '';
+      sel.disabled = false;
+      document.getElementById('sport-inherited').style.display = 'none';
+      return;
+    }
+
+    codeStatus.className = 'code-status checking';
+    codeStatus.textContent = 'Checking code…';
+    codeStatus.style.display = 'block';
+
+    codeCheckTimer = setTimeout(async function(){
+      try {
+        var snap = await db.collection('users')
+          .where('role','==','coach')
+          .where('inviteCode','==',val)
+          .limit(1).get();
+        if (snap.empty){
+          codeStatus.className = 'code-status err';
+          codeStatus.textContent = 'No coach found with that code.';
+        } else {
+          var doc = snap.docs[0];
+          var d = doc.data();
+          resolvedCoach = { uid: doc.id, orgId: d.orgId || doc.id, name: d.name || '', discipline: d.discipline || '' };
+          codeStatus.className = 'code-status ok';
+          codeStatus.textContent = 'Linked to coach: ' + (d.name || doc.id);
+          // Auto-select discipline from coach
+          if (d.discipline) {
+            window._selectedDiscipline = d.discipline;
+            var sel = document.getElementById('sport-select');
+            sel.value = d.discipline;
+            sel.disabled = true;
+            var inherited = document.getElementById('sport-inherited');
+            inherited.textContent = '✓ Sport: ' + d.discipline.replace('-',' ') + ' (from coach)';
+            inherited.style.display = 'block';
+          }
+        }
+      } catch(e){
+        console.error('Invite code lookup failed:', e);
+        codeStatus.className = 'code-status err';
+        codeStatus.textContent = 'Could not verify code. You can still create your account and link later.';
+      }
+    }, 500);
+  });
+
+
+
+  // Hide match error on retype
+  document.getElementById('f-password2').addEventListener('input', function(){
+    document.getElementById('pw-match-error').style.display = 'none';
+  });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    hideError();
+
+    var name     = document.getElementById('f-name').value.trim();
+    var email    = document.getElementById('f-email').value.trim();
+    var password = document.getElementById('f-password').value;
+
+    var password2 = document.getElementById('f-password2').value;
+    if (!name || !email || password.length < 6){
+      showError('Please fill in all fields. Password must be at least 6 characters.');
+      return;
+    }
+    if (password !== password2){
+      var matchErr = document.getElementById('pw-match-error');
+      if(matchErr) matchErr.style.display = 'block';
+      return;
+    }
+    document.getElementById('pw-match-error').style.display = 'none';
+    if (!window._selectedDiscipline) {
+      showError('Please select your sport.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account…';
+
+    var cred;
+    try {
+      cred = await auth.createUserWithEmailAndPassword(email, password);
+    } catch(err){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Account';
+      showError(friendlyAuthError(err));
+      return;
+    }
+
+    var uid = cred.user.uid;
+
+    try {
+      if (role === 'coach'){
+        var inviteCode = await uniqueInviteCode();
+        await db.collection('users').doc(uid).set({
+          role: 'coach',
+          uid: uid,
+          name: name,
+          email: email,
+          orgId: uid,
+          orgName: name,
+          discipline: window._selectedDiscipline,
+          inviteCode: inviteCode,
+          assignedAthletes: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showSuccess('coach', inviteCode, false, window._selectedDiscipline);
+      } else {
+        var codeVal = codeInput.value.trim();
+        var coachLink = resolvedCoach;
+
+        // If they typed a code but it wasn't resolved yet (e.g. submitted fast), try once more.
+        if (codeVal && !coachLink){
+          var snap = await db.collection('users')
+            .where('role','==','coach')
+            .where('inviteCode','==',codeVal)
+            .limit(1).get();
+          if (!snap.empty){
+            var doc = snap.docs[0];
+            var d = doc.data();
+            coachLink = { uid: doc.id, orgId: d.orgId || doc.id, name: d.name || '' };
+          }
+        }
+
+        var athleteDisc = coachLink ? (coachLink.discipline || window._selectedDiscipline) : window._selectedDiscipline;
+        var athleteDoc = {
+          role: 'athlete',
+          uid: uid,
+          name: name,
+          email: email,
+          orgId: coachLink ? coachLink.orgId : uid,
+          coachId: coachLink ? coachLink.uid : null,
+          discipline: athleteDisc,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('users').doc(uid).set(athleteDoc);
+
+        if (coachLink){
+          await db.collection('users').doc(coachLink.uid).update({
+            assignedAthletes: firebase.firestore.FieldValue.arrayUnion(uid)
+          });
+        }
+
+        showSuccess('athlete', null, !!coachLink, athleteDisc);
+      }
+    } catch(err){
+      console.error('Profile write failed:', err);
+      // Account exists in Auth but Firestore write failed — let auth-gate.js retry logic
+      // on first app load handle it; still route them forward.
+      showError('Account created, but profile setup hit a snag. Redirecting to sign in…');
+      setTimeout(function(){ window.location.href = '/login.html'; }, 2200);
+      return;
+    }
+  });
+
+  function showSuccess(r, inviteCode, linked, discipline){
+    document.getElementById('form-card').style.display = 'none';
+    var card = document.getElementById('success-card');
+    card.style.display = 'block';
+
+    if (r === 'coach'){
+      document.getElementById('success-title').textContent = 'Welcome, coach!';
+      document.getElementById('success-sub').textContent = 'Share this code with your athletes so they can link to you.';
+      var inv = document.getElementById('success-invite');
+      inv.textContent = inviteCode;
+      inv.style.display = 'block';
+      setTimeout(function(){ window.location.href = buildDest('coach', discipline); }, 3500);
+    } else {
+      document.getElementById('success-title').textContent = 'Welcome!';
+      document.getElementById('success-sub').textContent = linked
+        ? 'You\'re linked to your coach. Redirecting…'
+        : 'Account created. You can link to a coach anytime from your app.';
+      setTimeout(function(){ window.location.href = buildDest('athlete', discipline); }, 1800);
+    }
+  }
+
+  function friendlyAuthError(err){
+    var code = err && err.code;
+    if (code === 'auth/email-already-in-use') return 'That email is already registered. Try logging in instead.';
+    if (code === 'auth/invalid-email') return 'That email address looks invalid.';
+    if (code === 'auth/weak-password') return 'Password is too weak — use at least 6 characters.';
+    return 'Something went wrong creating your account. Please try again.';
+  }
+})();
+</script>
+</body>
+</html>

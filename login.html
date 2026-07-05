@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADA Sports — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F7F2;--s1:#EBF0E8;--s2:#DFE8DA;--bdr:rgba(0,0,0,0.08);--bdr2:rgba(0,0,0,0.13);
+  --tx:#1A2918;--tm:#4A6645;--tl:#8FA585;--white:#fff;
+  --teal:#166534;--coral:#EA580C;--red:#DC2626;
+  --sidebar:#1A2918;
+  --mono:'IBM Plex Mono',monospace;--sans:'Epilogue',sans-serif;
+}
+html,body{height:100%;background:var(--bg);font-family:var(--sans);color:var(--tx);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+.wrap{width:100%;max-width:380px;padding:24px 16px}
+.logo-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:28px}
+.logo-mark{width:38px;height:38px;border-radius:11px;background:var(--sidebar);display:flex;align-items:center;justify-content:center}
+.logo-dot{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#15803D)}
+.logo-text{font-family:var(--mono);font-size:0.9rem;font-weight:700;color:var(--tx);letter-spacing:0.04em}
+.card{background:var(--white);border:1px solid var(--bdr2);border-radius:14px;padding:28px 28px 24px;box-shadow:0 4px 24px rgba(26,41,24,0.07)}
+.card-title{font-size:1.1rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:4px}
+.card-sub{font-family:var(--mono);font-size:0.72rem;color:var(--tl);margin-bottom:22px}
+.form-field{margin-bottom:14px}
+.form-label{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:5px;display:block}
+.form-field input{width:100%;padding:10px 13px;background:var(--s1);border:1.5px solid var(--bdr2);border-radius:8px;color:var(--tx);font-family:var(--sans);font-size:0.95rem;outline:none;transition:all 0.12s}
+.form-field input:focus{background:var(--white);border-color:rgba(22,101,52,0.5);box-shadow:0 0 0 3px rgba(22,101,52,0.07)}
+.btn-full{width:100%;padding:11px;border-radius:9px;background:var(--teal);border:none;color:#fff;font-family:var(--sans);font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.12s;margin-top:4px}
+.btn-full:hover{background:#145c2e}
+.btn-full:active{transform:scale(0.98)}
+.btn-full:disabled{opacity:0.6;cursor:not-allowed}
+.error-box{background:rgba(220,38,38,0.07);border:1px solid rgba(220,38,38,0.25);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:0.72rem;color:var(--red);margin-bottom:14px;display:none}
+.note{text-align:center;margin-top:18px;font-family:var(--mono);font-size:0.68rem;color:var(--tl);line-height:1.7}
+.back-link{display:block;text-align:center;margin-top:14px;font-family:var(--mono);font-size:0.68rem;color:var(--tl);text-decoration:none}
+.back-link:hover{color:var(--tm)}
+.loading-wrap{text-align:center;padding:24px 0;display:none}
+.spinner{width:28px;height:28px;border:2.5px solid var(--s2);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--mono);font-size:0.72rem;color:var(--tl)}
+.pw-wrap{position:relative}.pw-wrap input{padding-right:40px}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tl);padding:4px;line-height:1;font-size:1rem}
+.pw-toggle:hover{color:var(--tm)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-row">
+    <div class="logo-mark"><div class="logo-dot"></div></div>
+    <div class="logo-text">ADA Sports</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sign In</div>
+    <div class="card-sub">Enter your credentials to access the platform</div>
+
+    <div class="error-box" id="error-box"></div>
+
+    <div id="login-form">
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input type="email" id="l-email" placeholder="vas@email.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="pw-toggle" onclick="togglePw()" tabindex="-1" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <button class="btn-full" id="login-btn" onclick="doLogin()">Sign In</button>
+      <div style="text-align:center;margin-top:12px">
+        <span onclick="doReset()" style="font-family:var(--mono);font-size:0.68rem;color:var(--tl);cursor:pointer;text-decoration:underline">Forgot your password?</span>
+      </div>
+    </div>
+
+    <div class="loading-wrap" id="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loading-text">Signing in...</div>
+    </div>
+
+    <div class="note">
+      New to ADA Sports? <a href="/signup.html" style="color:var(--teal);font-weight:700;text-decoration:none">Create a free account &rarr;</a>
+    </div>
+  </div>
+  <a class="back-link" href="/">← Back to home</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script>
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+function buildDest(role, discipline) {
+  if (role === 'admin')      return '/admin/';
+  if (role === 'superadmin') return '/superadmin/';
+  if (role === 'athlete')    return '/' + (discipline||'handball') + '/index.html';
+  if (role === 'coach') {
+    var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
+    return '/' + (discipline||'handball') + '/' + app;
+  }
+  return null;
+}
+
+let redirecting = false;
+
+// Retry helper — same pattern as auth gates
+async function getWithRetry(ref, retries = 3, delayMs = 900) {
+  for (let i = 0; i < retries; i++) {
+    const doc = await ref.get();
+    if (doc.exists) return doc;
+    if (i < retries - 1) await new Promise(r => setTimeout(r, delayMs));
+  }
+  return null;
+}
+
+// If already logged in, redirect to correct app
+auth.onAuthStateChanged(async user => {
+  if (!user || redirecting) return;
+  try {
+    const doc = await getWithRetry(db.collection('users').doc(user.uid));
+    if (doc && doc.exists) {
+      const d = doc.data();
+      const dest = buildDest(d.role, d.discipline);
+      if (dest) { redirecting = true; window.location.href = dest; return; }
+    }
+  } catch(e) { console.error(e); }
+});
+
+const btn = document.getElementById('login-btn');
+
+function showError(msg) { const el=document.getElementById('error-box'); el.textContent=msg; el.style.display='block'; }
+function clearError()   { document.getElementById('error-box').style.display='none'; }
+function showLoading(msg) {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('loading-text').textContent = msg || 'Signing in...';
+  document.getElementById('loading-wrap').style.display = '';
+}
+function hideLoading() {
+  document.getElementById('login-form').style.display = '';
+  document.getElementById('loading-wrap').style.display = 'none';
+}
+
+function togglePw(){
+  var input = document.getElementById('l-pass');
+  var btn = document.querySelector('.pw-toggle');
+  if(!input) return;
+  var show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.innerHTML = show
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
+async function doLogin() {
+  if (btn.disabled) return;
+  clearError();
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { showError('Enter your email and password.'); return; }
+
+  btn.disabled = true;
+  redirecting  = true;
+  showLoading('Signing in...');
+
+  try {
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+    const doc  = await getWithRetry(db.collection('users').doc(cred.user.uid));
+
+    if (!doc || !doc.exists) {
+      await auth.signOut();
+      redirecting = false;
+      btn.disabled = false;
+      hideLoading();
+      showError('Account not found. Contact your admin.');
+      return;
+    }
+
+    const d = doc.data();
+    const role = d.role;
+    const dest = buildDest(role, d.discipline);
+
+    if (!dest) {
+      await auth.signOut();
+      redirecting = false;
+      btn.disabled = false;
+      hideLoading();
+      showError('Unknown user role. Contact support.');
+      return;
+    }
+
+    const sportLabel = d.discipline ? ' · ' + d.discipline.replace('-',' ') : '';
+    const roleMsg = { admin:'Admin panel', coach:'Coach app', athlete:'Athlete app', superadmin:'Super Admin' };
+    showLoading(`Loading ${roleMsg[role]||''}${sportLabel}…`);
+    window.location.href = dest;
+
+  } catch(e) {
+    redirecting  = false;
+    btn.disabled = false;
+    hideLoading();
+    const m = {
+      'auth/user-not-found':    'No user found with this email.',
+      'auth/wrong-password':    'Incorrect password.',
+      'auth/invalid-credential':'Incorrect email or password.',
+      'auth/invalid-email':     'Invalid email address.',
+      'auth/too-many-requests': 'Too many attempts. Please try again in a few minutes.',
+    };
+    showError(m[e.code] || 'An error occurred. Please try again.');
+  }
+}
+
+async function doReset() {
+  const email = document.getElementById('l-email').value.trim();
+  if (!email) { showError('Enter your email address to reset your password.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showError('');
+    document.getElementById('error-box').style.display = 'none';
+    // Reuse error box as success — swap color inline
+    const el = document.getElementById('error-box');
+    el.textContent = 'Password reset link sent to your email.';
+    el.style.background = 'rgba(22,101,52,0.07)';
+    el.style.borderColor = 'rgba(22,101,52,0.25)';
+    el.style.color = 'var(--teal)';
+    el.style.display = 'block';
+  } catch(e) {
+    const m = {
+      'auth/user-not-found': 'No user found with this email.',
+      'auth/invalid-email':  'Invalid email address.',
+    };
+    showError(m[e.code] || 'An error occurred. Please try again.');
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

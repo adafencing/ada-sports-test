@@ -1,0 +1,103 @@
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+# Admin and superadmin (role-based, not sport-specific)
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/superadmin"
+  to = "/superadmin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/superadmin/*"
+  to = "/superadmin/:splat"
+  status = 200
+
+# Sport folders — coach desktop, coach mobile, athlete app
+[[redirects]]
+  from = "/handball/*"
+  to = "/handball/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/squash/*"
+  to = "/squash/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/cycling/*"
+  to = "/cycling/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/karate/*"
+  to = "/karate/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/table-tennis/*"
+  to = "/table-tennis/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/fencing/*"
+  to = "/fencing/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/other/*"
+  to = "/other/:splat"
+  status = 200
+  
+# Legacy paths — redirect old bookmarks to login
+[[redirects]]
+  from = "/coach"
+  to = "/login.html"
+  status = 301
+
+[[redirects]]
+  from = "/coach/*"
+  to = "/login.html"
+  status = 301
+
+[[redirects]]
+  from = "/athlete"
+  to = "/login.html"
+  status = 301
+
+[[redirects]]
+  from = "/athlete/*"
+  to = "/login.html"
+  status = 301
+
+[[redirects]]
+  from = "/athlete/signup.html"
+  to = "/login.html"
+  status = 301
+
+[[redirects]]
+  from = "/coach/signup.html"
+  to = "/login.html"
+  status = 301
+
+[[redirects]]
+  from = "/superadmin/login.html"
+  to = "/login.html"
+  status = 301
+
+# Catch-all: unknown paths return landing page
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404

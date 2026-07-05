@@ -1,0 +1,3060 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ADA Sports Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F5F7F2;--s1:#EBF0E8;--s2:#DFE8DA;--s3:#D1D9CA;
+  --bdr:rgba(0,0,0,0.08);--bdr2:rgba(0,0,0,0.14);
+  --tx:#1A2918;--tm:#4A6645;--tl:#5C7A56;
+  --coral:#EA580C;--teal:#166534;--green:#15803D;--amber:#A16207;--red:#DC2626;--blue:#1D4ED8;--purple:#7C3AED;
+  --mono:'JetBrains Mono',monospace;--sans:'Epilogue',sans-serif;
+}
+html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden}
+.shell{width:390px;height:844px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;display:flex;flex-direction:column}
+@media(max-width:430px){.shell{width:100%;height:100dvh}}
+@media(min-width:431px){body{display:flex;align-items:center;justify-content:center;min-height:100vh}.shell{border-radius:40px;box-shadow:0 0 0 6px #D1D9CA,0 24px 48px rgba(26,41,24,0.18);border:1.5px solid #C4CFC0}}
+.mono{font-family:var(--mono)}
+/* ── LAYERS ── */
+#layer-loading,#layer-setup,#layer-briefing,#layer-app{position:absolute;inset:0;display:none;flex-direction:column}
+#layer-loading{background:#1A2918;align-items:center;justify-content:center;gap:16px;display:flex}
+/* ── LOADING ── */
+.ld-dot{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#15803D);box-shadow:0 0 16px rgba(74,222,128,0.4)}
+.ld-name{font-family:var(--mono);font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.12em}
+.ld-bar{width:80px;height:2px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden}
+.ld-fill{height:100%;background:#4ade80;animation:ldAnim 1.1s ease forwards}
+@keyframes ldAnim{from{width:0}to{width:100%}}
+/* ── SETUP ── */
+#layer-setup{background:var(--bg);overflow-y:auto;padding:28px 22px 40px}
+.su-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.su-dot{width:36px;height:36px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center}
+.su-dot-inner{width:14px;height:14px;border-radius:50%;background:#fff}
+.su-brand{font-family:var(--mono);font-size:0.7rem;font-weight:600;color:var(--teal);letter-spacing:0.1em}
+.su-title{font-size:1.5rem;font-weight:900;letter-spacing:-0.03em;line-height:1.2;color:var(--tx);margin-bottom:6px}
+.su-sub{font-size:0.9rem;color:var(--tl);line-height:1.6;margin-bottom:24px}
+.su-field{margin-bottom:14px}
+.su-lbl{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--tl);margin-bottom:5px}
+.su-input{width:100%;padding:11px 13px;border-radius:9px;border:1.5px solid var(--bdr2);background:#fff;font-family:var(--sans);font-size:0.95rem;color:var(--tx);outline:none;transition:border 0.15s}
+.su-input:focus{border-color:rgba(22,101,52,0.5)}
+.su-btn{width:100%;padding:14px;border-radius:11px;background:var(--teal);border:none;font-family:var(--sans);font-size:0.9rem;font-weight:800;color:#fff;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
+.su-btn:active{opacity:0.85}
+/* ── BRIEFING ── */
+#layer-briefing{background:var(--bg)}
+.br-header{flex-shrink:0;padding:22px 18px 0}
+.br-date{font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:6px}
+.br-greeting{font-size:1.55rem;font-weight:900;letter-spacing:-0.03em;line-height:1.1;color:var(--tx);margin-bottom:4px}
+.br-phase{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:0.75rem;padding:4px 10px;border-radius:20px;background:rgba(161,98,7,0.08);border:1px solid rgba(161,98,7,0.22);color:var(--amber);margin-bottom:16px}
+.br-body{flex:1;overflow-y:auto;padding:0 18px 10px;scrollbar-width:none}
+.br-body::-webkit-scrollbar{display:none}
+.br-kpi-row{display:flex;gap:7px;margin-bottom:12px}
+.br-kpi{flex:1;background:#fff;border:1px solid var(--bdr2);border-radius:9px;padding:9px 8px;text-align:center}
+.br-kpi-val{font-family:var(--mono);font-size:0.92rem;font-weight:700}
+.br-kpi-lbl{font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--tl);margin-top:2px}
+.br-section-lbl{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:6px;margin-top:4px}
+.br-alert{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid;margin-bottom:5px;cursor:pointer}
+.br-alert:active{transform:scale(0.98)}
+.br-alert-red{background:rgba(220,38,38,0.04);border-color:rgba(220,38,38,0.18)}
+.br-alert-amber{background:rgba(161,98,7,0.04);border-color:rgba(161,98,7,0.18)}
+.br-adot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.br-adot-red{background:var(--red)}
+.br-adot-amber{background:var(--amber)}
+.br-aname{font-size:0.9rem;font-weight:700}
+.br-areason{font-family:var(--mono);font-size:0.76rem;color:var(--tm);margin-top:2px}
+.br-empty{font-family:var(--mono);font-size:0.78rem;color:var(--tl);text-align:center;padding:12px;background:var(--s1);border-radius:8px}
+.br-footer{flex-shrink:0;padding:10px 18px 20px}
+.br-btn{width:100%;padding:14px;border-radius:11px;background:var(--teal);border:none;font-family:var(--sans);font-size:0.88rem;font-weight:800;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s}
+.br-btn:active{opacity:0.85}
+/* ── APP TOPBAR ── */
+.topbar{flex-shrink:0;padding:10px 14px 9px;background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:rgba(22,101,52,0.12);border:1.5px solid rgba(22,101,52,0.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--teal);flex-shrink:0}
+.tb-title{font-size:0.86rem;font-weight:800;letter-spacing:-0.01em}
+.tb-sub{font-family:var(--mono);font-size:0.78rem;color:var(--tl);margin-top:1px}
+.tb-badge{font-family:var(--mono);font-size:0.72rem;padding:2px 7px;border-radius:20px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.25);color:var(--red);cursor:pointer}
+/* ── SCREENS ── */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--s3) transparent}
+.screen.active{display:flex}
+.screen::-webkit-scrollbar{width:2px}
+.screen::-webkit-scrollbar-thumb{background:var(--s3)}
+.sb{padding:12px 14px;display:flex;flex-direction:column;gap:10px;padding-bottom:24px}
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid var(--bdr2);border-radius:11px;overflow:hidden}
+.cb{padding:12px 14px}
+.sec{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:-4px;margin-top:2px}
+/* ── BADGES ── */
+.badge{font-family:var(--mono);font-size:0.72rem;padding:2px 6px;border-radius:3px;border:1px solid}
+.bg{background:rgba(21,128,61,0.08);border-color:rgba(21,128,61,0.25);color:var(--green)}
+.ba{background:rgba(161,98,7,0.08);border-color:rgba(161,98,7,0.25);color:var(--amber)}
+.bt{background:rgba(22,101,52,0.08);border-color:rgba(22,101,52,0.25);color:var(--teal)}
+.br{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.25);color:var(--red)}
+.bb{background:rgba(29,78,216,0.08);border-color:rgba(29,78,216,0.25);color:var(--blue)}
+/* ── PROGRESS ── */
+.prog{height:4px;background:var(--s2);border-radius:2px;overflow:hidden}
+.prog-f{height:100%;border-radius:2px;transition:width 0.4s}
+/* ── PULSE ROW ── */
+.pulse-row{display:flex;gap:8px}
+.pc{flex:1;border-radius:9px;padding:10px 8px;text-align:center;border:1px solid;cursor:pointer}
+.pc-num{font-family:var(--mono);font-size:1.3rem;font-weight:700;line-height:1}
+.pc-lbl{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px}
+.pc-green{background:rgba(21,128,61,0.07);border-color:rgba(21,128,61,0.22);color:var(--green)}
+.pc-amber{background:rgba(161,98,7,0.07);border-color:rgba(161,98,7,0.22);color:var(--amber)}
+.pc-red{background:rgba(220,38,38,0.07);border-color:rgba(220,38,38,0.22);color:var(--red)}
+/* ── ALERT LIST ── */
+.alert-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;border:1px solid;cursor:pointer;transition:all 0.12s}
+.alert-item:active{transform:scale(0.98)}
+.ai-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ai-red{background:rgba(220,38,38,0.05);border-color:rgba(220,38,38,0.2)}.ai-red .ai-dot{background:var(--red)}
+.ai-amber{background:rgba(161,98,7,0.05);border-color:rgba(161,98,7,0.2)}.ai-amber .ai-dot{background:var(--amber)}
+.ai-grey{background:var(--s1);border-color:var(--bdr)}.ai-grey .ai-dot{background:var(--tl)}
+.ai-info{flex:1;min-width:0}
+.ai-name{font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-reason{font-family:var(--mono);font-size:0.72rem;color:var(--tm);margin-top:1px}
+.ai-name{font-size:0.9rem;font-weight:700}
+.ai-reason{font-family:var(--mono);font-size:0.76rem;color:var(--tm);margin-top:2px}
+/* ── TIM FILTERS ── */
+.filters{flex-shrink:0;display:flex;gap:5px;padding:8px 14px;background:var(--s1);border-bottom:1px solid var(--bdr);overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fp{padding:7px 15px;border-radius:20px;border:1.5px solid var(--bdr2);font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--tl);cursor:pointer;white-space:nowrap;transition:all 0.12s;flex-shrink:0;background:var(--s1)}
+.fp.on{background:#fff;border-color:rgba(22,101,52,0.35);color:var(--teal)}
+.fp.red.on{border-color:rgba(220,38,38,0.35);color:var(--red);background:rgba(220,38,38,0.04)}
+.fp.amber.on{border-color:rgba(161,98,7,0.35);color:var(--amber);background:rgba(161,98,7,0.04)}
+/* ── TEAM AVGS ── */
+.tavgs{flex-shrink:0;display:flex;background:var(--s1);border-bottom:1px solid var(--bdr)}
+.tav{flex:1;padding:7px 4px;text-align:center;border-right:1px solid var(--bdr)}
+.tav:last-child{border-right:none}
+.tav-val{font-family:var(--mono);font-size:0.78rem;font-weight:600}
+.tav-lbl{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--tl);margin-top:1px}
+/* ── ATHLETE CARDS ── */
+.ath-list{display:flex;flex-direction:column;gap:6px;padding:10px 14px 24px}
+.ath-card{background:#fff;border:1px solid var(--bdr2);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;transition:all 0.12s}
+.ath-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.ath-card.green::before{background:var(--green)}
+.ath-card.amber::before{background:var(--amber)}
+.ath-card.red::before{background:var(--red)}
+.ath-card.none::before{background:var(--s3)}
+.ath-card:active{transform:scale(0.98)}
+.ath-score{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);font-size:0.9rem;font-weight:700}
+.ath-info{flex:1;min-width:0}
+.ath-name{font-size:0.96rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ath-pos{font-family:var(--mono);font-size:0.76rem;color:var(--tl);margin-top:2px}
+.ath-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.ath-tag{font-family:var(--mono);font-size:0.72rem;padding:1px 5px;border-radius:3px;border:1px solid}
+/* ── ATHLETE OVERLAY ── */
+.overlay{position:absolute;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.25s cubic-bezier(0.32,0.72,0,1)}
+.overlay.open{transform:translateX(0)}
+.ov-topbar{flex-shrink:0;padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px}
+.ov-back{width:32px;height:32px;border-radius:8px;background:var(--s2);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--tm);cursor:pointer;flex-shrink:0}
+.ov-back:active{transform:scale(0.93)}
+.ov-scroll{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;padding-bottom:24px;scrollbar-width:thin}
+.ov-scroll::-webkit-scrollbar{width:2px}
+.ov-scroll::-webkit-scrollbar-thumb{background:var(--s3)}
+.ov-scroll .card{overflow:visible}
+/* ── CHECKIN ROWS ── */
+.ci-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.ci-lbl{font-size:0.8rem;font-weight:600;width:90px;flex-shrink:0}
+.ci-bar{flex:1;height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
+.ci-fill{height:100%;border-radius:3px}
+.ci-val{font-family:var(--mono);font-size:0.75rem;font-weight:600;width:28px;text-align:right;flex-shrink:0}
+/* ── SESSION DETAIL ── */
+.sess-card{background:#fff;border:1px solid var(--bdr2);border-radius:11px;padding:12px 14px;border-left:3px solid var(--teal);cursor:pointer;transition:all 0.12s}
+.sess-card:active{transform:scale(0.98)}
+.sess-label{font-family:var(--mono);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal);margin-bottom:4px}
+.sess-name{font-size:1.05rem;font-weight:800;margin-bottom:6px}
+.sess-meta{display:flex;gap:10px;font-family:var(--mono);font-size:0.8rem;color:var(--tm)}
+/* ── NEDELJNI / WEEK STRIP ── */
+.week-nav{flex-shrink:0;padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.wn-arrow{min-width:44px;height:44px;border-radius:10px;background:var(--s2);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;color:var(--tm);flex-shrink:0;padding:0 8px}
+.wn-arrow:active{transform:scale(0.93)}
+.wn-center{text-align:center;flex:1}
+.wn-season-btn{height:44px;border-radius:10px;background:rgba(22,101,52,0.07);border:1px solid rgba(22,101,52,0.25);display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--teal);cursor:pointer;flex-shrink:0;padding:0 12px;white-space:nowrap}
+.wn-season-btn:active{transform:scale(0.95)}
+.wn-title{font-family:var(--mono);font-size:0.9rem;font-weight:700;color:var(--tx)}
+.wn-range{font-family:var(--mono);font-size:0.72rem;color:var(--tl);margin-top:2px}
+.week-strip{flex-shrink:0;display:flex;background:var(--s1);border-bottom:1px solid var(--bdr)}
+.day-cell{flex:1;padding:7px 4px;text-align:center;cursor:pointer;transition:all 0.12s;border-right:1px solid var(--bdr);position:relative}
+.day-cell:last-child{border-right:none}
+.day-cell.sel{background:#fff}
+.day-cell.today .dc-date{color:var(--teal);font-weight:700}
+.dc-dow{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--tl);margin-bottom:2px}
+.dc-date{font-family:var(--mono);font-size:0.92rem;font-weight:700}
+.dc-dot{width:5px;height:5px;border-radius:50%;margin:3px auto 0}
+/* ── SESSION FORM ── */
+.sf-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.sf-lbl{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl)}
+.sf-input{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--bdr2);background:#fff;font-family:var(--sans);font-size:0.9rem;color:var(--tx);outline:none;transition:border 0.15s}
+.sf-input:focus{border-color:rgba(22,101,52,0.4)}
+.sf-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238FA585' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.sf-slider{width:100%;height:4px;accent-color:var(--teal);cursor:pointer}
+.sf-slider-val{font-family:var(--mono);font-size:0.88rem;font-weight:600;color:var(--tx);margin-top:4px}
+/* ── +/− duration control & RPE grid (session editor) ── */
+.mob-dur-row{display:flex;align-items:center;gap:12px;margin:6px 0;}
+.mob-dur-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bdr2);background:var(--s2);color:var(--tx);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.12s;}
+.mob-dur-btn:active{background:var(--teal);border-color:var(--teal);color:#fff;}
+.mob-dur-num{flex:1;text-align:center;font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--tx);}
+.mob-rpe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:6px 0;}
+.mob-rpe-btn{padding:9px 0;border-radius:8px;border:1.5px solid var(--bdr);background:var(--s2);font-family:var(--mono);font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.12s;color:var(--tl);}
+.mob-rpe-btn.on{color:#fff !important;border-color:transparent;}
+.type-pills{display:flex;gap:8px;flex-wrap:wrap}
+.type-pill{padding:10px 14px;border-radius:11px;border:1.5px solid var(--bdr2);font-family:var(--sans);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.12s;background:var(--s1);color:var(--tm);width:calc(50% - 4px);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
+.type-pill.on{background:#fff;border-color:rgba(22,101,52,0.5);color:var(--teal);border-width:2px}
+.tl-display{background:rgba(22,101,52,0.06);border:1px solid rgba(22,101,52,0.18);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.tl-num{font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--teal)}
+.tl-label{font-family:var(--mono);font-size:0.72rem;color:var(--tl)}
+/* ── ACTION BUTTONS ── */
+.action-row{display:flex;gap:7px}
+.btn{flex:1;padding:11px;border-radius:9px;font-family:var(--sans);font-size:0.875rem;font-weight:700;cursor:pointer;text-align:center;border:1px solid;transition:all 0.12s}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn-secondary{background:var(--s2);border-color:var(--bdr2);color:var(--tx)}
+.btn-danger{background:rgba(220,38,38,0.07);border-color:rgba(220,38,38,0.25);color:var(--red)}
+.btn-full{width:100%;padding:13px;border-radius:10px;background:var(--teal);border:none;font-family:var(--sans);font-size:0.88rem;font-weight:800;color:#fff;cursor:pointer;transition:opacity 0.15s}
+.btn-full:active{opacity:0.85}
+/* ── NOTES ── */
+.notes-ta{width:100%;padding:10px 12px;background:var(--s1);border:1px solid var(--bdr2);border-radius:8px;font-family:var(--sans);font-size:0.85rem;color:var(--tx);resize:none;outline:none;height:72px;line-height:1.6;transition:border 0.15s}
+.notes-ta:focus{border-color:rgba(22,101,52,0.4);background:#fff}
+.notes-ta::placeholder{color:var(--tl)}
+/* ── SEASON PLAN ── */
+
+/* ── COMPETITION CALENDAR ── */
+.match-item{background:#fff;border:1px solid var(--bdr2);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.12s}
+.match-item:active{transform:scale(0.98)}
+.match-item.past{opacity:0.5}
+.match-date-col{text-align:center;flex-shrink:0;width:36px}
+.match-day{font-family:var(--mono);font-size:0.75rem;font-weight:700;line-height:1}
+.match-mon{font-family:var(--mono);font-size:0.72rem;color:var(--tl);margin-top:1px}
+.match-info{flex:1;min-width:0}
+.match-opp{font-size:0.9rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.match-meta{display:flex;gap:5px;margin-top:3px;flex-wrap:wrap}
+.pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:1px}
+.pri-a{background:#F59E0B}.pri-b{background:#3B82F6}.pri-c{background:var(--s3)}
+.add-match-btn{width:100%;padding:11px;border-radius:10px;border:1.5px dashed var(--bdr2);background:transparent;font-family:var(--mono);font-size:0.72rem;color:var(--tl);cursor:pointer;transition:all 0.12s;text-align:center}
+.add-match-btn:hover{border-color:rgba(22,101,52,0.3);color:var(--teal)}
+.add-match-btn:active{transform:scale(0.98)}
+/* ── SEASON TIMELINE ── */
+.tl-week{display:flex;align-items:center;margin-bottom:3px;border-radius:9px;overflow:hidden;cursor:pointer;border:1px solid transparent;transition:opacity 0.12s;min-height:38px}
+.tl-week:active{opacity:0.7}
+.tl-wnum{width:36px;flex-shrink:0;text-align:center;font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--tl)}
+.tl-wbody{flex:1;padding:6px 8px 6px 4px;min-height:38px;display:flex;flex-direction:column;justify-content:center}
+.tl-wdates{font-family:var(--mono);font-size:0.72rem;font-weight:600}
+.tl-wevents{display:flex;gap:4px;padding:0 8px;align-items:center;flex-shrink:0;min-width:36px;justify-content:flex-end}
+.tl-ev{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.58rem;font-weight:700;border:1.5px solid rgba(0,0,0,0.15);cursor:pointer;flex-shrink:0;transition:transform 0.12s}
+.tl-ev:active{transform:scale(0.85)}
+.tl-ev-add{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;border:1.5px dashed var(--bdr2);color:var(--tl);cursor:pointer;flex-shrink:0;transition:all 0.12s;background:transparent}
+.tl-ev-add:hover{border-color:var(--teal);color:var(--teal)}
+.tl-ev-add:active{transform:scale(0.85)}
+.tl-wlabel{font-family:var(--mono);font-size:0.7rem;margin-top:1px;opacity:0.85}
+.tl-week.cur .tl-wdates::after{content:'';}
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;gap:10px;text-align:center}
+.empty-icon{font-size:2.5rem;opacity:0.25}
+.empty-title{font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--tl)}
+.empty-sub{font-size:0.82rem;color:var(--tl);line-height:1.6;max-width:240px}
+/* ── MODAL ── */
+.modal-bg{position:absolute;inset:0;z-index:80;background:rgba(26,41,24,0.5);display:none;align-items:flex-end}
+.modal-bg.open{display:flex}
+.modal-sheet{background:var(--bg);border-radius:20px 20px 0 0;width:100%;padding:20px 18px 32px;max-height:85%;overflow-y:auto}
+.modal-handle{width:36px;height:3px;border-radius:2px;background:var(--s3);margin:0 auto 18px}
+.modal-title{font-size:0.9rem;font-weight:800;margin-bottom:16px}
+/* ── BOTTOM NAV ── */
+.bottom-nav{flex-shrink:0;display:flex;background:var(--s1);border-top:1px solid var(--bdr);padding:4px 0 2px}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;cursor:pointer;min-height:52px}
+.bn-icon{font-size:1.1rem;display:flex;align-items:center;justify-content:center}
+.bn-lbl{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--tl)}
+.bn-dot{width:3px;height:3px;border-radius:50%;background:transparent;margin-top:1px}
+.bn-item.on .bn-lbl{color:var(--coral)}
+.bn-item.on .bn-dot{background:var(--coral)}
+.bn-item.on .bn-icon svg{stroke:var(--coral)}
+
+.s-settings-wrap{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;padding-bottom:40px}
+.set-card{background:#fff;border:1px solid var(--bdr2);border-radius:11px;padding:0 16px;overflow:hidden}
+.set-section-lbl{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--tl);padding:12px 0 8px;border-bottom:1px solid var(--bdr2);margin-bottom:0}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bdr)}
+.set-row:last-child{border-bottom:none}
+.set-row-lbl{font-size:0.85rem;font-weight:700;color:var(--tx)}
+.set-row-val{font-family:var(--mono);font-size:0.82rem;color:var(--tl);max-width:55%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.set-code-block{background:var(--s1);border:1.5px dashed rgba(22,101,52,0.35);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;margin:8px 0 12px}
+.set-code-val{font-family:var(--mono);font-size:1.5rem;font-weight:700;letter-spacing:0.2em;color:var(--tx);flex:1}
+.set-code-copy{padding:8px 12px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-family:var(--sans);font-weight:700;font-size:0.8rem;cursor:pointer}
+.set-signout{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(220,38,38,0.3);background:rgba(220,38,38,0.06);color:var(--red);font-family:var(--sans);font-weight:700;font-size:0.88rem;cursor:pointer;margin:8px 0 4px}
+.set-delete{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(220,38,38,0.5);background:rgba(220,38,38,0.12);color:var(--red);font-family:var(--sans);font-weight:700;font-size:0.88rem;cursor:pointer;margin:0 0 4px}
+.del-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:none;align-items:center;justify-content:center;}
+.del-modal-overlay.open{display:flex;}
+.del-modal{background:#fff;border:1px solid var(--bdr2);border-radius:16px;padding:22px;width:320px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,0.18);}
+.del-modal-title{font-size:1rem;font-weight:800;color:var(--red);margin-bottom:6px;}
+.del-modal-body{font-size:0.82rem;color:var(--tm);line-height:1.6;margin-bottom:14px;}
+.del-modal-pw{width:100%;background:var(--s1);border:1.5px solid var(--bdr2);border-radius:8px;padding:10px 12px;font-size:0.88rem;color:var(--tx);outline:none;font-family:var(--sans);box-sizing:border-box;}
+.del-modal-pw:focus{border-color:var(--red);}
+.del-modal-status{font-size:0.75rem;min-height:18px;margin-top:8px;font-family:var(--mono);}
+.del-modal-actions{display:flex;gap:8px;margin-top:14px;}
+.del-modal-cancel{flex:1;padding:11px;border-radius:9px;border:1px solid var(--bdr2);background:var(--s1);color:var(--tx);font-family:var(--sans);font-weight:700;font-size:0.85rem;cursor:pointer;}
+.del-modal-confirm{flex:1;padding:11px;border-radius:9px;border:none;background:var(--red);color:#fff;font-family:var(--sans);font-weight:700;font-size:0.85rem;cursor:pointer;transition:opacity .15s;}
+.del-modal-confirm:disabled{opacity:0.5;cursor:not-allowed;}
+.tim-invite-card{background:rgba(22,101,52,0.05);border:1.5px dashed rgba(22,101,52,0.3);border-radius:10px;padding:12px 14px;margin:10px 14px 0;display:none;align-items:center;gap:10px}
+.tim-invite-card.visible{display:flex}
+.tim-invite-body{flex:1}
+.tim-invite-lbl{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl);margin-bottom:2px}
+.tim-invite-code{font-family:var(--mono);font-size:1.1rem;font-weight:700;letter-spacing:0.18em;color:var(--tx)}
+.tim-invite-copy{padding:7px 11px;border:none;border-radius:7px;background:var(--teal);color:#fff;font-family:var(--sans);font-weight:700;font-size:0.78rem;cursor:pointer;flex-shrink:0}
+
+.comp-banner{display:none;margin:0 14px 10px;border-radius:10px;padding:10px 12px;border:1.5px solid;align-items:center;gap:10px}
+.comp-banner.visible{display:flex}
+.comp-banner-body{flex:1;min-width:0}
+.comp-banner-title{font-size:0.9rem;font-weight:800;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-banner-meta{font-family:var(--mono);font-size:0.72rem;color:var(--tm);margin-top:2px}
+.comp-banner-result{font-family:var(--mono);font-size:0.72rem;font-weight:700;margin-top:3px}
+.comp-result-btn{flex-shrink:0;padding:7px 11px;border:none;border-radius:8px;font-family:'Epilogue',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;white-space:nowrap}
+.cr-sheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:2000;align-items:flex-end;justify-content:center}
+.cr-sheet.open{display:flex}
+.cr-sheet-inner{background:var(--s1);border-radius:16px 16px 0 0;padding:20px 18px 36px;width:100%;max-width:430px;max-height:90dvh;overflow-y:auto}
+.cr-sheet-title{font-size:0.95rem;font-weight:900;margin-bottom:2px}
+.cr-sheet-sub{font-family:var(--mono);font-size:0.68rem;color:var(--tl);margin-bottom:14px}
+.cr-lbl{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:5px;display:block}
+.cr-select{width:100%;padding:10px 12px;border:1px solid var(--bdr2);border-radius:9px;font-family:'Epilogue',sans-serif;font-size:0.9rem;background:var(--bg);color:var(--tx);margin-bottom:12px}
+.cr-textarea{width:100%;padding:10px 12px;border:1px solid var(--bdr2);border-radius:9px;font-family:'Epilogue',sans-serif;font-size:0.88rem;background:var(--bg);color:var(--tx);resize:none;height:70px;margin-bottom:14px}
+.cr-select:focus,.cr-textarea:focus{outline:none;border-color:var(--teal)}
+.cr-actions{display:flex;gap:8px}
+.cr-save{flex:1;padding:11px 0;border:none;border-radius:9px;background:var(--teal);color:#fff;font-family:'Epilogue',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer}
+.cr-cancel{padding:11px 16px;border:none;border-radius:9px;background:var(--s2);color:var(--tm);font-family:'Epilogue',sans-serif;font-weight:600;font-size:0.88rem;cursor:pointer}
+
+.ath-metrics{display:flex;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid var(--bdr)}
+.ath-metric{flex:1;text-align:center}
+.ath-metric-val{font-family:var(--mono);font-size:0.86rem;font-weight:700}
+.ath-metric-lbl{font-family:var(--mono);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--tl);margin-top:2px}
+.ath-trend{font-family:var(--mono);font-size:0.84rem;font-weight:700}
+/* ── Contextual Tooltips ── */
+.ctx-tip{display:flex;align-items:flex-start;gap:10px;background:rgba(20,184,166,0.07);border:1.5px solid rgba(20,184,166,0.28);border-radius:10px;padding:11px 13px;margin-bottom:10px;animation:ctx-tip-in 0.22s ease;}
+@keyframes ctx-tip-in{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.ctx-tip-icon{flex-shrink:0;margin-top:1px;color:var(--teal);}
+.ctx-tip-body{flex:1;font-size:0.84rem;color:var(--tm);line-height:1.6;}
+.ctx-tip-body strong{color:var(--text);}
+.ctx-tip-close{flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--tl);font-size:1rem;padding:0 2px;line-height:1;margin-top:-1px;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/firebase-config.js"></script>
+</head>
+<body>
+<script>firebase.initializeApp(FIREBASE_CONFIG);</script>
+<script src="../assets/auth-gate.js"></script>
+<div class="shell" id="shell">
+
+<!-- LOADING -->
+<div id="layer-loading">
+  <div class="ld-dot"></div>
+  <div class="ld-name">ADA SPORTS</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+</div>
+
+
+<!-- DAILY BRIEFING -->
+<div id="layer-briefing" style="flex-direction:column">
+  <div class="br-header">
+    <div class="br-date" id="br-date"></div>
+    <div class="br-greeting" id="br-greeting"></div>
+    <div class="br-phase" id="br-phase"></div>
+  </div>
+  <div class="br-body">
+    <div class="br-kpi-row">
+      <div class="br-kpi"><div class="br-kpi-val" id="bk-avg" style="color:var(--amber)">—</div><div class="br-kpi-lbl">Team avg</div></div>
+      <div class="br-kpi"><div class="br-kpi-val" id="bk-alerts" style="color:var(--red)">—</div><div class="br-kpi-lbl">Alerts</div></div>
+      <div class="br-kpi"><div class="br-kpi-val" id="bk-checkin" style="color:var(--teal)">—</div><div class="br-kpi-lbl">Check-in</div></div>
+      <div class="br-kpi"><div class="br-kpi-val" id="bk-sess" style="color:var(--green)">—</div><div class="br-kpi-lbl">Sessions</div></div>
+    </div>
+    <div class="br-section-lbl">Alerts</div>
+    <div id="br-alerts"></div>
+    <div id="br-today-sess" style="margin-top:8px"></div>
+  </div>
+  <div class="br-footer">
+    <button class="br-btn" onclick="enterApp()">Continue to Dashboard →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="layer-app" style="flex-direction:column">
+
+  <div class="topbar">
+    <div class="tb-left">
+      <div>
+        <div class="tb-title" id="app-screen-title">Overview</div>
+        <div class="tb-sub" id="app-sub"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="tb-alert-badge" class="tb-badge" style="display:none" onclick="goTab('tim')"></div>
+      <div class="tb-avatar" id="app-avatar" onclick="goTab('settings')" title="Settings">JP</div>
+    </div>
+  </div>
+
+  <!-- PREGLED -->
+  <div class="screen active" id="s-pregled">
+    <div class="sb">
+      <div class="sec">Team Pulse — Today</div>
+      <div class="pulse-row">
+        <div class="pc pc-green" data-filter="green" onclick="filterAndGo('green')"><div class="pc-num" id="pulse-g">0</div><div class="pc-lbl">Ready</div></div>
+        <div class="pc pc-amber" data-filter="amber" onclick="filterAndGo('amber')"><div class="pc-num" id="pulse-a">0</div><div class="pc-lbl">Caution</div></div>
+        <div class="pc pc-red" data-filter="red" onclick="filterAndGo('red')"><div class="pc-num" id="pulse-r">0</div><div class="pc-lbl">At Risk</div></div>
+      </div>
+      <div class="sec">Today's Session</div>
+      <div id="pregled-today-sess"></div>
+      <div class="sec">Alerts</div>
+      <div id="pregled-alerts"></div>
+    </div>
+  </div>
+
+  <!-- NEDELJNI PLAN -->
+  <div class="screen" id="s-nedeljni" style="flex-direction:column;overflow:hidden">
+    <div class="week-nav">
+      <div class="wn-arrow" onclick="changeWeek(-1)">←</div>
+      <div class="wn-center">
+        <div class="wn-title" id="wn-label"></div>
+        <div class="wn-range" id="wn-range"></div>
+      </div>
+      <div class="wn-arrow" onclick="changeWeek(1)">→</div>
+    </div>
+    <div class="week-strip" id="week-strip"></div>
+    <!-- Competition banner — shown when current week has a competition event -->
+    <div class="comp-banner" id="comp-banner">
+      <div class="comp-banner-body">
+        <div class="comp-banner-title" id="comp-banner-title"></div>
+        <div class="comp-banner-meta" id="comp-banner-meta"></div>
+        <div class="comp-banner-result" id="comp-banner-result"></div>
+      </div>
+      <button class="comp-result-btn" id="comp-result-btn" onclick="openCompResultSheet()"></button>
+    </div>
+
+    <!-- Competition result bottom sheet -->
+    <div class="cr-sheet" id="cr-sheet" onclick="if(event.target===this)closeCompResultSheet()">
+      <div class="cr-sheet-inner">
+        <div class="cr-sheet-title" id="cr-sheet-title">Competition Result</div>
+        <div class="cr-sheet-sub" id="cr-sheet-sub"></div>
+        <label class="cr-lbl">Placement</label>
+        <select class="cr-select" id="cr-placement">
+          <option value="">— Select result —</option>
+          <option>Gold</option>
+          <option>Silver</option>
+          <option>Bronze</option>
+          <option>4th place</option>
+          <option>5th-8th place</option>
+          <option>Did not place</option>
+          <option>Eliminated R1</option>
+          <option>Eliminated R2</option>
+          <option>Eliminated R3</option>
+          <option value="other">Other…</option>
+        </select>
+        <div id="cr-other-wrap" style="display:none;margin-top:-8px;margin-bottom:12px">
+          <label class="cr-lbl">Custom result</label>
+          <input type="text" class="cr-select" id="cr-other" placeholder="e.g. Top 16">
+        </div>
+        <label class="cr-lbl">Notes</label>
+        <textarea class="cr-textarea" id="cr-notes" placeholder="Performance notes, observations…"></textarea>
+        <div class="cr-actions">
+          <button class="cr-cancel" onclick="closeCompResultSheet()">Cancel</button>
+          <button class="cr-save" onclick="saveCompResultMobile()">Save Result</button>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;scrollbar-width:thin" id="sess-detail-wrap">
+      <div class="sb" id="sess-detail"></div>
+    </div>
+  </div>
+
+  <!-- TIM -->
+  <div class="screen" id="s-tim" style="flex-direction:column;overflow:hidden">
+    <div class="tim-invite-card" id="tim-invite-card">
+      <div class="tim-invite-body">
+        <div class="tim-invite-lbl">Invite Code</div>
+        <div class="tim-invite-code" id="tim-invite-code">——</div>
+      </div>
+      <button class="tim-invite-copy" onclick="copyTimInviteCode()">Copy</button>
+    </div>
+    <div class="filters" id="tim-filters">
+      <div class="fp on" data-filter="all" onclick="setFilter('all',this)">All</div>
+      <div class="fp red" data-filter="red" onclick="setFilter('red',this)">At Risk</div>
+      <div class="fp amber" data-filter="amber" onclick="setFilter('amber',this)">Caution</div>
+      <div class="fp" data-filter="green" onclick="setFilter('green',this)">Ready</div>
+    </div>
+    <div style="flex:1;overflow-y:auto" id="ath-list-wrap">
+      <div class="ath-list" id="ath-list"></div>
+    </div>
+  </div>
+
+  <!-- SEZONA -->
+  <div class="screen" id="s-sezona">
+    <div class="sb" id="sezona-content"></div>
+  </div>
+
+  <!-- MATCHES -->
+  <div class="screen" id="s-matches">
+    <div class="sb" id="matches-content"></div>
+  </div>
+
+  <!-- Add / Edit Match modal -->
+  <div class="modal-bg" id="modal-add-match">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="modal-title" style="margin:0" id="match-modal-title">Add Match</div>
+        <button id="match-delete-btn" style="display:none;font-family:var(--mono);font-size:0.7rem;color:var(--red);background:none;border:none;cursor:pointer;padding:4px 8px" onclick="deleteMatch()">&#x1F5D1; Delete</button>
+      </div>
+      <div class="sf-row"><div class="sf-lbl">Date</div><input class="sf-input" id="m-date" type="date"></div>
+      <div class="sf-row"><div class="sf-lbl">Opponent</div><input class="sf-input" id="m-opponent" placeholder="e.g. RK Budućnost" type="text"></div>
+      <div class="sf-row"><div class="sf-lbl">Venue</div>
+        <select class="sf-input" id="m-venue">
+          <option value="home">Home</option>
+          <option value="away">Away</option>
+          <option value="neutral">Neutral</option>
+        </select>
+      </div>
+      <div class="sf-row"><div class="sf-lbl">Type</div>
+        <select class="sf-input" id="m-matchType">
+          <option value="friendly">Friendly</option>
+          <option value="league" selected>League</option>
+          <option value="cup">Cup</option>
+          <option value="championship">Championship</option>
+        </select>
+      </div>
+      <div class="sf-row" id="m-result-row" style="display:none">
+        <div class="sf-lbl">Result</div>
+        <div style="display:flex;gap:5px;margin-top:2px">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;border:1.5px solid var(--bdr2);border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:0.6rem;color:var(--tl)"><input type="radio" name="m-res" value="" checked onchange="toggleScore()"> —</label>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;border:1.5px solid rgba(21,128,61,0.35);border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:0.6rem;color:var(--teal)"><input type="radio" name="m-res" value="W" style="accent-color:var(--teal)" onchange="toggleScore()"> Win</label>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;border:1.5px solid rgba(161,98,7,0.35);border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:0.6rem;color:var(--amber)"><input type="radio" name="m-res" value="D" style="accent-color:var(--amber)" onchange="toggleScore()"> Draw</label>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;border:1.5px solid rgba(220,38,38,0.35);border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:0.6rem;color:var(--red)"><input type="radio" name="m-res" value="L" style="accent-color:var(--red)" onchange="toggleScore()"> Loss</label>
+        </div>
+        <input class="sf-input" id="m-score" placeholder="e.g. 28:24" type="text" style="margin-top:6px;display:none">
+      </div>
+      <div class="action-row" style="margin-top:8px">
+        <button class="btn btn-secondary" onclick="closeModal('modal-add-match')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMatch()">Save →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATHLETE OVERLAY -->
+  <div class="overlay" id="ath-overlay">
+    <div class="ov-topbar">
+      <div class="ov-back" onclick="closeOverlay('ath-overlay')">←</div>
+      <div style="flex:1">
+        <div style="font-size:0.88rem;font-weight:800" id="ov-ath-name">Athlete</div>
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);margin-top:1px">← Athletes</div>
+      </div>
+      <div id="ov-ath-badge"></div>
+    </div>
+    <div class="ov-scroll" id="ov-ath-body"></div>
+  </div>
+
+  <!-- TRENING EDITOR OVERLAY -->
+  <div class="overlay" id="sess-overlay">
+    <div class="ov-topbar">
+      <div class="ov-back" onclick="closeOverlay('sess-overlay')">←</div>
+      <div style="flex:1">
+        <div style="font-size:0.88rem;font-weight:800" id="ov-sess-title">New Session</div>
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);margin-top:1px" id="ov-sess-date"></div>
+      </div>
+    </div>
+    <div class="ov-scroll">
+      <div class="sf-row">
+        <div class="sf-lbl">Session Type</div>
+        <div class="type-pills" id="sess-type-pills">
+          <div class="type-pill on" data-t="technique" onclick="setType(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Technique</div>
+          <div class="type-pill" data-t="strength" onclick="setType(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg> Strength</div>
+          <div class="type-pill" data-t="conditioning" onclick="setType(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Conditioning</div>
+          <div class="type-pill" data-t="tactics" onclick="setType(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg> Tactics</div>
+          <div class="type-pill" data-t="recovery" onclick="setType(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Recovery</div>
+          <div class="type-pill" data-t="competition" onclick="setType(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Competition</div>
+        </div>
+      </div>
+      <div class="sf-row">
+        <div class="sf-lbl">Session Objective</div>
+        <div id="sess-name-suggestions" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+        <input class="sf-input" id="sess-name-input" placeholder="Or enter a name..." type="text">
+      </div>
+      <div class="sf-row">
+        <div class="sf-lbl">Duration</div>
+        <div class="mob-dur-row">
+          <button class="mob-dur-btn" onclick="adjMobDur(-5)">&#x2212;</button>
+          <div class="mob-dur-num"><span id="dur-val">60</span> min</div>
+          <button class="mob-dur-btn" onclick="adjMobDur(5)">+</button>
+        </div>
+        <input type="hidden" id="dur-slider" value="60">
+      </div>
+      <div class="sf-row">
+        <div class="sf-lbl">RPE — <span id="rpe-zone" style="font-size:0.68rem;color:var(--tl);text-transform:none;letter-spacing:0;font-family:var(--mono);">Medium intensity</span></div>
+        <div class="mob-rpe-grid" id="mob-rpe-grid"></div>
+        <input type="hidden" id="rpe-slider" value="6">
+      </div>
+      <div class="tl-display">
+        <div><div class="tl-num" id="tl-display">360</div><div class="tl-label">Training Load (RPE × min)</div></div>
+        <div style="text-align:right;font-family:var(--mono);font-size:0.68rem;color:var(--tl)">TL = <span id="tl-formula">6 × 60</span></div>
+      </div>
+      <div class="sf-row" style="margin-top:12px">
+        <div class="sf-lbl">Notes for Athletes (optional)</div>
+        <textarea class="sf-input" id="sess-note-input" placeholder="Session focus, special instructions..." style="height:68px;resize:none;line-height:1.5"></textarea>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn-full" id="sess-publish-btn" onclick="publishSession()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Publish to Team</button>
+      <button class="btn-full" style="background:var(--s2);color:var(--tx);margin-top:8px;border:1px solid var(--bdr2)" onclick="saveDraft()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save as Draft</button>
+      <button class="btn-full" id="sess-delete-btn" style="background:rgba(220,38,38,0.07);color:var(--red);margin-top:8px;border:1px solid rgba(220,38,38,0.25);display:none" onclick="deleteSession()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete Session</button>
+    </div>
+  </div>
+
+
+  <!-- COMPETITION MODAL -->
+  <div class="modal-bg" id="comp-overlay" onclick="if(event.target===this)closeCampsModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/></svg> Competitions</div>
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:12px">Add competitions — they'll appear on the season grid and weekly plans.</div>
+      <div id="comp-list" style="margin-bottom:8px"></div>
+      <button id="comp-add-toggle" onclick="toggleCompAddForm()" style="width:100%;padding:9px;border-radius:8px;border:1.5px dashed var(--bdr2);background:transparent;font-family:var(--mono);font-size:0.72rem;color:var(--tl);cursor:pointer;margin-bottom:4px">+ Add Competition</button>
+      <div id="comp-add-form" style="display:none">
+        <div style="border-top:1px solid var(--bdr);padding-top:12px;margin-top:8px"></div>
+        <div class="sf-row"><div class="sf-lbl">Title</div><input class="sf-input" id="comp-title" type="text" placeholder="e.g. National Championship"></div>
+        <div class="sf-row"><div class="sf-lbl">Location</div><input class="sf-input" id="comp-location" type="text" placeholder="e.g. Budapest, Hungary"></div>
+        <div style="display:flex;gap:8px">
+          <div class="sf-row" style="flex:1"><div class="sf-lbl">Start date</div><input class="sf-input" id="comp-start" type="date" onchange="onCompStartChange();checkCompDatesMob()"></div>
+          <div class="sf-row" style="flex:1"><div class="sf-lbl">End date</div><input class="sf-input" id="comp-end" type="date" onchange="checkCompDatesMob()"></div>
+        </div>
+        <div id="comp-date-warn" style="display:none;font-family:var(--mono);font-size:0.65rem;color:var(--red);margin:-4px 0 8px">⚠ Outside season dates</div>
+        <div class="sf-row"><div class="sf-lbl">Importance</div>
+          <div id="comp-imp-pills-add" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px"></div>
+          <input type="hidden" id="comp-importance" value="1">
+        </div>
+        <div class="sf-row"><div class="sf-lbl">Targeted result</div><input class="sf-input" id="comp-target" type="text" placeholder="e.g. Top 3, Gold, Qualify for finals"></div>
+        <div class="action-row" style="margin-top:8px">
+          <button class="btn btn-secondary" onclick="toggleCompAddForm()">Cancel</button>
+          <button class="btn btn-primary" onclick="addCompetition()">Add Competition</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMP MODAL -->
+  <div class="modal-bg" id="camp-overlay" onclick="if(event.target===this)closeCampsModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/></svg> Camps</div>
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--tl);margin-bottom:12px">Add training camps — they'll appear on the season grid.</div>
+      <div id="camp-list" style="margin-bottom:10px"></div>
+      <div style="border-top:1px solid var(--bdr);padding-top:12px;margin-bottom:10px"></div>
+      <div class="sf-row"><div class="sf-lbl">Title</div><input class="sf-input" id="camp-title" type="text" placeholder="e.g. Altitude Training Camp"></div>
+      <div class="sf-row"><div class="sf-lbl">Location</div><input class="sf-input" id="camp-location" type="text" placeholder="e.g. Belmeken, Bulgaria"></div>
+      <div style="display:flex;gap:8px">
+        <div class="sf-row" style="flex:1"><div class="sf-lbl">Start date</div><input class="sf-input" id="camp-start" type="date" onchange="onCampStartChange()"></div>
+        <div class="sf-row" style="flex:1"><div class="sf-lbl">End date</div><input class="sf-input" id="camp-end" type="date"></div>
+      </div>
+      <div class="action-row" style="margin-top:8px">
+        <button class="btn btn-secondary" onclick="closeCampsModal()">Close</button>
+        <button class="btn btn-primary" onclick="addCamp()">Add Camp</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="phase-picker" style="display:none;flex-shrink:0;padding:10px 14px 12px;background:var(--bg);border-top:1.5px solid var(--bdr2);flex-direction:column;gap:0"></div>
+  <!-- SETTINGS SCREEN -->
+  <div class="screen" id="s-settings" style="flex-direction:column">
+    <div class="s-settings-wrap">
+      <div class="set-card">
+        <div class="set-section-lbl">Profile</div>
+        <div class="set-row"><div class="set-row-lbl">Name</div><div class="set-row-val" id="set-name">—</div></div>
+        <div class="set-row"><div class="set-row-lbl">Email</div><div class="set-row-val" id="set-email">—</div></div>
+        <div class="set-row"><div class="set-row-lbl">Role</div><div class="set-row-val">Coach</div></div>
+      </div>
+      <div class="set-card">
+        <div class="set-section-lbl">Athlete Invite Code</div>
+        <div style="font-size:0.78rem;color:var(--tl);line-height:1.5;padding:10px 0 0">Share this code with athletes to link them to your roster.</div>
+        <div class="set-code-block">
+          <div class="set-code-val" id="set-invite-code">——</div>
+          <button class="set-code-copy" onclick="copySettingsCode()">Copy</button>
+        </div>
+      </div>
+      <div class="set-card">
+        <div class="set-section-lbl">Account</div>
+        <button class="set-signout" onclick="doSignOut()">Sign Out</button>
+        <div style="height:1px;background:var(--bdr);margin:16px 0 12px;"></div>
+        <div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:8px;">Danger Zone</div>
+        <button class="set-delete" onclick="openDeleteModal()">Delete Account</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Delete Account Modal -->
+<div class="del-modal-overlay" id="del-modal-overlay" onclick="closeDeleteModal(event)">
+  <div class="del-modal" onclick="event.stopPropagation()">
+    <div class="del-modal-title">&#x26A0; Delete Account</div>
+    <div class="del-modal-body">This will permanently delete your account, season plan, weekly plans and unlink all your athletes. This cannot be undone.<br><br>Enter your password to confirm.</div>
+    <input class="del-modal-pw" type="password" id="del-modal-pw" placeholder="Your password" autocomplete="current-password">
+    <div class="del-modal-status" id="del-modal-status"></div>
+    <div class="del-modal-actions">
+      <button class="del-modal-cancel" onclick="document.getElementById('del-modal-overlay').classList.remove('open')">Cancel</button>
+      <button class="del-modal-confirm" id="del-modal-confirm" onclick="confirmDeleteAccount()">Delete</button>
+    </div>
+  </div>
+</div>
+
+  <div class="bottom-nav">
+    <div class="bn-item on" id="bn-pregled" onclick="goTab('pregled')">
+      <div class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="bn-lbl">Overview</div><div class="bn-dot"></div>
+    </div>
+    <div class="bn-item" id="bn-nedeljni" onclick="goTab('nedeljni')">
+      <div class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14" stroke-width="2.5"/><line x1="12" y1="14" x2="12.01" y2="14" stroke-width="2.5"/><line x1="16" y1="14" x2="16.01" y2="14" stroke-width="2.5"/></svg></div>
+      <div class="bn-lbl">Weekly</div><div class="bn-dot"></div>
+    </div>
+    <div class="bn-item" id="bn-tim" onclick="goTab('tim')">
+      <div class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="18" cy="8" r="2.5"/><path d="M21 21v-1.5a3.5 3.5 0 0 0-2.5-3.36"/></svg></div>
+      <div class="bn-lbl">Athletes</div><div class="bn-dot"></div>
+    </div>
+    <div class="bn-item" id="bn-sezona" onclick="goTab('sezona')">
+      <div class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14" stroke-width="2.5"/><line x1="12" y1="14" x2="12.01" y2="14" stroke-width="2.5"/><line x1="16" y1="14" x2="16.01" y2="14" stroke-width="2.5"/><line x1="8" y1="18" x2="8.01" y2="18" stroke-width="2.5"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg></div>
+      <div class="bn-lbl">Season</div><div class="bn-dot"></div>
+    </div>
+    <div class="bn-item" id="bn-matches" onclick="goTab('matches')">
+      <div class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12a14.5 14.5 0 0 0 20 0"/><path d="m4.93 4.93 14.14 14.14"/></svg></div>
+      <div class="bn-lbl">Matches</div><div class="bn-dot"></div>
+    </div>
+
+  </div>
+  </div>
+
+
+
+</div><!-- /layer-app -->
+
+</div><!-- /shell -->
+
+<script>
+/* ═══════════════════════════════════════
+   STATE — Firestore backed
+═══════════════════════════════════════ */
+var coach    = {};
+var athletes = [];
+var sessions = {};  // keyed by ISO date — local weekly plan cache
+var matches  = [];  // matchCalendar — synced with Firestore seasons/{orgId}.matchCalendar
+var editingMatchId = null;
+
+/* ═══════════════════════════════════════
+   UTILS
+═══════════════════════════════════════ */
+const DAYS_EN   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DOW_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function today(){ return toISO(new Date()); }
+function toISO(d){ return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
+function parseLocalDate(s){ var p=s.split('-'); return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])); }
+function p2(n){ return String(n).padStart(2,'0'); }
+function fmtDate(d){ return `${d.getDate()}. ${MONTHS_SHORT[d.getMonth()]}`; }
+function scoreColor(s){ return s === null ? 'var(--tl)' : s >= 71 ? 'var(--green)' : s >= 55 ? 'var(--amber)' : 'var(--red)'; }
+function scoreStatus(s){ return s === null ? 'none' : s >= 71 ? 'green' : s >= 55 ? 'amber' : 'red'; }
+
+// Overall status: combines readiness score, ACWR zone, and injury flag
+// Injury or score<55 or ACWR>1.5 → red; score<71 or ACWR<0.8 or ACWR>1.3 → amber; else green
+function overallStatus(a){
+  if(a.injury && a.injury.active) return 'red';
+  if(a.score === null || a.score === undefined) return 'none';
+  if(a.score < 55) return 'red';
+  var acwr = a.acwr;
+  if(acwr !== null && acwr !== undefined && acwr > 1.5) return 'red';
+  if(a.score < 71) return 'amber';
+  if(acwr !== null && acwr !== undefined && (acwr < 0.8 || acwr > 1.3)) return 'amber';
+  return 'green';
+}
+function overallStatusLabel(s){ return s==='green'?'Ready':s==='amber'?'Caution':s==='red'?'At Risk':'No Data'; }
+function overallStatusColor(s){ return s==='green'?'var(--green)':s==='amber'?'var(--amber)':s==='red'?'var(--red)':'var(--tl)'; }
+function initials(name){ return name.split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+const RPE_ZONES = ['','Very easy','Easy','Moderately easy','Moderate','Medium','Medium high','High','Very high','Maximum','Absolute max'];
+const TYPE_ICONS = {
+  technical:   '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  strength:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>',
+  conditioning:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+  tactical:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>',
+  sparring:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>',
+  recovery:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  competition: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+  match:       '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+  rest:        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+};
+const TYPE_COLORS = {technical:'var(--blue)',tactical:'var(--purple)',sparring:'var(--amber)',strength:'var(--red)',conditioning:'var(--green)',recovery:'var(--purple)',competition:'var(--coral)',match:'var(--coral)',rest:'var(--s3)'};
+
+// ── Prevent back gesture from leaving the app ────────────────────
+history.pushState(null, '', window.location.href);
+window.addEventListener('popstate', function(){
+  history.pushState(null, '', window.location.href);
+});
+
+window.addEventListener('ada:ready', function(e) {
+  var u = e.detail || {};
+  if (u.error) { show('layer-briefing'); return; }
+
+  // Populate coach from ADA_USER — no setup screen needed
+  coach = {
+    name:       u.name       || '',
+    orgId:      u.orgId      || '',
+    orgName:    u.orgName    || '',
+    discipline: u.discipline || '',
+    coachRole:  u.coachRole  || '',
+    uid:        u.uid        || ''
+  };
+
+  // Populate settings + invite cards
+  if(u.inviteCode){
+    var timCard=document.getElementById('tim-invite-card');
+    var timCode=document.getElementById('tim-invite-code');
+    if(timCard) timCard.classList.add('visible');
+    if(timCode) timCode.textContent=u.inviteCode;
+    var setCode=document.getElementById('set-invite-code');
+    if(setCode) setCode.textContent=u.inviteCode;
+  }
+  var setName=document.getElementById('set-name');
+  var setEmail=document.getElementById('set-email');
+  if(setName) setName.textContent=u.name||'—';
+  if(setEmail) setEmail.textContent=u.email||'—';
+  // Load assigned athletes from Firestore
+  loadAthletesFromFirestore(u);
+});
+
+function loadAthletesFromFirestore(u) {
+  var db = window.db;
+  if (!u.orgId) { enterApp(); return; }
+
+  var uids = Array.isArray(u.assignedAthletes) ? u.assignedAthletes : [];
+
+  if (uids.length === 0) {
+    athletes = [];
+    loadWeekPlan(u);
+    return;
+  }
+
+  // Firestore 'in' query limit is 30 — chunk if needed
+  var chunks = [];
+  for (var i = 0; i < uids.length; i += 30) chunks.push(uids.slice(i, i+30));
+
+  var allAthletes = [];
+  var pending = chunks.length;
+
+  chunks.forEach(function(chunk) {
+    db.collection('athletes').where('uid','in',chunk).get().then(function(snap) {
+      if (!snap.empty) {
+        snap.forEach(function(doc) {
+          allAthletes.push({ id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() });
+        });
+        pending--;
+        if (pending === 0) { athletes = allAthletes; loadCheckins(u); }
+      } else {
+        // Free-tier fallback: athletes live in users collection, not athletes collection
+        db.collection('users').where('uid','in',chunk).get().then(function(uSnap) {
+          uSnap.forEach(function(doc) {
+            allAthletes.push({ id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() });
+          });
+          pending--;
+          if (pending === 0) { athletes = allAthletes; loadCheckins(u); }
+        }).catch(function() {
+          pending--;
+          if (pending === 0) { athletes = allAthletes; loadWeekPlan(u); }
+        });
+      }
+    }).catch(function() {
+      pending--;
+      if (pending === 0) { athletes = allAthletes; loadWeekPlan(u); }
+    });
+  });
+}
+
+// ── Load stats — ported from coach-desktop, identical calculations ──
+// Helper: total TL from checkin doc — supports both old root-level and new sessions array
+function getTotalTL(doc){
+  if(doc.sessions&&doc.sessions.length) return doc.sessions.reduce(function(s,x){return s+(x.tl||0);},0);
+  return doc.tl||0;
+}
+
+function calcACWR(checkins) {
+  if (!checkins || !checkins.length) return null;
+  var now = Date.now(), ms7 = 7*86400000, ms28 = 28*86400000;
+  var acute = 0, c28 = 0;
+  checkins.forEach(function(ci) {
+    var d = new Date(ci.date).getTime(), tl = getTotalTL(ci);
+    if (now - d <= ms28) c28 += tl;
+    if (now - d <= ms7)  acute += tl;
+  });
+  var chronic = c28 / 4;
+  return chronic === 0 ? null : Math.round((acute / chronic) * 100) / 100;
+}
+
+function acwrColor(v) {
+  if (v === null)  return 'var(--tl)';
+  if (v < 0.8)     return '#3b82f6';
+  if (v <= 1.3)    return 'var(--green)';
+  if (v <= 1.5)    return 'var(--amber)';
+  return 'var(--red)';
+}
+
+function acwrZone(v) {
+  if (v === null)  return '—';
+  if (v < 0.8)     return 'Low';
+  if (v <= 1.3)    return 'Optimal';
+  if (v <= 1.5)    return 'Caution';
+  return 'High Risk';
+}
+
+function calcTrend(history) {
+  // history = array of {date, score} sorted desc, last 7 days
+  if (!history || history.length < 2) return null;
+  var latest = history[0].score;
+  var oldest = history[history.length - 1].score;
+  if (latest === null || oldest === null) return null;
+  return latest - oldest;
+}
+
+
+function loadCheckins(u) {
+  var db = window.db;
+  if (!db || athletes.length === 0) { loadWeekPlan(u); return; }
+  var todayStr = today();
+  var since28Str = (function(){
+    var d = new Date(); d.setDate(d.getDate()-28); return d.toISOString().slice(0,10);
+  })();
+  var pending = athletes.length;
+
+  athletes.forEach(function(a) {
+    // Fetch 28-day history in one query — covers today + ACWR + trend
+    db.collection('checkins').doc(a.uid||a.id).collection('sessions')
+      .where('date', '>=', since28Str)
+      .orderBy('date', 'desc')
+      .get().then(function(snap) {
+        var docs = snap.docs.map(function(d){ return d.data(); });
+        // Today's doc
+        var todayDoc = docs.find(function(d){ return d.date === todayStr; }) || null;
+        if (todayDoc) {
+          a.score      = todayDoc.score != null ? todayDoc.score
+                         : (todayDoc.sleep||todayDoc.fat||todayDoc.sor||todayDoc.stress||todayDoc.mood)
+                           ? Math.round(((todayDoc.sleep||0)+(todayDoc.fat||0)+(todayDoc.sor||0)+(todayDoc.stress||0)+(todayDoc.mood||0))/25*100)
+                           : null;
+          a.lastCheckin= todayDoc.date || todayStr;
+          // Only set wellness checkin if at least one wellness field is present
+          if (todayDoc.sleep||todayDoc.fat||todayDoc.sor||todayDoc.stress||todayDoc.mood) {
+            a.checkin = { sleep: todayDoc.sleep||0, fat: todayDoc.fat||0, sor: todayDoc.sor||0, stress: todayDoc.stress||0, mood: todayDoc.mood||0 };
+          }
+        }
+        // Build sessionLogs from docs — support both sessions[] array and legacy root fields
+        a.sessionLogs = {};
+        docs.forEach(function(d){
+          var totalTL = getTotalTL(d);
+          if(d.sessions && d.sessions.length){
+            // New format — multiple sessions
+            d.sessions.forEach(function(s){
+              var key = d.date+'_'+s.id;
+              a.sessionLogs[key] = {
+                date: d.date,
+                actualTl: s.tl||0,
+                actualRpe: s.rpe||0,
+                dur: s.duration||0,
+                type: s.type||'training',
+                name: s.name||'Training',
+                note: s.note||''
+              };
+            });
+          } else if(getTotalTL(d)){
+            a.sessionLogs[d.date] = {
+              date: d.date,
+              actualTl: totalTL,
+              actualRpe: d.rpe||0,
+              dur: d.duration||0,
+              type: d.type||'training',
+              name: d.name||'Training',
+              note: d.note||''
+            };
+          }
+        });
+        // ACWR from 28-day TL history
+        a.acwr    = calcACWR(docs);
+        // 7-day readiness trend — compute score from raw fields if pre-computed score absent
+        var hist7 = docs.filter(function(d){
+          return (Date.now() - new Date(d.date).getTime()) <= 7*86400000;
+        }).map(function(d){
+          var sc = d.score != null ? d.score
+            : (d.sleep||d.fat||d.sor||d.stress||d.mood)
+              ? Math.round(((d.sleep||0)+(d.fat||0)+(d.sor||0)+(d.stress||0)+(d.mood||0))/25*100)
+              : null;
+          return sc !== null ? { date: d.date, score: sc, tl: getTotalTL(d) } : null;
+        }).filter(Boolean);
+        a.trend = calcTrend(hist7);
+        a.hist7 = hist7; // store for overlay charts
+        // Store restHR: today's value + 7-day array
+        a.restHRToday = todayDoc && todayDoc.restHR ? todayDoc.restHR : null;
+        a.restHR7 = docs.filter(function(d){
+          return (Date.now() - new Date(d.date).getTime()) <= 7*86400000 && d.restHR && d.restHR > 0;
+        }).map(function(d){ return { date: d.date, hr: d.restHR }; });
+        pending--;
+        if (pending === 0) { loadInjuries(u); }
+      }).catch(function() {
+        pending--;
+        if (pending === 0) { loadInjuries(u); }
+      });
+  });
+}
+
+function loadInjuries(u) {
+  var db = window.db;
+  if (!db || athletes.length === 0) { loadWeekPlan(u); return; }
+  var pending = athletes.length;
+  athletes.forEach(function(a) {
+    db.collection('injuries').doc(a.uid).collection('reports')
+      .orderBy('createdAt', 'desc').limit(5).get()
+      .then(function(snap) {
+        if (!snap.empty) {
+          // Find most recent active injury
+          var active = snap.docs.map(function(d){ return d.data(); })
+            .find(function(r){ return r.active !== false; });
+          if (active) {
+            a.injury = {
+              region:   active.bodyPart || active.region || 'Unknown',
+              severity: active.severity === 'sev' ? 'Severe'
+                      : active.severity === 'mod' ? 'Moderate' : 'Mild',
+              active:   true,
+              date:     active.date || ''
+            };
+          }
+        }
+        pending--;
+        if (pending === 0) loadWeekPlan(u);
+      }).catch(function() {
+        pending--;
+        if (pending === 0) loadWeekPlan(u);
+      });
+  });
+}
+
+function loadWeekPlan(u) {
+  var db = window.db;
+  if (!db || !u.orgId) { enterApp(); return; }
+
+  db.collection('seasons').doc(u.orgId).get().then(function(snap) {
+    if (snap.exists) {
+      var d = snap.data();
+      loadSeasonFromSnap(d);
+      coach.seasonStart = d.startDate || null;
+
+      if (d.startDate) {
+        db.collection('seasons').doc(u.orgId).collection('microcycles').get()
+          .then(function(mSnap) {
+            var start    = parseLocalDate(d.startDate);
+            var startDow = start.getDay();
+            start.setDate(start.getDate() + (startDow === 0 ? -6 : 1 - startDow));
+            var DAY_KEYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            mSnap.forEach(function(doc) {
+              var weekIdx = doc.data().weekIdx;
+              var plan    = doc.data().plan || {};
+              var weekMon = new Date(start.getTime() + weekIdx*7*24*3600*1000);
+              DAY_KEYS.forEach(function(dk, i) {
+                var dayDate  = new Date(weekMon.getTime() + i*24*3600*1000);
+                var iso      = toISO(dayDate);
+                var nonRest  = (plan[dk]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
+                if (nonRest.length > 0) {
+                  sessions[iso] = nonRest.map(function(s){
+                    return { name:s.label||s.type||'Training', type:s.type||'technical',
+                      dur:s.duration||s.dur||60, rpe:s.rpe||6, note:s.note||'',
+                      status:'published', weekIdx:weekIdx, dayKey:dk };
+                  });
+                }
+              });
+            });
+            enterApp();
+          }).catch(function(err){ console.error('[ADA] microcycles read error:', err); enterApp(); });
+      } else {
+        enterApp();
+      }
+    } else {
+      // No season doc yet — coach hasn't set up a season on desktop.
+      // Set a sensible default so weekIdx calculations work correctly.
+      if (!coach.seasonStart) {
+        var defaultStart = new Date();
+        defaultStart.setDate(defaultStart.getDate() - defaultStart.getDay() + 1); // this Monday
+        coach.seasonStart = defaultStart.toISOString().slice(0,10);
+      }
+      enterApp();
+    }
+  }).catch(function(){ enterApp(); });
+}
+
+// Get week index from a date ISO string relative to season start
+function getWeekIdxForDate(isoDate) {
+  if (!coach.seasonStart) return 0;
+  var start = parseLocalDate(coach.seasonStart);
+  var startDow = start.getDay();
+  start.setDate(start.getDate() + (startDow === 0 ? -6 : 1 - startDow));
+  var target = parseLocalDate(isoDate);
+  return Math.max(0, Math.floor((target.getTime() - start.getTime()) / (7*24*3600*1000)));
+}
+
+// Convert mobile session type to desktop day plan format and save to Firestore
+function saveSessionToFirestore(iso, sessData, isNew) {
+  var db = window.db;
+  if (!db || !coach.orgId) return;
+  var weekIdx = sessData !== null && sessData.weekIdx !== undefined ? sessData.weekIdx : getWeekIdxForDate(iso);
+  var DAY_FALLBACK = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(iso).getDay() === 0 ? 6 : parseLocalDate(iso).getDay() - 1];
+  var dayKey  = (sessData && sessData.dayKey) ? sessData.dayKey : DAY_FALLBACK;
+  var docRef  = db.collection('seasons').doc(coach.orgId).collection('microcycles').doc('week_'+weekIdx);
+
+  // Read existing plan first to avoid overwriting other days
+  docRef.get().then(function(snap) {
+    var plan = snap.exists ? (snap.data().plan || {}) : {};
+    if (sessData === null) {
+      // Delete — restore to rest
+      plan[dayKey] = [{ id:'rest', type:'rest', duration:0, rpe:0, label:'', recommended:true }];
+    } else if (isNew) {
+      // Append new session to existing non-rest sessions
+      var existing = (plan[dayKey]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
+      existing.push({
+        id:       sessData.type + '_' + Date.now(),
+        type:     sessData.type,
+        label:    sessData.name,
+        duration: sessData.dur,
+        rpe:      sessData.rpe,
+        note:     sessData.note || '',
+      });
+      plan[dayKey] = existing;
+    } else {
+      // Edit — replace first session only, preserve others
+      var others = (plan[dayKey]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; }).slice(1);
+      var updated = [{
+        id:       sessData.type + '_' + Date.now(),
+        type:     sessData.type,
+        label:    sessData.name,
+        duration: sessData.dur,
+        rpe:      sessData.rpe,
+        note:     sessData.note || '',
+      }];
+      plan[dayKey] = updated.concat(others);
+    }
+    docRef.set({ weekIdx: weekIdx, plan: plan, updatedAt: new Date().toISOString() }, { merge: true })
+      .catch(function(e){ console.warn('saveSessionToFirestore:', e.message); });
+  }).catch(function(e){ console.warn('saveSessionToFirestore read:', e.message); });
+}
+
+function show(id){
+  ['layer-loading','layer-briefing','layer-app'].forEach(function(l){
+    var el = document.getElementById(l);
+    if(el) el.style.display = (l === id) ? 'flex' : 'none';
+  });
+}
+
+/* ═══════════════════════════════════════
+   BRIEFING
+═══════════════════════════════════════ */
+function enterApp(){
+  show('layer-briefing');
+  var now = new Date();
+  var h = now.getHours();
+  var greeting = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('br-date').textContent =
+    DAYS_EN[now.getDay()] + ' · ' + now.getDate() + ' ' + MONTHS_EN[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('br-greeting').innerHTML = greeting + ',<br><strong>' + (coach.name||'Coach') + '</strong>';
+  document.getElementById('br-phase').textContent = coach.orgName || coach.discipline || 'ADA Sports';
+
+  var checkedIn = athletes.filter(function(a){ return a.lastCheckin === today(); }).length;
+  var alerts = buildAlerts();
+  var todaySess = sessions[today()];
+  var weekSessions = getWeekDates(0).filter(function(d){ return sessions[d] && sessions[d].status === 'published'; }).length;
+  var scored = athletes.filter(function(a){ return a.score !== null && a.score !== undefined; });
+  var avgScore = scored.length > 0 ? Math.round(scored.reduce(function(s,a){ return s+(a.score||0); },0)/scored.length) : null;
+
+  document.getElementById('bk-avg').textContent = avgScore !== null ? avgScore : '—';
+  document.getElementById('bk-avg').style.color = avgScore !== null ? scoreColor(avgScore) : 'var(--tl)';
+  document.getElementById('bk-alerts').textContent = alerts.length;
+  document.getElementById('bk-alerts').style.color = alerts.length > 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('bk-checkin').textContent = athletes.length > 0 ? checkedIn+'/'+athletes.length : '—';
+  document.getElementById('bk-sess').textContent = weekSessions > 0 ? weekSessions : '—';
+
+  var alertsEl = document.getElementById('br-alerts');
+  if(alerts.length === 0){
+    alertsEl.innerHTML = '<div class="br-empty">✓ No critical alerts today</div>';
+  } else {
+    alertsEl.innerHTML = alerts.slice(0,3).map(function(a){
+      return '<div class="br-alert br-alert-'+a.type+'">'
+        +'<div class="br-adot br-adot-'+a.type+'"></div>'
+        +'<div class="ai-info"><div class="br-aname">'+a.name+'</div><div class="br-areason">'+a.reason+'</div></div>'
+        +'</div>';
+    }).join('');
+  }
+
+  var tsEl = document.getElementById('br-today-sess');
+  if(todaySess){
+    tsEl.innerHTML = '<div class="sess-card">'
+      +'<div class="sess-label">Today\'s session</div>'
+      +'<div class="sess-name">'+(todaySess.name||'Training')+'</div>'
+      +'<div class="sess-meta"><span>'+(TYPE_ICONS[todaySess.type]||'')+' '+todaySess.type+'</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+todaySess.dur+' min</span><span>RPE '+todaySess.rpe+'</span></div>'
+      +'</div>';
+  } else {
+    tsEl.innerHTML = '<div class="br-empty">No session scheduled for today</div>';
+  }
+}
+
+function enterApp(){
+  show('layer-app');
+  initApp();
+}
+
+/* ═══════════════════════════════════════
+   APP INIT
+═══════════════════════════════════════ */
+function initApp(){
+  document.getElementById('app-avatar').textContent = initials(coach.name||'A');
+  document.getElementById('app-sub').textContent = (coach.orgName||'') + (coach.discipline ? ' · '+coach.discipline : '');
+
+  var alerts = buildAlerts();
+  var badge = document.getElementById('tb-alert-badge');
+  if(alerts.length > 0){ badge.style.display=''; badge.textContent=alerts.length+' alerts'; }
+  else badge.style.display='none';
+
+  renderPregled();
+  renderNedeljni();
+  renderTim();
+  renderSeason();
+}
+
+/* ═══════════════════════════════════════
+   ALERTS
+═══════════════════════════════════════ */
+function buildAlerts(){
+  var list = [];
+  var todayStr = today();
+  athletes.forEach(function(a){
+    if(a.score !== null && a.score !== undefined && a.score < 55)
+      list.push({type:'red',   name:a.name, reason:'Readiness '+a.score+' — critical', id:a.id});
+    else if(a.acwr !== null && a.acwr !== undefined && a.acwr > 1.5)
+      list.push({type:'red',   name:a.name, reason:'ACWR '+a.acwr.toFixed(2)+' — overreach risk', id:a.id});
+    else if(a.score !== null && a.score !== undefined && a.score < 71)
+      list.push({type:'amber', name:a.name, reason:'Readiness '+a.score+' — caution', id:a.id});
+    if(a.injury && a.injury.active)
+      list.push({type:'amber', name:a.name, reason:'Active injury: '+a.injury.region, id:a.id});
+    if(!a.lastCheckin || a.lastCheckin !== todayStr)
+      list.push({type:'grey',  name:a.name, reason:'No check-in today', id:a.id});
+  });
+  return list;
+}
+
+/* ═══════════════════════════════════════
+   PREGLED
+═══════════════════════════════════════ */
+function renderPregled(){
+  // Pulse counts
+  const scored = athletes.filter(a => a.score !== null && a.score !== undefined);
+  const g = scored.filter(a => a.score >= 71).length;
+  const am = scored.filter(a => a.score >= 55 && a.score < 71).length;
+  const r = scored.filter(a => a.score < 55).length;
+  document.getElementById('pulse-g').textContent = g;
+  document.getElementById('pulse-a').textContent = am;
+  document.getElementById('pulse-r').textContent = r;
+
+  // Today's session
+  const tod = sessions[today()];
+  const ts = document.getElementById('pregled-today-sess');
+  if(tod){
+    ts.innerHTML = `<div class="sess-card" onclick="goTab('nedeljni')">
+      <div class="sess-label">${tod.status === 'published' ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Published' : tod.status === 'completed' ? '✓ Completed' : 'Draft'}</div>
+      <div class="sess-name">${tod.name||'Training'}</div>
+      <div class="sess-meta"><span>${TYPE_ICONS[tod.type]||''}</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${tod.dur} min</span><span>RPE ${tod.rpe}</span><span>TL ${tod.rpe*tod.dur}</span></div>
+    </div>`;
+  } else {
+    ts.innerHTML = `<div class="card" style="padding:12px;cursor:pointer" onclick="goTab('nedeljni')">
+      <div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl)">No session scheduled for today — </div>
+      <div style="font-family:var(--mono);font-size:0.72rem;color:var(--teal);margin-top:2px">+ Create session →</div>
+    </div>`;
+  }
+
+  // Alerts
+  const alerts = buildAlerts();
+  const ael = document.getElementById('pregled-alerts');
+  if(alerts.length === 0){
+    ael.innerHTML = `<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);padding:8px;background:var(--s1);border-radius:8px;text-align:center">✓ No alerts</div>`;
+  } else {
+    ael.innerHTML = alerts.map(a =>
+      `<div class="alert-item ai-${a.type}" style="margin-bottom:5px" onclick="openAthlete('${a.id}')">
+        <div class="ai-dot"></div>
+        <div class="ai-info"><div class="ai-name">${a.name}</div><div class="ai-reason">${a.reason}</div></div>
+        <span style="font-size:0.7rem;color:var(--tl)">›</span>
+      </div>`).join('');
+  }
+}
+
+/* ═══════════════════════════════════════
+   NEDELJNI PLAN
+═══════════════════════════════════════ */
+let weekOffset = 0;
+let selectedDay = 0; // 0=Mon index
+
+function getWeekDates(offset){
+  const now = new Date();
+  const dow = now.getDay();
+  const diffToMon = (dow === 0) ? -6 : 1 - dow;
+  const mon = new Date(now);
+  mon.setDate(mon.getDate() + diffToMon + (offset||weekOffset)*7);
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(mon); d.setDate(d.getDate()+i); return toISO(d);
+  });
+}
+
+function getWeekMon(offset){ const d = getWeekDates(offset); return d[0]; }
+
+function renderNedeljni(){
+  const dates = getWeekDates();
+  const mon = new Date(dates[0]);
+  const sun = new Date(dates[6]);
+  document.getElementById('wn-label').textContent =
+    weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : weekOffset === 1 ? 'Next Week' : (weekOffset > 0 ? '+' : '')+weekOffset+' weeks';
+  document.getElementById('wn-range').textContent = `${fmtDate(mon)} – ${fmtDate(sun)} · ${sun.getFullYear()}`;
+
+  const strip = document.getElementById('week-strip');
+  const todayISO = today();
+  const LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  strip.innerHTML = dates.map((iso, i) => {
+    const d = new Date(iso);
+    const sess = sessions[iso];
+    const sessArr = sess && sess.length > 0 ? sess : null;
+    // Check if this day falls within a competition or camp
+    const inComp = competitions.find(c => iso >= c.startDate && iso <= c.endDate);
+    const inCamp = !inComp && camps.find(c => iso >= c.startDate && iso <= c.endDate);
+    const evColor = inComp ? 'var(--amber)' : inCamp ? CAMP_COLOR : null;
+    const evBg = evColor ? `background:${evColor}18;` : '';
+    const evBorder = evColor ? `border-bottom:2px solid ${evColor};` : '';
+    const dot = sessArr
+      ? `<div class="dc-dot" style="background:${TYPE_COLORS[sessArr[0].type]||'var(--tl)'}"></div>`
+      : evColor
+        ? `<div class="dc-dot" style="background:${evColor};opacity:0.5"></div>`
+        : `<div class="dc-dot" style="background:transparent"></div>`;
+    return `<div class="day-cell${i===selectedDay?' sel':''}${iso===todayISO?' today':''}" onclick="selectDay(${i})" style="${evBg}${evBorder}">
+      <div class="dc-dow" style="${evColor?`color:${evColor};font-weight:700`:''}">${LABELS[i]}</div>
+      <div class="dc-date">${d.getDate()}</div>
+      ${dot}
+    </div>`;
+  }).join('');
+
+  renderSessDetail();
+  renderCompBanner();
+}
+
+function selectDay(i){
+  selectedDay = i;
+  renderNedeljni();
+}
+
+var crActiveCompId = null;
+
+function getWeekIdxFromOffset(offset) {
+  // Get the Monday of the displayed week, then find which season week it falls in
+  var mon = new Date();
+  var dow = mon.getDay();
+  mon.setDate(mon.getDate() + (dow===0 ? -6 : 1-dow) + (offset||weekOffset)*7);
+  return getWeekIdxForDate(toISO(mon));
+}
+
+function renderCompBanner() {
+  var banner   = document.getElementById('comp-banner');
+  var btnEl    = document.getElementById('comp-result-btn');
+  var titleEl  = document.getElementById('comp-banner-title');
+  var metaEl   = document.getElementById('comp-banner-meta');
+  var resultEl = document.getElementById('comp-banner-result');
+  if (!banner) return;
+
+  var wIdx = getWeekIdxFromOffset(weekOffset);
+  var comp = getCompetitionForWeek(wIdx);
+
+  if (!comp) {
+    banner.classList.remove('visible');
+    return;
+  }
+
+  var imp    = COMPETITION_IMPORTANCE[comp.importance] || { label:'Competition', color:'#f59e0b' };
+  var color  = imp.color;
+  banner.style.background   = color + '12';
+  banner.style.borderColor  = color + '55';
+  banner.classList.add('visible');
+
+  titleEl.textContent = comp.title;
+  titleEl.style.color = color;
+
+  var loc  = comp.location ? ' · ' + comp.location : '';
+  var dates = comp.startDate === comp.endDate
+    ? fmtDate(new Date(comp.startDate))
+    : fmtDate(new Date(comp.startDate)) + ' – ' + fmtDate(new Date(comp.endDate));
+  metaEl.textContent = imp.label + loc + ' · ' + dates;
+
+  if (comp.result) {
+    resultEl.textContent = comp.result + (comp.notes ? ' · ' + comp.notes : '');
+    resultEl.style.color = color;
+    btnEl.textContent = 'Edit Result';
+    btnEl.style.background = color + '18';
+    btnEl.style.color = color;
+    btnEl.style.border = '1px solid ' + color + '44';
+  } else {
+    resultEl.textContent = '';
+    btnEl.textContent = '+ Result';
+    btnEl.style.background = color;
+    btnEl.style.color = '#fff';
+    btnEl.style.border = 'none';
+  }
+  crActiveCompId = comp.id;
+}
+
+function openCompResultSheet() {
+  if (!crActiveCompId) return;
+  var comp = competitions.find(function(x){ return x.id === crActiveCompId; });
+  if (!comp) return;
+
+  document.getElementById('cr-sheet-title').textContent = comp.title;
+  var imp = COMPETITION_IMPORTANCE[comp.importance] || { label:'Competition' };
+  document.getElementById('cr-sheet-sub').textContent = imp.label +
+    (comp.location ? ' · ' + comp.location : '');
+
+  var sel = document.getElementById('cr-placement');
+  var otherWrap = document.getElementById('cr-other-wrap');
+  var otherInput = document.getElementById('cr-other');
+  var CR_OPTIONS = ['Gold','Silver','Bronze','4th place','5th-8th place','Did not place','Eliminated R1','Eliminated R2','Eliminated R3'];
+  var result = comp.result || '';
+  if (result && !CR_OPTIONS.includes(result)) {
+    sel.value = 'other';
+    otherWrap.style.display = 'block';
+    otherInput.value = result;
+  } else {
+    sel.value = result;
+    otherWrap.style.display = 'none';
+    otherInput.value = '';
+  }
+  document.getElementById('cr-notes').value = comp.notes || '';
+  document.getElementById('cr-sheet').classList.add('open');
+}
+
+function closeCompResultSheet() {
+  document.getElementById('cr-sheet').classList.remove('open');
+}
+
+document.getElementById('cr-placement').addEventListener('change', function() {
+  document.getElementById('cr-other-wrap').style.display =
+    this.value === 'other' ? 'block' : 'none';
+});
+
+function saveCompResultMobile() {
+  if (!crActiveCompId) { closeCompResultSheet(); return; }
+  var comp = competitions.find(function(x){ return x.id === crActiveCompId; });
+  if (!comp) { closeCompResultSheet(); return; }
+
+  var sel = document.getElementById('cr-placement').value;
+  var result = sel === 'other'
+    ? document.getElementById('cr-other').value.trim()
+    : sel;
+
+  if (result) comp.result = result; else delete comp.result;
+  var notes = document.getElementById('cr-notes').value.trim();
+  if (notes) comp.notes = notes; else delete comp.notes;
+
+  saveSeasonToFirestore();
+  closeCompResultSheet();
+  renderCompBanner();
+}
+
+
+function changeWeek(dir){
+  var now = new Date();
+  var dow = now.getDay();
+  var thisMon = new Date(now); thisMon.setDate(now.getDate() + (dow===0?-6:1-dow));
+  // Min offset: week containing season start
+  var minOffset = Math.floor((seasonStartDate.getTime() - thisMon.getTime()) / (7*24*3600*1000));
+  // Max offset: week containing season end
+  var maxOffset = Math.floor((seasonEndDate.getTime() - thisMon.getTime()) / (7*24*3600*1000));
+  weekOffset = Math.max(minOffset, Math.min(maxOffset, weekOffset + dir));
+  selectedDay = 0;
+  renderNedeljni();
+}
+
+function renderSessDetail(){
+  const dates = getWeekDates();
+  const iso = dates[selectedDay];
+  const sessArr = sessions[iso]; // now an array or undefined
+  const d = new Date(iso);
+  const todayISO = today();
+  const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const el = document.getElementById('sess-detail');
+
+  // shared athlete-responses block
+  function athleteResponsesHTML(){
+    if(!athletes||!athletes.length)return '';
+    var rows=athletes.map(function(a){
+      if(!a.sessionLogs)return '';
+      var sessList=Object.values(a.sessionLogs).filter(function(s){return s.date===iso;});
+      if(!sessList.length)return '';
+      return sessList.map(function(s){
+        return '<div style="padding:9px 11px;background:var(--s1);border-radius:8px;margin-bottom:4px">'
+          +'<div style="font-family:var(--mono);font-size:0.62rem;color:var(--tl);margin-bottom:4px">'+(a.name||'Athlete')+'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<div style="font-size:0.88rem;font-weight:800;flex:1">'+(s.name||s.type||'Training')+'</div>'
+          +'<div style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--teal)">TL '+s.actualTl+'</div>'
+          +'</div>'
+          +'<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tm);margin-top:3px">'+s.dur+' min · RPE '+s.actualRpe+'</div>'
+          +'</div>';
+      }).join('');
+    }).join('');
+    if(!rows)return '';
+    return '<div class="card" style="margin-top:8px"><div class="cb">'
+      +'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl);margin-bottom:8px">&#x2713; Athlete Responses</div>'
+      +rows+'</div></div>';
+  }
+
+  if(!sessArr || !sessArr.length){
+    var ttWeeklyMob = !localStorage.getItem('ada:tt:mob-weekly')
+      ? `<div class="ctx-tip" id="ctx-tip-mob-weekly">
+          <div class="ctx-tip-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="ctx-tip-body">Sessions planned on <strong>desktop</strong> appear here automatically. Run <strong>Auto Periodization</strong> on desktop first, or tap <strong>+ Create Session</strong> below to add one manually.</div>
+          <button class="ctx-tip-close" onclick="ctxTipDismiss('mob-weekly')" title="Dismiss">&#x2715;</button>
+        </div>` : '';
+    el.innerHTML = `<div class="sec">${LABELS[selectedDay]}, ${fmtDate(d)}</div>
+    ${ttWeeklyMob}
+    <div class="empty" style="padding:24px 0">
+      <div class="empty-icon" style="opacity:0.3"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="empty-title">No session</div>
+      <div class="empty-sub">No session scheduled for this day</div>
+    </div>
+    <button class="btn-full" onclick="openSessEditor(null, '${iso}')">+ Create Session</button>
+    ${athleteResponsesHTML()}`;
+  } else {
+    // Multiple sessions stacked — compute total TL across all
+    const totalTL = sessArr.reduce(function(sum, s){ return sum + (s.rpe * s.dur); }, 0);
+    const primarySess = sessArr[0];
+    const statusBadge = primarySess.status === 'completed'
+      ? `<span class="badge bg">&#x2713; Completed</span>`
+      : primarySess.status === 'published'
+      ? `<span class="badge bt"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Published</span>`
+      : `<span class="badge ba">Draft</span>`;
+
+    // Build stacked session cards
+    var sessionCards = sessArr.map(function(sess, idx){
+      var tl = sess.rpe * sess.dur;
+      var divider = idx > 0 ? '<div style="height:1px;background:var(--bdr);margin:6px 0"></div>' : '';
+      return divider + `<div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="width:3px;border-radius:2px;background:${TYPE_COLORS[sess.type]||'var(--teal)'};align-self:stretch;flex-shrink:0;margin-top:2px"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.95rem;font-weight:800;margin-bottom:2px">${sess.name||'Training'}</div>
+          <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:0.7rem;color:${TYPE_COLORS[sess.type]||'var(--teal)'};margin-bottom:6px">
+            ${TYPE_ICONS[sess.type]||''}<span style="text-transform:capitalize">${sess.type}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+            <div style="background:var(--s1);border-radius:7px;padding:7px 4px;text-align:center">
+              <div style="font-family:var(--mono);font-size:1rem;font-weight:700">${sess.dur}</div>
+              <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;color:var(--tl);margin-top:1px">min</div>
+            </div>
+            <div style="background:var(--s1);border-radius:7px;padding:7px 4px;text-align:center">
+              <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--coral)">${sess.rpe}</div>
+              <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;color:var(--tl);margin-top:1px">RPE</div>
+            </div>
+            <div style="background:var(--s1);border-radius:7px;padding:7px 4px;text-align:center">
+              <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--teal)">${tl}</div>
+              <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;color:var(--tl);margin-top:1px">TL</div>
+            </div>
+          </div>
+          ${sess.note ? `<div style="font-size:0.78rem;color:var(--tm);line-height:1.6;background:var(--s1);border-radius:7px;padding:8px 10px;margin-top:7px;border-left:2px solid var(--bdr2)">${sess.note}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Total TL row only shown when multiple sessions
+    var totalRow = sessArr.length > 1
+      ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr)">
+          <span style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:0.05em">Total TL</span>
+          <span style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--teal)">${totalTL}</span>
+        </div>` : '';
+
+    el.innerHTML = `<div class="sec">${LABELS[selectedDay]}, ${fmtDate(d)}</div>
+    <div class="card" style="border-left:3px solid ${TYPE_COLORS[primarySess.type]||'var(--teal)'}">
+      <div class="cb">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl)">${sessArr.length > 1 ? sessArr.length + ' Sessions' : '1 Session'}</span>
+          ${statusBadge}
+        </div>
+        ${sessionCards}
+        ${totalRow}
+        <div class="action-row" style="margin-top:12px">
+          <button class="btn btn-secondary" onclick="openSessEditor('${iso}', '${iso}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
+          ${primarySess.status === 'draft' ? `<button class="btn btn-primary" onclick="quickPublish('${iso}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Publish</button>` : ''}
+          ${primarySess.status !== 'completed' ? `<button class="btn btn-secondary" onclick="markCompleted('${iso}')">&#x2713; Complete</button>` : ''}
+        </div>
+      </div>
+    </div>
+    <button class="btn-full" style="background:var(--s2);color:var(--tx);border:1px solid var(--bdr2)" onclick="openSessEditor(null, '${iso}')">+ Add another session</button>
+    ${athleteResponsesHTML()}`;
+  }
+}
+
+
+let editingISO = null;
+let isNewSess = true;
+
+function openSessEditor(editISO, dateISO){
+  editingISO = dateISO;
+  isNewSess = !editISO || !sessions[editISO] || !sessions[editISO].length || editISO !== dateISO;
+  const d = new Date(dateISO);
+  const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const dayIdx = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(d.toLocaleString('en',{weekday:'short'}));
+  document.getElementById('ov-sess-title').textContent = isNewSess ? 'New Session' : 'Edit Session';
+  document.getElementById('ov-sess-date').textContent = `${LABELS[selectedDay]}, ${fmtDate(d)}`;
+
+  if(!isNewSess && sessions[dateISO] && sessions[dateISO].length){
+    const s = sessions[dateISO][0]; // edit always applies to first session on mobile
+    document.getElementById('sess-name-input').value = s.name||'';
+    document.getElementById('dur-slider').value = s.dur||60;
+    document.getElementById('dur-val').textContent = s.dur||60;
+    document.getElementById('rpe-slider').value = s.rpe||6;
+    // Set type pill
+    document.querySelectorAll('.type-pill').forEach(p => {
+      p.classList.toggle('on', p.dataset.t === s.type);
+    });
+    populateSuggestions(s.type||'technique');
+  } else {
+    document.getElementById('sess-name-input').value = '';
+    document.getElementById('dur-slider').value = 60;
+    document.getElementById('dur-val').textContent = 60;
+    document.getElementById('rpe-slider').value = 6;
+    document.getElementById('sess-note-input').value = '';
+    document.querySelectorAll('.type-pill').forEach((p,i) => p.classList.toggle('on', i===0));
+    populateSuggestions('technique');
+  }
+  updateTL();
+  document.getElementById('sess-delete-btn').style.display = isNewSess ? 'none' : '';
+  document.getElementById('sess-overlay').classList.add('open');
+}
+
+const TRAIN_SUGGESTIONS = {
+  technique: ['Individual Technique','Group Technique','Partner Technique','Video + Technique','Striking Technique','Combination Technique'],
+  strength:  ['General Strength','Explosive Power','Maximum Strength','Functional Strength','Upper Body Strength','Strength + Conditioning'],
+  conditioning: ['Aerobic Base','Interval Training','HIIT','Endurance','Sprint Training','Functional Conditioning'],
+  tactics:   ['Offensive Tactics','Defensive Tactics','Counter-attack Tactics','Set Pieces','Video Analysis + Tactics'],
+  recovery:  ['Active Recovery','Stretching','Swimming / Pool','Regeneration','Recovery + Massage','Light Movement'],
+  competition: ['Friendly Match','Pre-Match Preparation','Post-Match Analysis','Pre-Match Warmup','Pre-Match Tactical'],
+};
+
+function setType(el){
+  document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  populateSuggestions(el.dataset.t);
+}
+
+function populateSuggestions(type){
+  const box = document.getElementById('sess-name-suggestions');
+  if(!box) return;
+  const list = TRAIN_SUGGESTIONS[type] || [];
+  const current = document.getElementById('sess-name-input')?.value || '';
+  box.innerHTML = list.map(s =>
+    `<div onclick="selectSuggestion('${s}')" style="padding:5px 10px;border-radius:7px;border:1px solid var(--bdr2);background:${current===s?'var(--teal)':'var(--s1)'};color:${current===s?'#fff':'var(--tm)'};font-size:0.72rem;cursor:pointer;transition:all 0.12s">${s}</div>`
+  ).join('');
+}
+
+function selectSuggestion(name){
+  document.getElementById('sess-name-input').value = name;
+  populateSuggestions(getSelectedType());
+}
+function getSelectedType(){ return document.querySelector('.type-pill.on')?.dataset.t || 'technique'; }
+
+function adjMobDur(delta){
+  var el=document.getElementById('dur-slider');
+  var val=Math.max(15,Math.min(300,(+el.value||60)+delta));
+  el.value=val;
+  document.getElementById('dur-val').textContent=val;
+  updateTL();
+}
+
+function setMobRpe(val){
+  document.getElementById('rpe-slider').value=val;
+  updateTL();
+}
+
+function renderMobRpeGrid(){
+  var cur=+document.getElementById('rpe-slider').value||6;
+  var COLORS=['#4ade80','#86efac','#bef264','#fde68a','#fbbf24','#f97316','#fb923c','#f87171','#ef4444','#dc2626'];
+  var grid=document.getElementById('mob-rpe-grid');
+  if(!grid)return;
+  grid.innerHTML=[1,2,3,4,5,6,7,8,9,10].map(function(n){
+    var on=n===cur;
+    var c=COLORS[n-1];
+    return '<button class="mob-rpe-btn'+(on?' on':'')+'"'
+      +' style="'+(on?'background:'+c+';':'')+'color:'+(on?'#fff':c)+';border-color:'+(on?c:c+'55')+';"'
+      +' onclick="setMobRpe('+n+')">'+n+'</button>';
+  }).join('');
+}
+
+function updateTL(){
+  const dur = +document.getElementById('dur-slider').value;
+  const rpe = +document.getElementById('rpe-slider').value;
+  document.getElementById('dur-val').textContent = dur;
+  document.getElementById('rpe-zone').textContent = RPE_ZONES[rpe]||''; document.getElementById('rpe-zone').style.fontSize='0.62rem';
+  document.getElementById('tl-display').textContent = dur * rpe;
+  document.getElementById('tl-formula').textContent = `${rpe} × ${dur}`;
+  renderMobRpeGrid();
+}
+
+function collectSessData(status){
+  return {
+    type: getSelectedType(),
+    name: document.getElementById('sess-name-input').value.trim() || 'Training',
+    dur: +document.getElementById('dur-slider').value,
+    rpe: +document.getElementById('rpe-slider').value,
+    note: document.getElementById('sess-note-input').value.trim(),
+    status,
+    createdAt: new Date().toISOString()
+  };
+}
+
+function publishSession(){
+  if(!editingISO) return;
+  var sess = collectSessData('published');
+  sess.weekIdx = getWeekIdxForDate(editingISO);
+  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][new Date(editingISO).getDay() === 0 ? 6 : new Date(editingISO).getDay() - 1];
+  if(isNewSess){
+    if(!sessions[editingISO]) sessions[editingISO] = [];
+    sessions[editingISO] = sessions[editingISO].concat([sess]);
+  } else {
+    sessions[editingISO] = sessions[editingISO] && sessions[editingISO].length ? [sess].concat(sessions[editingISO].slice(1)) : [sess];
+  }
+  saveSessionToFirestore(editingISO, sess, isNewSess);
+  closeOverlay('sess-overlay');
+  renderNedeljni();
+  renderPregled();
+}
+
+function saveDraft(){
+  if(!editingISO) return;
+  var sess = collectSessData('draft');
+  sess.weekIdx = getWeekIdxForDate(editingISO);
+  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][new Date(editingISO).getDay() === 0 ? 6 : new Date(editingISO).getDay() - 1];
+  if(isNewSess){
+    if(!sessions[editingISO]) sessions[editingISO] = [];
+    sessions[editingISO] = sessions[editingISO].concat([sess]);
+  } else {
+    sessions[editingISO] = sessions[editingISO] && sessions[editingISO].length ? [sess].concat(sessions[editingISO].slice(1)) : [sess];
+  }
+  saveSessionToFirestore(editingISO, sess, isNewSess);
+  closeOverlay('sess-overlay');
+  renderNedeljni();
+  renderPregled();
+}
+
+function quickPublish(iso){
+  if(sessions[iso] && sessions[iso].length) {
+    sessions[iso].forEach(function(s){ s.status = 'published'; });
+    saveSessionToFirestore(iso, sessions[iso][0], false);
+    renderNedeljni(); renderPregled();
+  }
+}
+
+function markCompleted(iso){
+  if(sessions[iso] && sessions[iso].length) {
+    sessions[iso].forEach(function(s){ s.status = 'completed'; });
+    saveSessionToFirestore(iso, sessions[iso][0], false);
+    renderNedeljni(); renderPregled();
+  }
+}
+
+function deleteSession(){
+  if(!editingISO) return;
+  saveSessionToFirestore(editingISO, null);
+  delete sessions[editingISO];
+  closeOverlay('sess-overlay');
+  renderNedeljni();
+  renderPregled();
+}
+
+/* ═══════════════════════════════════════
+   TIM
+═══════════════════════════════════════ */
+let currentFilter = 'all';
+
+function setFilter(f, el){
+  currentFilter = f;
+  document.querySelectorAll('.fp').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderAthList();
+}
+
+function renderTim(){
+  renderAthList();
+}
+
+function renderAthList(){
+  const f = currentFilter;
+  const list = athletes.filter(a => {
+    if(f === 'all') return true;
+    return scoreStatus(a.score) === f;
+  }).sort((a,b) => (b.score??-1) - (a.score??-1));
+
+  const el = document.getElementById('ath-list');
+  if(athletes.length === 0){
+    var ttTeamMob = !localStorage.getItem('ada:tt:mob-team')
+      ? `<div class="ctx-tip" id="ctx-tip-mob-team" style="text-align:left;margin:0 0 10px">
+          <div class="ctx-tip-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="ctx-tip-body">Share your <strong>invite code</strong> with athletes — find it in <strong>Settings</strong>. Athletes enter it in the athlete app to link to your roster.</div>
+          <button class="ctx-tip-close" onclick="ctxTipDismiss('mob-team')" title="Dismiss">&#x2715;</button>
+        </div>` : '';
+    el.innerHTML = ttTeamMob + `<div class="empty"><div class="empty-icon" style="opacity:0.3"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx='9' cy='7' r='3'/><path d='M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2'/></svg></div><div class="empty-title">No athletes assigned</div><div class="empty-sub">Assign athletes via the admin app to start tracking</div><button class="btn-full" style="max-width:200px;margin-top:8px" </div>`;
+    return;
+  }
+  if(list.length === 0){
+    el.innerHTML = `<div class="empty"><div class="empty-icon" style="opacity:0.3"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg></div><div class="empty-title">No results</div><div class="empty-sub">No athletes in this category</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(a => {
+    const st = scoreStatus(a.score);
+    const sc = scoreColor(a.score);
+    const tags = [];
+    if(a.injury?.active) tags.push(`<span class="ath-tag br"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Injury</span>`);
+    if(a.score !== null && a.score !== undefined && a.score < 55) tags.push(`<span class="ath-tag br"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Critical</span>`);
+    if(a.lastCheckin !== today()) tags.push(`<span class="ath-tag ba">◌ Awaiting check-in</span>`);
+
+    var ost = overallStatus(a);
+    var osc = overallStatusColor(ost);
+    var osl = overallStatusLabel(ost);
+
+    return `<div class="ath-card ${st}" onclick="openAthlete('${a.id}')">
+      <div class="ath-score" style="background:${sc}15;border:2px solid ${sc}30;color:${sc}">
+        ${a.score !== null && a.score !== undefined ? a.score : '—'}
+      </div>
+      <div class="ath-info" style="flex:1">
+        <div class="ath-name">${a.name}</div>
+        <div class="ath-pos">${a.lastCheckin && a.lastCheckin === today() ? 'Checked in today' : a.lastCheckin ? 'Last: '+a.lastCheckin.slice(5) : 'No check-in'}</div>
+        ${tags.length ? `<div class="ath-tags">${tags.join('')}</div>` : ''}
+        <div style="margin-top:5px">
+          <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:${osc};background:${osc}15;border:1px solid ${osc}40;border-radius:5px;padding:2px 8px">${osl}</span>
+        </div>
+      </div>
+      <span style="font-size:0.7rem;color:var(--tl);align-self:flex-start;margin-top:2px">›</span>
+    </div>`;
+  }).join('');
+}
+
+function filterAndGo(filter){
+  currentFilter = filter;
+  goTab('tim');
+  document.querySelectorAll('.fp').forEach(function(p){
+    p.classList.remove('on');
+    var pf = p.getAttribute('data-filter') || p.classList[1] || '';
+    if(pf === filter) p.classList.add('on');
+  });
+  renderAthList();
+}
+
+/* ═══════════════════════════════════════
+   ATHLETE OVERLAY
+═══════════════════════════════════════ */
+function openAthlete(id){
+  const a = athletes.find(x => x.id === id);
+  if(!a) return;
+  const st = scoreStatus(a.score);
+  const sc = scoreColor(a.score);
+  const badgeCls = st==='green'?'bg':st==='amber'?'ba':st==='red'?'br':'';
+  document.getElementById('ov-ath-name').textContent = a.name;
+  document.getElementById('ov-ath-badge').innerHTML = a.score !== null && a.score !== undefined
+    ? `<span class="badge ${badgeCls}">${a.score}</span>` : '';
+
+  const ciHTML = a.checkin ? renderCheckin(a.checkin) : `<div class="br-empty">No check-in data for today</div>`;
+  var injHTML = a.injury && a.injury.active
+    ? '<div class="injury-item" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.18);border-radius:8px"><span style="display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div style="flex:1"><div style="font-size:0.72rem;font-weight:700;color:var(--red)">'+a.injury.region+' — '+(a.injury.severity||'Mild')+'</div><div style="font-family:var(--mono);font-size:0.74rem;color:var(--tm);margin-top:1px">Self-reported · Monitor</div></div><button class="badge br" onclick="clearInjury(\''+id+'\')" style="cursor:pointer;border:none;padding:3px 7px">Resolve</button></div>'
+    : '<div class="br-empty">✓ No active injuries</div>';
+
+  const todaySess = sessions[today()];
+  const athSess = a.sessionLogs?.[today()];
+
+  document.getElementById('ov-ath-body').innerHTML = (function(){
+    var todayStr = today();
+    var ciHTML = a.checkin ? renderCheckin(a.checkin) : '<div class="br-empty">No check-in today</div>';
+    var allSessEntries = Object.values(a.sessionLogs||{}).filter(function(s){return s.date===today();});
+    var latestSess = (function(){
+      if(!a.sessionLogs) return null;
+      var dates = Object.keys(a.sessionLogs).sort().reverse();
+      return dates.length ? a.sessionLogs[dates[0]] : null;
+    })();
+    var plannedSess = sessions ? sessions[today()] : null;
+    var SESS_TYPE_COLORS={'technical':'#3b82f6','tactical':'#8b5cf6','strength':'#ef4444','conditioning':'#22c55e','sparring':'#f59e0b','competition':'#FF6F61','match':'#FF6F61','recovery':'#06b6d4','rest':'#cbd5e1'};
+    var sessHTML = allSessEntries.length
+      ? allSessEntries.map(function(s, idx){
+          var rpeDiff = plannedSess ? (s.actualRpe - (plannedSess.rpe||0)) : null;
+          var devHTML = plannedSess
+            ? '<div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">'
+              + '<span style="font-family:var(--mono);font-size:0.6rem;padding:2px 7px;border-radius:5px;background:'+(Math.abs(rpeDiff)>=2?'rgba(239,68,68,0.1)':'rgba(34,197,94,0.1)')+';color:'+(rpeDiff>2?'var(--red)':rpeDiff<-2?'var(--amber)':'var(--green)')+'">RPE '+(rpeDiff>=0?'+':'')+rpeDiff+' vs plan</span>'
+              + '<span style="font-family:var(--mono);font-size:0.6rem;padding:2px 7px;border-radius:5px;background:var(--s1);color:var(--tl)">Planned: '+plannedSess.rpe+' RPE · '+plannedSess.dur+' min</span>'
+              + '</div>' : '';
+          return '<div style="background:var(--s1);border-radius:9px;padding:10px 12px;margin-bottom:6px;border-left:3px solid '+(SESS_TYPE_COLORS[s.type]||'var(--teal)')+';">'
+            + (allSessEntries.length>1?'<div style="font-family:var(--mono);font-size:0.68rem;color:var(--tl);margin-bottom:4px">Session '+(idx+1)+'</div>':'')
+            + '<div style="font-size:0.82rem;font-weight:700;margin-bottom:6px">'+s.name+'</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">'
+            + '<div style="background:var(--s2);border-radius:7px;padding:7px 4px;text-align:center"><div style="font-family:var(--mono);font-size:0.92rem;font-weight:700;color:var(--teal)">'+(s.actualTl||'—')+'</div><div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl);margin-top:2px">TL</div></div>'
+            + '<div style="background:var(--s2);border-radius:7px;padding:7px 4px;text-align:center"><div style="font-family:var(--mono);font-size:0.92rem;font-weight:700">'+(s.dur||'—')+'</div><div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl);margin-top:2px">min</div></div>'
+            + '<div style="background:var(--s2);border-radius:7px;padding:7px 4px;text-align:center"><div style="font-family:var(--mono);font-size:0.92rem;font-weight:700;color:var(--coral)">'+(s.actualRpe||'—')+'</div><div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl);margin-top:2px">RPE</div></div>'
+            + '</div>' + devHTML
+            + (s.note?'<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tm);margin-top:7px;line-height:1.5">'+s.note+'</div>':'')
+            + '</div>';
+        }).join('')
+      : (latestSess
+          ? '<div style="background:var(--s1);border-radius:9px;padding:10px 12px">'
+            + '<div style="font-size:0.82rem;font-weight:700;margin-bottom:6px">'+latestSess.name+'</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">'
+            + '<div style="background:var(--s2);border-radius:7px;padding:7px 4px;text-align:center"><div style="font-family:var(--mono);font-size:0.92rem;font-weight:700;color:var(--teal)">'+(latestSess.actualTl||'—')+'</div><div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl)">TL</div></div>'
+            + '<div style="background:var(--s2);border-radius:7px;padding:7px 4px;text-align:center"><div style="font-family:var(--mono);font-size:0.92rem;font-weight:700">'+(latestSess.dur||'—')+'</div><div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl)">min</div></div>'
+            + '<div style="background:var(--s2);border-radius:7px;padding:7px 4px;text-align:center"><div style="font-family:var(--mono);font-size:0.92rem;font-weight:700;color:var(--coral)">'+(latestSess.actualRpe||'—')+'</div><div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl)">RPE</div></div>'
+            + '</div>'+(latestSess.note?'<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tm);margin-top:7px">'+latestSess.note+'</div>':'')+'</div>'
+          : '<div class="br-empty">No sessions logged yet</div>');
+    var injHTML = a.injury && a.injury.active
+      ? '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.2);border-radius:10px">'
+        + '<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>'
+        + '<div style="flex:1"><div style="font-size:0.8rem;font-weight:700;color:var(--red)">'+a.injury.region+' — '+(a.injury.severity||'Mild')+'</div>'
+        + '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tm);margin-top:2px">Self-reported · Monitor</div></div>'
+        + '<button class="badge br" onclick="clearInjury(\x27'+id+'\x27)" style="cursor:pointer;border:none;padding:3px 8px;font-size:0.74rem">Resolve</button></div>'
+      : '<div class="br-empty">✓ No active injuries</div>';
+    // #2 — 7-day commitment (days with training logged / 7)
+    var hist7 = a.hist7 || [];
+    var trainedDays = hist7.filter(function(h){ return h.tl > 0; }).length;
+    var commitPct = hist7.length ? Math.round(trainedDays/7*100) : null;
+    var commitHTML = '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)">'
+      + '<div style="flex:1">'
+      + '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">7-Day Commitment</div>'
+      + '<div style="display:flex;gap:4px">'
+      + (function(){
+          var days7 = [];
+          for(var di=6;di>=0;di--){
+            var dd=new Date(); dd.setDate(dd.getDate()-di);
+            var iso=dd.toISOString().slice(0,10);
+            var h=hist7.find(function(x){return x.date===iso;});
+            var hasTL=h&&h.tl>0;
+            var isToday=iso===todayStr;
+            days7.push('<div title="'+iso+'" style="width:24px;height:24px;border-radius:5px;background:'+(hasTL?'var(--teal)':'var(--s2)')+';border:1.5px solid '+(isToday?'var(--teal)':'var(--bdr)')+';display:flex;align-items:center;justify-content:center">'
+              +(hasTL?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
+              +'</div>');
+          }
+          return days7.join('');
+        })()
+      + '</div></div>'
+      + '<div style="text-align:right;flex-shrink:0">'
+      + '<div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--teal)">'+(commitPct!==null?commitPct+'%':'—')+'</div>'
+      + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+(trainedDays)+'/7 days</div>'
+      + '</div></div>';
+
+    // #3 — this week's plan schedule with completion status
+    var weekDates = getWeekDates(0);
+    var DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var weekSchedHTML = '<div style="display:flex;flex-direction:column;gap:4px">'
+      + weekDates.map(function(iso, i){
+          var planned = sessions[iso] && sessions[iso].length ? sessions[iso][0] : null;
+          var loggedEntries = Object.values(a.sessionLogs||{}).filter(function(s){ return s.date===iso; });
+          var isLogged = loggedEntries.length > 0;
+          var isToday = iso === todayStr;
+          var isPast = iso < todayStr;
+          var tc = planned ? (TYPE_COLORS[planned.type]||'var(--teal)') : 'var(--s3)';
+          var statusIcon = isLogged
+            ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            : (planned && isPast ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+            : (planned ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' : ''));
+          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:7px;background:'+(isToday?'rgba(22,101,52,0.07)':'transparent')+';border:1px solid '+(isToday?'rgba(22,101,52,0.2)':'transparent')+'">'
+            + '<div style="font-family:var(--mono);font-size:0.72rem;color:'+(isToday?'var(--teal)':'var(--tl)')+';width:28px;font-weight:'+(isToday?'700':'400')+'">'+DAY_SHORT[i]+'</div>'
+            + (planned
+                ? '<div style="width:3px;height:28px;border-radius:2px;background:'+tc+';flex-shrink:0"></div>'
+                  + '<div style="flex:1;min-width:0">'
+                  + '<div style="font-size:0.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+planned.name+'</div>'
+                  + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+planned.dur+' min · RPE '+planned.rpe+'</div>'
+                  + '</div>'
+                : '<div style="flex:1;font-family:var(--mono);font-size:0.72rem;color:var(--tl)">Rest</div>')
+            + '<div style="flex-shrink:0;display:flex;align-items:center">'+statusIcon+'</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+
+    // #5 — mini charts: TL bars + readiness line (inline SVG)
+    var chartDays = 7;
+    var chartW = 280, chartH = 70, barW = 26, gap = 8;
+    var tlVals = [], rdVals = [];
+    for(var ci2=6;ci2>=0;ci2--){
+      var dd2=new Date(); dd2.setDate(dd2.getDate()-ci2);
+      var iso2=dd2.toISOString().slice(0,10);
+      var h2=hist7.find(function(x){return x.date===iso2;});
+      tlVals.push(h2?h2.tl:0);
+      rdVals.push(h2?h2.score:null);
+    }
+    var tlMax = Math.max.apply(null,tlVals.concat([1]));
+    var tlBars = tlVals.map(function(v,i){
+      var bh=Math.round((v/tlMax)*(chartH-16));
+      var x=i*(barW+gap);
+      return '<rect x="'+x+'" y="'+(chartH-16-bh)+'" width="'+barW+'" height="'+bh+'" rx="3" fill="var(--teal)" opacity="0.75"/>'
+        +'<text x="'+(x+barW/2)+'" y="'+(chartH-2)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">'+DAY_SHORT[i].slice(0,1)+'</text>';
+    }).join('');
+    var svgW=(barW+gap)*7-gap;
+    var tlChart='<svg width="100%" viewBox="0 0 '+svgW+' '+chartH+'" xmlns="http://www.w3.org/2000/svg">'+tlBars+'</svg>';
+
+    // readiness line
+    var rdPoints = rdVals.map(function(v,i){
+      var x2=i*(barW+gap)+barW/2;
+      var y2 = v!==null ? Math.round((1-v/100)*(chartH-20))+8 : null;
+      return {x:x2,y:y2,v:v};
+    });
+    var rdPath='', rdDots='';
+    rdPoints.forEach(function(p,i){
+      if(p.y===null) return;
+      if(rdPath==='') rdPath='M'+p.x+','+p.y; else rdPath+=' L'+p.x+','+p.y;
+      rdDots+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="'+(p.v>=71?'var(--green)':p.v>=55?'var(--amber)':'var(--red)')+'"/>';
+    });
+    var rdChart='<svg width="100%" viewBox="0 0 '+svgW+' '+chartH+'" xmlns="http://www.w3.org/2000/svg">'
+      +(rdPath?'<path d="'+rdPath+'" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-linejoin="round"/>':'')
+      +rdDots
+      +'</svg>';
+
+    // #6 — athlete note from most recent session log
+    var athNote = (function(){
+      if(!a.sessionLogs) return '';
+      var sorted = Object.values(a.sessionLogs).sort(function(x,y){ return y.date>x.date?1:-1; });
+      return sorted.length && sorted[0].note ? sorted[0].note : '';
+    })();
+
+    var S = function(lbl,body){ return '<div style="display:flex;flex-direction:column;gap:6px"><div class="sec" style="margin:0">'+lbl+'</div>'+body+'</div>'; };
+
+    // Resting HR section
+    var hrToday = a.restHRToday || null;
+    var hr7 = a.restHR7 || [];
+    var hr7vals = hr7.map(function(x){ return x.hr; });
+    var hr7avg = hr7vals.length ? Math.round(hr7vals.reduce(function(s,v){ return s+v; },0)/hr7vals.length) : null;
+    var hrElev = hrToday && hr7avg && (hrToday - hr7avg) >= 5;
+    var hrColor = hrElev ? 'var(--red)' : hrToday ? 'var(--green)' : 'var(--tl)';
+    var hrHTML = '<div class="card"><div class="cb">'
+      + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:'+(hr7vals.length>1?'10':'0')+'px">'
+      + '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;color:'+hrColor+'">'+(hrToday||'—')+'</div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:3px">bpm today</div></div>'
+      + '<div style="width:1px;height:36px;background:var(--bdr);flex-shrink:0"></div>'
+      + '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;color:var(--tl)">'+(hr7avg||'—')+'</div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:3px">7-day avg</div></div>'
+      + (hrElev
+          ? '<div style="flex:1;display:flex;align-items:center;gap:5px;background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:6px 8px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span style="font-family:var(--mono);font-size:0.65rem;color:var(--red);font-weight:600">+'+(hrToday-hr7avg)+' bpm vs avg</span></div>'
+          : '<div style="flex:1;font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+(hrToday?'Within normal range':'Not logged today')+'</div>')
+      + '</div>'
+      + (hr7vals.length > 1 ? (function(){
+          var maxHR=Math.max.apply(null,hr7vals), minHR=Math.min.apply(null,hr7vals), range=Math.max(maxHR-minHR,1);
+          var days7=[]; for(var di=6;di>=0;di--){var dd=new Date();dd.setDate(dd.getDate()-di);days7.push(dd.toISOString().slice(0,10));}
+          return '<div style="display:flex;align-items:flex-end;gap:4px;height:44px">'
+            +days7.map(function(iso){
+              var e=hr7.find(function(x){return x.date===iso;});
+              var v=e?e.hr:null;
+              var h=v?Math.max(4,Math.round(((v-minHR)/range)*28)+8):0;
+              var c=v?(hrElev&&v===hrToday?'var(--red)':'var(--teal)'):'transparent';
+              return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
+                +(v?'<div style="font-family:var(--mono);font-size:0.55rem;color:var(--tl)">'+v+'</div>':'')
+                +'<div style="width:100%;border-radius:2px;background:'+c+';height:'+h+'px"></div>'
+                +'<div style="font-family:var(--mono);font-size:0.55rem;color:var(--tl)">'+iso.slice(8)+'</div>'
+                +'</div>';
+            }).join('')+'</div>';
+        }()) : '')
+      + '</div></div>';
+
+    return ''
+      + S('Today&#x27;s Readiness', '<div class="card"><div class="cb">'+ciHTML+commitHTML+'</div></div>')
+      + S('This Week', '<div class="card"><div class="cb" style="padding:8px 10px">'+weekSchedHTML+'</div></div>')
+      + S('Latest Session', '<div class="card"><div class="cb">'+sessHTML+'</div></div>')
+      + S('Injuries', '<div>'+injHTML+'</div>')
+      + S('Resting HR', hrHTML)
+      + (function(){
+          // CARD 1: Resting HR 7-Day Trend
+          var hrC=hrElev?'var(--red)':hrToday?'var(--green)':'var(--tl)';
+          var hrChartHtml=(function(){
+            if(hr7vals.length<2) return '<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tl);padding:8px 0">No HR trend data yet.</div>';
+            var days7=[];for(var di=6;di>=0;di--){var dd=new Date();dd.setDate(dd.getDate()-di);days7.push(dd.toISOString().slice(0,10));}
+            var pts=days7.map(function(iso){var e=hr7.find(function(x){return x.date===iso;});return e?e.hr:null;});
+            var vals=pts.filter(function(v){return v!==null;});
+            var maxV=Math.max.apply(null,vals)+5,minV=Math.max(0,Math.min.apply(null,vals)-5),range=Math.max(maxV-minV,1);
+            var W=300,H=56,colW=Math.floor(W/7),toY=function(v){return Math.round(((maxV-v)/range)*(H-18))+4;};
+            var path='',dots='',avgLine='';
+            if(hr7avg!==null){var ay=toY(hr7avg);avgLine='<line x1="0" y1="'+ay+'" x2="'+W+'" y2="'+ay+'" stroke="var(--tl)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>';}
+            pts.forEach(function(v,i){
+              var cx=i*colW+colW/2;
+              if(v===null){dots+='<circle cx="'+cx+'" cy="'+(H/2)+'" r="3" fill="none" stroke="var(--bdr)" stroke-width="1.5"/>';return;}
+              var cy=toY(v),col=(hrElev&&v===hrToday)?'var(--red)':'var(--teal)';
+              if(path==='') path='M'+cx+','+cy;else path+=' L'+cx+','+cy;
+              dots+='<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="'+col+'"/>';
+              dots+='<text x="'+cx+'" y="'+(H-1)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">'+v+'</text>';
+            });
+            return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+avgLine+(path?'<path d="'+path+'" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round"/>':'')+dots+'</svg>';
+          })();
+          var card1='<div class="card"><div class="cb">'
+            +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+            +'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl)">Resting HR · 7-Day</div>'
+            +(hrElev?'<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:var(--red);background:rgba(220,38,38,0.1);padding:2px 8px;border-radius:10px">&#9650; +'+(hrToday-hr7avg)+' bpm · Overreaching</span>'
+              :(hrToday?'<span style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+hrToday+' bpm · avg '+(hr7avg||'—')+'</span>':'<span style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">Not logged today</span>'))
+            +'</div>'+hrChartHtml+'</div></div>';
+
+          // CARD 2: Training Load (ACWR + combined chart)
+          var acwrV=a.acwr!==null&&a.acwr!==undefined?a.acwr:null;
+          var acwrC2=acwrColor(acwrV),acwrLbl=acwrZone(acwrV),acwrDisp=acwrV!==null?acwrV.toFixed(2):'—';
+          var needleLeft=acwrV!==null?Math.min(95,Math.max(2,Math.round((acwrV/2)*100))):null;
+          var combinedHtml=(function(){
+            var days7=[];for(var di=6;di>=0;di--){var dd=new Date();dd.setDate(dd.getDate()-di);days7.push(dd.toISOString().slice(0,10));}
+            var DL=['M','T','W','T','F','S','S'],W2=300,H2=80,colW2=Math.floor(W2/7),barZone=34,rdZone=26,midGap=10;
+            var tlV2=days7.map(function(iso){var h=hist7.find(function(x){return x.date===iso;});return h?h.tl:0;});
+            var rdV2=days7.map(function(iso){var h=hist7.find(function(x){return x.date===iso;});return h&&h.score!=null?h.score:null;});
+            var tlMax2=Math.max.apply(null,tlV2.concat([1])),bars='',rdPts='',rdPathStr='';
+            tlV2.forEach(function(v,i){
+              var bh=v>0?Math.max(3,Math.round((v/tlMax2)*barZone)):0,x=i*colW2,cx=x+colW2/2,barTop=rdZone+midGap+barZone-bh;
+              bars+='<rect x="'+(x+5)+'" y="'+barTop+'" width="'+(colW2-10)+'" height="'+bh+'" rx="2" fill="var(--teal)" opacity="0.75"/>';
+              if(v>0) bars+='<text x="'+cx+'" y="'+(barTop-2)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--teal)">'+v+'</text>';
+              bars+='<text x="'+cx+'" y="'+(H2-1)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">'+DL[i]+'</text>';
+            });
+            rdV2.forEach(function(v,i){
+              var cx=i*colW2+colW2/2;
+              if(v===null){rdPts+='<circle cx="'+cx+'" cy="'+(rdZone/2)+'" r="3" fill="none" stroke="var(--bdr)" stroke-width="1.5"/>';return;}
+              var cy=Math.round((1-v/100)*rdZone)+2,col=v>=71?'var(--green)':v>=55?'var(--amber)':'var(--red)';
+              if(rdPathStr==='') rdPathStr='M'+cx+','+cy;else rdPathStr+=' L'+cx+','+cy;
+              rdPts+='<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="'+col+'"/>';
+            });
+            return '<svg width="100%" viewBox="0 0 '+W2+' '+H2+'" xmlns="http://www.w3.org/2000/svg">'
+              +'<text x="2" y="9" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">READINESS</text>'
+              +'<text x="2" y="'+(rdZone+midGap+12)+'" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">TL</text>'
+              +'<line x1="0" y1="'+(rdZone+midGap/2)+'" x2="'+W2+'" y2="'+(rdZone+midGap/2)+'" stroke="var(--bdr)" stroke-width="0.5"/>'
+              +(rdPathStr?'<path d="'+rdPathStr+'" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>':'')
+              +rdPts+bars+'</svg>';
+          })();
+          var card2='<div class="card"><div class="cb">'
+            +'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:10px">Training Load</div>'
+            +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">'
+            +'<div style="text-align:center;flex-shrink:0">'
+            +'<div style="font-family:var(--mono);font-size:2rem;font-weight:700;line-height:1;color:'+acwrC2+'">'+acwrDisp+'</div>'
+            +'<div style="font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl);margin-top:3px">ACWR</div>'
+            +'<div style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:'+acwrC2+';background:'+acwrC2+'18;padding:2px 9px;border-radius:10px;margin-top:5px">'+acwrLbl+'</div>'
+            +'</div>'
+            +'<div style="flex:1">'
+            +'<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--tl);margin-bottom:3px"><span>Under</span><span>Optimal</span><span>Risk</span></div>'
+            +'<div style="position:relative;height:8px;border-radius:4px;background:linear-gradient(to right,#3b82f6 0%,var(--green) 40%,var(--amber) 65%,var(--red) 100%)">'
+            +(needleLeft!==null?'<div style="position:absolute;top:-4px;left:'+needleLeft+'%;width:3px;height:16px;background:#1e293b;border-radius:2px;transform:translateX(-50%)"></div>':'')
+            +'</div>'
+            +'<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--tl);margin-top:3px"><span>0</span><span>0.8</span><span>1.3</span><span>2.0</span></div>'
+            +'</div></div>'
+            +'<div style="font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--tl);margin-bottom:6px">7-Day Readiness &amp; TL</div>'
+            +combinedHtml+'</div></div>';
+
+          // CARD 3: Workload Risk (Monotony + Strain)
+          // Build full 7-day TL array including 0 for rest/missing days — matches desktop calcMonotony
+          var tlArr=(function(){
+            var days7=[],arr=[];
+            for(var di=6;di>=0;di--){var dd=new Date();dd.setDate(dd.getDate()-di);days7.push(dd.toISOString().slice(0,10));}
+            days7.forEach(function(iso){
+              var h=hist7.find(function(x){return x.date===iso;});
+              arr.push(h&&h.tl!=null?h.tl:0);
+            });
+            return arr;
+          })();
+          var totalTL7=tlArr.reduce(function(s,v){return s+v;},0);
+          var mean7=totalTL7/7;
+          var sd7v=Math.sqrt(tlArr.map(function(v){return Math.pow(v-mean7,2);}).reduce(function(s,v){return s+v;},0)/7);
+          var mono=sd7v>0&&totalTL7>0?Math.round((mean7/sd7v)*100)/100:null;
+          var strn=mono!==null?Math.round(totalTL7*mono):null;
+          var mC2=mono===null?'var(--tl)':mono<1.0?'var(--green)':mono<2.0?'var(--amber)':'var(--red)';
+          var sC2=strn===null?'var(--tl)':strn<3000?'var(--green)':strn<6000?'var(--amber)':'var(--red)';
+          var riskSt=(mono!==null&&mono>=2.5)||(strn!==null&&strn>=6000)||(acwrV!==null&&acwrV>1.5)?'High Risk'
+            :(mono!==null&&mono>=2.0)||(strn!==null&&strn>=3000)||(acwrV!==null&&acwrV>1.3)?'Elevated':'Normal';
+          var riskCl=riskSt==='High Risk'?'var(--red)':riskSt==='Elevated'?'var(--amber)':'var(--green)';
+          var monoThumb=mono!==null?Math.min(95,Math.max(2,Math.round((mono/4)*100))):null;
+          var strnThumb=strn!==null?Math.min(95,Math.max(2,Math.round((strn/10000)*100))):null;
+          var card3='<div class="card"><div class="cb">'
+            +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+            +'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl)">Workload Risk · Foster</div>'
+            +'<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:'+riskCl+';background:'+riskCl+'18;padding:2px 9px;border-radius:10px">'+riskSt+'</span>'
+            +'</div>'
+            +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+            +'<div style="background:var(--s1);border-radius:9px;padding:10px 11px;border-left:3px solid '+mC2+'">'
+            +'<div style="font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--tl);margin-bottom:5px">Monotony</div>'
+            +'<div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;color:'+mC2+';margin-bottom:4px">'+(mono!==null?mono.toFixed(2):'—')+'</div>'
+            +'<div style="font-family:var(--mono);font-size:0.58rem;color:var(--tl);margin-bottom:7px">&lt;1.0 low · &gt;2.0 risk</div>'
+            +(monoThumb!==null?'<div style="position:relative;height:5px;border-radius:3px;background:linear-gradient(to right,var(--green) 0%,var(--amber) 50%,var(--red) 100%)"><div style="position:absolute;top:-5px;left:'+monoThumb+'%;width:3px;height:15px;background:#1e293b;border-radius:2px;transform:translateX(-50%)"></div></div>':'')
+            +'</div>'
+            +'<div style="background:var(--s1);border-radius:9px;padding:10px 11px;border-left:3px solid '+sC2+'">'
+            +'<div style="font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--tl);margin-bottom:5px">Strain Index</div>'
+            +'<div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;color:'+sC2+';margin-bottom:4px">'+(strn!==null?strn:'—')+'</div>'
+            +'<div style="font-family:var(--mono);font-size:0.58rem;color:var(--tl);margin-bottom:7px">&lt;3000 ok · &gt;6000 risk</div>'
+            +(strnThumb!==null?'<div style="position:relative;height:5px;border-radius:3px;background:linear-gradient(to right,var(--green) 0%,var(--amber) 30%,var(--red) 100%)"><div style="position:absolute;top:-5px;left:'+strnThumb+'%;width:3px;height:15px;background:#1e293b;border-radius:2px;transform:translateX(-50%)"></div></div>':'')
+            +'</div></div>'
+            +'<div style="font-family:var(--mono);font-size:0.6rem;color:var(--tl);margin-top:8px;text-align:right">Strain = Weekly TL × Monotony</div>'
+            +'</div></div>';
+
+          return card1+card2+card3;
+        })()
+      + (athNote ? S('Athlete&#x27;s Note', '<div class="card"><div class="cb"><div style="font-size:0.82rem;color:var(--tm);line-height:1.6">'+athNote+'</div></div></div>') : '')
+      + '<div style="height:24px"></div>';
+  })();
+  document.getElementById('ath-overlay').classList.add('open');
+
+  document.getElementById('ov-ath-body').scrollTop = 0;
+}
+
+function renderCheckin(ci){
+  var items = [
+    { lbl:'Sleep Quality',   val:ci.sleep  },
+    { lbl:'Fatigue Level',   val:ci.fat    },
+    { lbl:'Muscle Soreness', val:ci.sor    },
+    { lbl:'Stress Level',    val:ci.stress },
+    { lbl:'Mood',            val:ci.mood   },
+  ];
+  var bc = function(v){ return v >= 4 ? 'var(--green)' : v >= 3 ? 'var(--amber)' : 'var(--red)'; };
+  return '<div>'+items.map(function(it){
+    return '<div class="ci-row">'
+      +'<div class="ci-lbl">'+it.lbl+'</div>'
+      +'<div class="ci-bar"><div class="ci-fill" style="width:'+(it.val*20)+'%;background:'+bc(it.val)+'"></div></div>'
+      +'<div class="ci-val" style="color:'+bc(it.val)+'">'+it.val+'/5</div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+
+function saveNote(id){
+  var a = athletes.find(function(x){ return x.id === id; });
+  if(!a) return;
+  a.notes = document.getElementById('note-'+id)?.value || '';
+  var db = window.db;
+  if(db) {
+    db.collection('athletes').doc(id).update({ notes: a.notes }).catch(console.error);
+    db.collection('users').doc(id).update({ notes: a.notes }).catch(console.error);
+  }
+  var btn = event.target;
+  btn.textContent = '✓'; setTimeout(function(){ btn.textContent = 'Save'; }, 1400);
+}
+
+function clearInjury(id){
+  var a = athletes.find(function(x){ return x.id === id; });
+  if(!a || !a.injury) return;
+  a.injury.active = false;
+  var db = window.db;
+  if(db) db.collection('athletes').doc(id).update({ 'injury.active': false }).catch(console.error);
+  openAthlete(id); renderPregled();
+}
+
+function reportInjury(id){
+  var region = prompt('Body part (e.g. Left Knee):');
+  if(!region) return;
+  var sev = prompt('Severity (Mild / Moderate / Severe):') || 'Mild';
+  var a = athletes.find(function(x){ return x.id === id; });
+  if(!a) return;
+  a.injury = { region: region, severity: sev, active: true, date: today() };
+  var db = window.db;
+  if(db) db.collection('athletes').doc(id).update({ injury: a.injury }).catch(console.error);
+  openAthlete(id); renderPregled();
+}
+
+function removeAthlete(id){
+  if(!confirm('Remove athlete from roster?')) return;
+  athletes = athletes.filter(x => x.id !== id);
+  closeOverlay('ath-overlay');
+  renderTim();
+  renderPregled();
+}
+
+/* ═══════════════════════════════════════
+   ADD ATHLETE
+═══════════════════════════════════════ */
+function openAddAthlete(){
+  document.getElementById('aa-name').value='';
+  document.getElementById('aa-num').value='';
+  document.getElementById('modal-add-athlete').classList.add('open');
+}
+
+function addAthlete(){
+  alert('Athletes are managed by the admin. Use the Admin app to add athletes and assign them to your roster.');
+  closeModal('modal-add-athlete');
+}
+
+/* ═══════════════════════════════════════
+   SEASON PLAN — state (matches desktop)
+═══════════════════════════════════════ */
+var NUM_WEEKS    = 52;
+var seasonStartDate = new Date(new Date().getFullYear(), 5, 1);
+var seasonEndDate   = new Date(new Date(new Date().getFullYear(), 5, 1).getTime() + 52*7*24*3600*1000);
+var weekPhases   = Array(NUM_WEEKS).fill('none'); // index → 'off'|'prep'|'phys'|'precomp'|'comp'|'trans'|'none'
+var weekEvents   = {};   // weekIdx → { type, label, competitionId? | campId? }
+var competitions = [];   // { id, title, location, startDate, endDate, importance, target, result?, notes? }
+var camps        = [];   // { id, title, location, startDate, endDate }
+var SEASON_CURRENT_WEEK = 0;
+
+var COMPETITION_IMPORTANCE = {
+  1: { label:'Friendly',             color:'#94a3b8' },
+  2: { label:'Preparatory',          color:'#3b82f6' },
+  3: { label:'Qualification',        color:'#f59e0b' },
+  4: { label:'National Championship',color:'#8b5cf6' },
+  5: { label:'Major International',  color:'#FF6F61' },
+};
+var CAMP_COLOR = '#22c55e';
+
+var phaseConfig = {
+  none:    { label:'Undefined',       color:'#94a3b8' },
+  off:     { label:'Off-season',      color:'#64748b' },
+  prep:    { label:'General Prep',    color:'#3b82f6' },
+  phys:    { label:'Specific Prep',   color:'#8b5cf6' },
+  precomp: { label:'Pre-Competitive', color:'#f59e0b' },
+  comp:    { label:'Competitive',     color:'#FF6F61' },
+  trans:   { label:'Transition',      color:'#10b981' },
+};
+
+var phaseEditMode    = false;
+var activePhasePaint = null;
+var selectedWeeks    = new Set();
+
+function computeCurrentSeasonWeek() {
+  var diff = Date.now() - seasonStartDate.getTime();
+  SEASON_CURRENT_WEEK = Math.max(0, Math.min(NUM_WEEKS-1, Math.floor(diff/(7*24*3600*1000))));
+}
+
+function getWeeksForDateRange(startISO, endISO) {
+  var result = [];
+  var start  = new Date(startISO+'T12:00:00');
+  var end    = new Date(endISO+'T12:00:00');
+  for (var w = 0; w < NUM_WEEKS; w++) {
+    var ws = new Date(seasonStartDate.getTime() + w*7*24*3600*1000);
+    var we = new Date(ws.getTime() + 6*24*3600*1000);
+    if (ws <= end && we >= start) result.push(w);
+  }
+  return result;
+}
+
+function syncCompetitionEvents() {
+  Object.keys(weekEvents).forEach(function(w) {
+    if (weekEvents[w] && weekEvents[w].competitionId) delete weekEvents[w];
+  });
+  competitions.forEach(function(c) {
+    getWeeksForDateRange(c.startDate, c.endDate).forEach(function(w) {
+      if (!weekEvents[w] || weekEvents[w].competitionId) {
+        weekEvents[w] = { type:'match', label:c.title, competitionId:c.id };
+      }
+    });
+  });
+}
+
+function syncCampEvents() {
+  Object.keys(weekEvents).forEach(function(w) {
+    if (weekEvents[w] && weekEvents[w].campId) delete weekEvents[w];
+  });
+  camps.forEach(function(c) {
+    getWeeksForDateRange(c.startDate, c.endDate).forEach(function(w) {
+      if (!weekEvents[w] || weekEvents[w].campId) {
+        weekEvents[w] = { type:'camp', label:c.title, campId:c.id };
+      }
+    });
+  });
+}
+
+function getCompetitionForWeek(w) {
+  var ev = weekEvents[w];
+  if (!ev || !ev.competitionId) return null;
+  return competitions.find(function(c){ return c.id === ev.competitionId; }) || null;
+}
+
+function saveSeasonToFirestore() {
+  var db = window.db;
+  if (!db || !coach.orgId) return;
+  db.collection('seasons').doc(coach.orgId).set({
+    startDate:    toISO(seasonStartDate),
+    endDate:      toISO(seasonEndDate),
+    weekPhases:   weekPhases,
+    weekEvents:   weekEvents,
+    competitions: competitions,
+    camps:        camps,
+    updatedAt:    new Date().toISOString(),
+    updatedBy:    coach.uid || ''
+  }, { merge: true }).catch(function(e){ console.warn('saveSeasonToFirestore:', e.message); });
+}
+
+function loadSeasonFromSnap(d) {
+  if (d.startDate)      seasonStartDate = parseLocalDate(d.startDate);
+  if (d.endDate)        seasonEndDate   = parseLocalDate(d.endDate);
+  if (d.weekPhases)     weekPhases      = d.weekPhases;
+  if (d.weekEvents)     weekEvents      = d.weekEvents   || {};
+  if (d.competitions)   competitions    = d.competitions || [];
+  if (d.camps)          camps           = d.camps        || [];
+  if (d.matchCalendar)  matches         = d.matchCalendar || [];
+  syncCompetitionEvents();
+  syncCampEvents();
+  computeCurrentSeasonWeek();
+}
+
+function getAllWeeks() {
+  var d = new Date(seasonStartDate.getTime());
+  var dow = d.getDay();
+  d.setDate(d.getDate() + (dow===0 ? -6 : 1-dow));
+  return Array.from({length:NUM_WEEKS}, function(_,i) {
+    var m = new Date(d.getTime()); m.setDate(m.getDate()+i*7);
+    var s = new Date(m.getTime()); s.setDate(s.getDate()+6);
+    return { label:'W'+(i+1), idx:i, mon:toISO(m), sun:toISO(s) };
+  });
+}
+
+function renderSeason() {
+  computeCurrentSeasonWeek();
+  var todayISO = today();
+  var el = document.getElementById('sezona-content');
+  var weeks = getAllWeeks();
+  var html = '';
+
+  // ── Season dates card ──
+  html += '<div class="card" style="margin-bottom:8px"><div class="cb" style="padding:10px 12px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+    +'<div class="sec" style="margin:0">Season</div>'
+    +'<div style="display:flex;gap:6px">'
+    +'<button onclick="openCompetitionsModal()" style="font-family:var(--mono);font-size:0.74rem;padding:6px 11px;border:1px solid rgba(255,111,97,0.4);border-radius:6px;background:rgba(255,111,97,0.08);color:#FF6F61;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/></svg> Competitions</button>'
+    +'<button onclick="openCampsModal()" style="font-family:var(--mono);font-size:0.74rem;padding:6px 11px;border:1px solid rgba(34,197,94,0.4);border-radius:6px;background:rgba(34,197,94,0.08);color:'+CAMP_COLOR+';cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/></svg> Camps</button>'
+    +'</div></div>'
+    +'<div style="display:flex;gap:8px;align-items:flex-end">'
+    +'<div style="flex:1"><div style="font-family:var(--mono);font-size:0.74rem;color:var(--tl);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em">Start</div>'
+    +'<input class="sf-input" id="sd-start" type="date" value="'+toISO(seasonStartDate)+'" style="padding:7px 10px;font-size:0.72rem"></div>'
+    +'<div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);align-self:center;padding-bottom:2px">52 weeks</div>'
+    +'<button class="btn btn-primary" style="flex-shrink:0;padding:8px 12px;font-size:0.7rem" onclick="applySeasonDates()">OK</button>'
+    +'</div></div></div>';
+
+  // ── Phase legend ──
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+  Object.entries(phaseConfig).filter(function(e){ return e[0]!=='none'; }).forEach(function(e) {
+    html += '<div style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:0.74rem;color:'+e[1].color+'">'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:'+e[1].color+'"></div>'+e[1].label+'</div>';
+  });
+  html += '</div>';
+
+  // ── Phase edit controls ──
+  if (!phaseEditMode) {
+    html += '<div style="display:flex;gap:6px;margin-bottom:8px">'
+      +'<button onclick="enterPhaseEditMode()" style="font-family:var(--mono);font-size:0.74rem;color:var(--teal);background:none;border:1px solid rgba(22,101,52,0.3);border-radius:6px;padding:8px 14px;min-height:36px;cursor:pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Paint Phases</button>'
+      +'</div>';
+  }
+
+  // ── Week strip ──
+  weeks.forEach(function(w) {
+    var isTW  = todayISO >= w.mon && todayISO <= w.sun;
+    var phase = weekPhases[w.idx] || 'none';
+    var pc    = phaseConfig[phase] || phaseConfig['none'];
+    var ev    = weekEvents[w.idx];
+    var isNone = phase === 'none';
+    var bg    = isNone ? 'var(--s1)' : pc.color+'18';
+    var bdr   = isNone ? 'var(--bdr)' : pc.color+'60';
+    var numC  = isNone ? 'var(--tl)' : pc.color;
+    var outline = (phaseEditMode && selectedWeeks.has(w.idx)) ? 'outline:2px solid var(--coral);outline-offset:-2px;' : '';
+
+    var evDot = '';
+    if (ev) {
+      if (ev.type==='match') evDot = '<div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(255,111,97,0.2);flex-shrink:0" title="'+(ev.label||'Competition')+'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF6F61" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></div>';
+      else if (ev.type==='camp') evDot = '<div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(34,197,94,0.15);flex-shrink:0" title="'+(ev.label||'Camp')+'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="'+CAMP_COLOR+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/></svg></div>';
+    }
+    var compForWeek = getCompetitionForWeek(w.idx);
+    var impBadge = '';
+    if (compForWeek) {
+      var imp = COMPETITION_IMPORTANCE[compForWeek.importance] || COMPETITION_IMPORTANCE[1];
+      impBadge = '<div style="font-family:var(--mono);font-size:0.6rem;color:'+imp.color+';font-weight:700;margin-top:1px">'+imp.label.split(' ')[0]+'</div>';
+    }
+
+    var onclick = phaseEditMode
+      ? 'toggleWeekSelect('+w.idx+')'
+      : 'jumpToWeek(\''+w.mon+'\')';
+
+    html += '<div class="tl-week'+(isTW?' cur':'')+'" data-week="'+w.idx+'" '
+      +'style="background:'+(isTW?'rgba(22,101,52,0.08)':bg)+';border-color:'+(isTW?'var(--teal)':bdr)+';'+(isTW?'border-width:2px;border-left:4px solid var(--teal);':'')+outline+'" '
+      +'onclick="'+onclick+'" oncontextmenu="event.preventDefault();enterPhaseEditMode()">'
+      +'<div class="tl-wnum" style="color:'+(isTW?'var(--teal)':numC)+';font-weight:'+(isTW?'800':'600')+'">'
+      +(isTW?'<div style="font-family:var(--mono);font-size:0.65rem;font-weight:800;color:var(--teal);letter-spacing:0.05em;line-height:1">NOW</div>':'')
+      +w.label+'</div>'
+      +'<div class="tl-wbody">'
+      +'<div class="tl-wdates" style="color:'+(isNone?'var(--tm)':pc.color+'dd')+'">'+fmtWeekRange(w.mon,w.sun)+'</div>'
+      +(isNone?'':'<div class="tl-wlabel" style="color:'+pc.color+'99">'+pc.label+'</div>')
+      +impBadge
+      +'</div>'
+      +'<div class="tl-wevents">'+evDot+'</div>'
+      +'</div>';
+  });
+
+  el.innerHTML = html;
+
+  // Phase picker bar
+  var picker = document.getElementById('phase-picker');
+  if (picker) { picker.style.display = phaseEditMode ? 'flex' : 'none'; if (phaseEditMode) renderPhasePicker(); }
+}
+
+
+function applySeasonDates() {
+  var s = document.getElementById('sd-start')?.value;
+  if (!s) { alert('Please enter a start date'); return; }
+  seasonStartDate = parseLocalDate(s);
+  seasonEndDate   = new Date(seasonStartDate.getTime() + 52*7*24*3600*1000);
+  syncCompetitionEvents();
+  syncCampEvents();
+  saveSeasonToFirestore();
+  renderSeason();
+}
+
+function enterPhaseEditMode() {
+  phaseEditMode    = true;
+  activePhasePaint = null;
+  selectedWeeks    = new Set();
+  renderSeason();
+}
+
+function cancelPhaseEdit() {
+  phaseEditMode = false;
+  selectedWeeks = new Set();
+  renderSeason();
+}
+
+function savePhaseMap() {
+  phaseEditMode = false;
+  selectedWeeks = new Set();
+  saveSeasonToFirestore();
+  renderSeason();
+}
+
+function setActivePaint(phaseKey) {
+  activePhasePaint = phaseKey;
+  renderPhasePicker();
+}
+
+function toggleWeekSelect(idx) {
+  idx = parseInt(idx);
+  if (selectedWeeks.has(idx)) selectedWeeks.delete(idx);
+  else selectedWeeks.add(idx);
+  renderPhasePicker();
+  // Update outline directly
+  var row = document.querySelector('[data-week="'+idx+'"]');
+  if (row) row.style.outline = selectedWeeks.has(idx) ? '2px solid var(--coral)' : '';
+}
+
+function applyPhaseToSelected() {
+  selectedWeeks.forEach(function(idx) {
+    if (activePhasePaint) weekPhases[idx] = activePhasePaint;
+    else weekPhases[idx] = 'none';
+  });
+  selectedWeeks = new Set();
+  renderSeason();
+}
+
+function renderPhasePicker() {
+  var pk = document.getElementById('phase-picker'); if (!pk) return;
+  var selCount = selectedWeeks.size;
+  var phasePills = Object.entries(phaseConfig).filter(function(e){ return e[0]!=='none'; }).map(function(e) {
+    var active = activePhasePaint === e[0];
+    return '<div style="padding:7px 12px;border-radius:20px;border:2px solid '+(active?e[1].color:'transparent')+';background:'+e[1].color+'18;color:'+e[1].color+';font-family:var(--mono);font-size:0.68rem;font-weight:600;cursor:pointer;padding:8px 14px;min-height:36px" onclick="setActivePaint(\''+e[0]+'\')">'+e[1].label.split(' ')[0]+'</div>';
+  }).join('');
+
+  pk.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;width:100%;padding:4px 0">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between">'
+    +'<span style="font-family:var(--mono);font-size:0.68rem;font-weight:600;color:var(--tx)">'+(selCount?selCount+' weeks selected':'Select weeks →')+'</span>'
+    +'<div style="display:flex;gap:5px">'
+    +'<button onclick="cancelPhaseEdit()" style="font-family:var(--mono);font-size:0.68rem;padding:8px 14px;border:1px solid var(--bdr2);border-radius:7px;background:var(--s2);cursor:pointer;color:var(--tm)">✕ Cancel</button>'
+    +(selCount?'<button onclick="applyPhaseToSelected()" style="font-family:var(--mono);font-size:0.68rem;padding:8px 14px;border:none;border-radius:7px;background:var(--coral);cursor:pointer;color:#fff;font-weight:600">Apply</button>':'')
+    +'<button onclick="savePhaseMap()" style="font-family:var(--mono);font-size:0.68rem;padding:8px 14px;border:none;border-radius:7px;background:var(--teal);cursor:pointer;color:#fff;font-weight:600">Save</button>'
+    +'</div></div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+    +phasePills
+    +(selCount?'<div style="padding:7px 12px;border-radius:20px;border:2px solid var(--bdr2);background:var(--s1);color:var(--tl);font-family:var(--mono);font-size:0.6rem;cursor:pointer" onclick="setActivePaint(null)">✕ Clear</div>':'')
+    +'</div></div>';
+}
+
+/* ── Competitions ── */
+function openCompetitionsModal() {
+  renderCompetitionsList();
+  document.getElementById('comp-overlay').classList.add('open');
+}
+function closeCompetitionsModal() {
+  document.getElementById('comp-overlay').classList.remove('open');
+}
+
+function renderCompetitionsList() {
+  var list = document.getElementById('comp-list');
+  if (!competitions.length) {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:0.74rem;color:var(--tl);padding:8px 2px">No competitions added yet.</div>';
+  } else {
+    var sorted = [...competitions].sort(function(a,b){ return new Date(a.startDate)-new Date(b.startDate); });
+    list.innerHTML = sorted.map(function(c) {
+      var imp = COMPETITION_IMPORTANCE[c.importance] || COMPETITION_IMPORTANCE[1];
+      var d1 = new Date(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      var d2 = new Date(c.endDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+      var dateLabel = c.startDate===c.endDate ? new Date(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : d1+' – '+d2;
+      var editPills = Object.entries(COMPETITION_IMPORTANCE).map(function(e){
+        var k=e[0],v=e[1];
+        return '<span onclick="event.stopPropagation();editCompImpMob(\x27'+c.id+'\x27,'+k+')" title="'+v.label+'" style="font-family:var(--mono);font-size:0.65rem;font-weight:700;padding:4px 8px;border-radius:5px;cursor:pointer;color:'+v.color+';background:'+v.color+'18;border:2px solid '+(parseInt(k)===c.importance?v.color:'transparent')+';opacity:'+(parseInt(k)===c.importance?'1':'0.5')+'">'+k+'</span>';
+      }).join('');
+      return '<div style="border:1px solid var(--bdr);border-radius:9px;margin-bottom:6px;overflow:hidden">'
+        +'<div onclick="toggleCompEditMob(\x27'+c.id+'\x27)" style="display:flex;align-items:center;gap:8px;padding:9px 11px;cursor:pointer">'
+        +'<div style="flex:1"><div style="font-size:0.78rem;font-weight:700">'+c.title+'</div>'
+        +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:2px">'+dateLabel+(c.location?' · '+c.location:'')+(c.target?' · '+c.target:'')+'</div></div>'
+        +'<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:'+imp.color+';background:'+imp.color+'18;padding:3px 7px;border-radius:20px;white-space:nowrap">'+imp.label+'</span>'
+        +'<button id="comp-del-'+c.id+'" onclick="event.stopPropagation();confirmDeleteCompMob(this,\x27'+c.id+'\x27)" style="background:none;border:none;color:var(--tl);cursor:pointer;font-size:0.8rem;padding:3px 6px;border-radius:4px;flex-shrink:0">✕</button>'
+        +'</div>'
+        +'<div id="comp-edit-mob-'+c.id+'" style="display:none;padding:10px 11px 12px;border-top:1px solid var(--bdr);background:var(--s1)">'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">'
+        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">TITLE</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" value="'+c.title+'" oninput="editCompFieldMob(\x27'+c.id+'\x27,\x27title\x27,this.value)"></div>'
+        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">LOCATION</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" value="'+(c.location||'')+'" oninput="editCompFieldMob(\x27'+c.id+'\x27,\x27location\x27,this.value)"></div>'
+        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">START</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" type="date" value="'+c.startDate+'" onchange="editCompFieldMob(\x27'+c.id+'\x27,\x27startDate\x27,this.value)"></div>'
+        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">END</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" type="date" value="'+c.endDate+'" onchange="editCompFieldMob(\x27'+c.id+'\x27,\x27endDate\x27,this.value)"></div>'
+        +'</div>'
+        +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:5px">IMPORTANCE</div>'
+        +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">'+editPills+'</div>'
+        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">TARGET</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" value="'+(c.target||'')+'" placeholder="e.g. Gold, Top 3" oninput="editCompFieldMob(\x27'+c.id+'\x27,\x27target\x27,this.value)"></div>'
+        +'</div></div>';
+    }).join('');
+  }
+  var addPills = document.getElementById('comp-imp-pills-add');
+  if (addPills) {
+    var cur = parseInt(document.getElementById('comp-importance')?.value||1);
+    addPills.innerHTML = Object.entries(COMPETITION_IMPORTANCE).map(function(e){
+      var k=e[0],v=e[1];
+      return '<span onclick="selectCompImpMob('+k+')" style="font-family:var(--mono);font-size:0.65rem;font-weight:700;padding:5px 9px;border-radius:5px;cursor:pointer;color:'+v.color+';background:'+v.color+'18;border:2px solid '+(parseInt(k)===cur?v.color:'transparent')+';opacity:'+(parseInt(k)===cur?'1':'0.5')+'">'+k+' — '+v.label+'</span>';
+    }).join('');
+  }
+}
+
+function toggleCompEditMob(id) {
+  var el = document.getElementById('comp-edit-mob-'+id);
+  if (el) el.style.display = el.style.display==='none' ? 'block' : 'none';
+}
+
+function toggleCompAddForm() {
+  var form = document.getElementById('comp-add-form');
+  var btn  = document.getElementById('comp-add-toggle');
+  var open = form.style.display === 'none';
+  form.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '— Cancel' : '+ Add Competition';
+  if (open) renderCompetitionsList();
+}
+
+function selectCompImpMob(val) {
+  document.getElementById('comp-importance').value = val;
+  renderCompetitionsList();
+}
+
+function editCompFieldMob(id, field, value) {
+  var c = competitions.find(function(x){ return x.id===id; }); if (!c) return;
+  c[field] = value;
+  syncCompetitionEvents(); saveSeasonToFirestore(); renderSeason();
+  renderCompetitionsList();
+  var el = document.getElementById('comp-edit-mob-'+id);
+  if (el) el.style.display = 'block';
+}
+
+function editCompImpMob(id, val) {
+  var c = competitions.find(function(x){ return x.id===id; }); if (!c) return;
+  c.importance = val;
+  syncCompetitionEvents(); saveSeasonToFirestore(); renderSeason();
+  renderCompetitionsList();
+  var el = document.getElementById('comp-edit-mob-'+id);
+  if (el) el.style.display = 'block';
+}
+
+function checkCompDatesMob() {
+  var s = document.getElementById('comp-start').value;
+  var e = document.getElementById('comp-end').value || s;
+  var warn = document.getElementById('comp-date-warn'); if (!warn) return;
+  var outside = s && (new Date(s) < seasonStartDate || new Date(e) > seasonEndDate);
+  warn.style.display = outside ? 'block' : 'none';
+}
+
+function confirmDeleteCompMob(btn, id) {
+  if (btn.dataset.confirming) {
+    deleteCompetition(id);
+  } else {
+    btn.dataset.confirming = '1';
+    btn.textContent = 'Delete?';
+    btn.style.cssText = 'color:#fff;background:var(--red);border:none;border-radius:5px;padding:3px 8px;font-size:0.7rem;font-weight:700;cursor:pointer;flex-shrink:0';
+    var t = setTimeout(function(){ resetDelBtnMob(btn); }, 3000);
+    btn.dataset.timer = t;
+    document.addEventListener('click', function h(e){ if(e.target!==btn){ resetDelBtnMob(btn); document.removeEventListener('click',h); } });
+  }
+}
+function resetDelBtnMob(btn) {
+  clearTimeout(btn.dataset.timer); delete btn.dataset.confirming;
+  btn.textContent = '✕'; btn.style.cssText = 'background:none;border:none;color:var(--tl);cursor:pointer;font-size:0.8rem;padding:3px 6px;border-radius:4px;flex-shrink:0';
+}
+
+function onCompStartChange() {
+  var start = document.getElementById('comp-start').value;
+  var endEl = document.getElementById('comp-end');
+  if (start && !endEl.value) endEl.value = start;
+}
+
+function addCompetition() {
+  var title    = document.getElementById('comp-title').value.trim();
+  var location = document.getElementById('comp-location').value.trim();
+  var start    = document.getElementById('comp-start').value;
+  var end      = document.getElementById('comp-end').value || start;
+  var importance = parseInt(document.getElementById('comp-importance').value, 10);
+  var target   = document.getElementById('comp-target').value.trim();
+  if (!title||!start) { alert('Please enter at least a title and start date.'); return; }
+  if (new Date(end) < new Date(start)) { alert('End date cannot be before start date.'); return; }
+  competitions.push({ id:'comp_'+Date.now(), title:title, location:location, startDate:start, endDate:end, importance:importance, target:target });
+  syncCompetitionEvents();
+  saveSeasonToFirestore();
+  renderSeason();
+  document.getElementById('comp-title').value = '';
+  document.getElementById('comp-location').value = '';
+  document.getElementById('comp-start').value = '';
+  document.getElementById('comp-end').value = '';
+  document.getElementById('comp-target').value = '';
+  document.getElementById('comp-date-warn').style.display = 'none';
+  document.getElementById('comp-add-form').style.display = 'none';
+  document.getElementById('comp-add-toggle').textContent = '+ Add Competition';
+  renderCompetitionsList();
+}
+
+function deleteCompetition(id) {
+  competitions = competitions.filter(function(c){ return c.id !== id; });
+  syncCompetitionEvents();
+  saveSeasonToFirestore();
+  renderCompetitionsList();
+  renderSeason();
+}
+
+/* ── Camps ── */
+function openCampsModal() {
+  renderCampsList();
+  document.getElementById('camp-overlay').classList.add('open');
+}
+function closeCampsModal() {
+  document.getElementById('camp-overlay').classList.remove('open');
+}
+
+function renderCampsList() {
+  var list = document.getElementById('camp-list');
+  if (!camps.length) {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:0.74rem;color:var(--tl);padding:8px 2px">No camps added yet.</div>';
+    return;
+  }
+  var sorted = [...camps].sort(function(a,b){ return new Date(a.startDate)-new Date(b.startDate); });
+  list.innerHTML = sorted.map(function(c) {
+    var d1 = new Date(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    var d2 = new Date(c.endDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    var dateLabel = c.startDate===c.endDate ? new Date(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : d1+' – '+d2;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)">'
+      +'<div style="flex:1"><div style="font-size:0.78rem;font-weight:700">'+c.title+'</div>'
+      +'<div style="font-family:var(--mono);font-size:0.67rem;color:var(--tl);margin-top:2px">'+dateLabel+(c.location?' · '+c.location:'')+'</div></div>'
+      +'<span style="font-family:var(--mono);font-size:0.68rem;font-weight:700;color:'+CAMP_COLOR+';background:'+CAMP_COLOR+'18;padding:3px 7px;border-radius:20px">Camp</span>'
+      +'<button onclick="deleteCamp(\''+c.id+'\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:0.8rem;padding:2px 6px">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+function onCampStartChange() {
+  var start = document.getElementById('camp-start').value;
+  var endEl = document.getElementById('camp-end');
+  if (start && !endEl.value) endEl.value = start;
+}
+
+function addCamp() {
+  var title    = document.getElementById('camp-title').value.trim();
+  var location = document.getElementById('camp-location').value.trim();
+  var start    = document.getElementById('camp-start').value;
+  var end      = document.getElementById('camp-end').value || start;
+  if (!title||!start) { alert('Please enter at least a title and start date.'); return; }
+  if (new Date(end) < new Date(start)) { alert('End date cannot be before start date.'); return; }
+  camps.push({ id:'camp_'+Date.now(), title:title, location:location, startDate:start, endDate:end });
+  syncCampEvents();
+  saveSeasonToFirestore();
+  renderSeason();
+  document.getElementById('camp-title').value = '';
+  document.getElementById('camp-location').value = '';
+  document.getElementById('camp-start').value = '';
+  document.getElementById('camp-end').value = '';
+  closeCampsModal();
+}
+
+function deleteCamp(id) {
+  camps = camps.filter(function(c){ return c.id !== id; });
+  syncCampEvents();
+  saveSeasonToFirestore();
+  renderCampsList();
+  renderSeason();
+}
+
+
+function fmtWeekRange(monISO, sunISO){
+  const m = new Date(monISO+'T12:00:00');
+  const s = new Date(sunISO+'T12:00:00');
+  if(m.getMonth()===s.getMonth()) return `${p2(m.getDate())}.–${p2(s.getDate())}. ${MONTHS_SHORT[m.getMonth()]}`;
+  return `${p2(m.getDate())}. ${MONTHS_SHORT[m.getMonth()]} – ${p2(s.getDate())}. ${MONTHS_SHORT[s.getMonth()]}`;
+}
+
+function jumpToWeek(isoMon){
+  const now    = new Date();
+  const nowDow = now.getDay();
+  const thisMon = new Date(now); thisMon.setDate(thisMon.getDate()+(nowDow===0?-6:1-nowDow));
+  weekOffset = Math.round((new Date(isoMon+'T12:00:00') - thisMon) / 604800000);
+  selectedDay = 0;
+  goTab('nedeljni');
+}
+
+
+
+
+
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+const TABS = {
+  pregled:  { screen:'s-pregled',  bn:'bn-pregled',  title:'Overview' },
+  nedeljni: { screen:'s-nedeljni', bn:'bn-nedeljni', title:'Weekly Plan' },
+  tim:      { screen:'s-tim',      bn:'bn-tim',      title:'Athletes' },
+  sezona:   { screen:'s-sezona',   bn:'bn-sezona',   title:'Season Plan' },
+  matches:  { screen:'s-matches',  bn:'bn-matches',  title:'Matches' },
+  settings: { screen:'s-settings', bn:null,          title:'Settings' },
+};
+
+function doSignOut(){
+  firebase.auth().signOut().then(function(){ window.location.href='/login.html'; });
+}
+
+function openDeleteModal() {
+  document.getElementById('del-modal-pw').value = '';
+  document.getElementById('del-modal-status').textContent = '';
+  document.getElementById('del-modal-status').style.color = '';
+  document.getElementById('del-modal-confirm').disabled = false;
+  document.getElementById('del-modal-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('del-modal-pw').focus(); }, 50);
+}
+function closeDeleteModal(e) {
+  if (e && e.target !== document.getElementById('del-modal-overlay')) return;
+  document.getElementById('del-modal-overlay').classList.remove('open');
+}
+function setDelStatus(msg, color) {
+  var el = document.getElementById('del-modal-status');
+  el.textContent = msg; el.style.color = color || 'var(--red)';
+}
+async function confirmDeleteAccount() {
+  var pw = document.getElementById('del-modal-pw').value.trim();
+  if (!pw) { setDelStatus('Please enter your password.'); return; }
+  var btn = document.getElementById('del-modal-confirm');
+  btn.disabled = true;
+  setDelStatus('Verifying\u2026', 'var(--tm)');
+  var user = firebase.auth().currentUser;
+  if (!user) { setDelStatus('Not signed in.'); btn.disabled = false; return; }
+  var cred = firebase.auth.EmailAuthProvider.credential(user.email, pw);
+  try {
+    await user.reauthenticateWithCredential(cred);
+  } catch(e) {
+    setDelStatus('Incorrect password. Please try again.');
+    btn.disabled = false; return;
+  }
+  setDelStatus('Deleting data\u2026', 'var(--tm)');
+  var uid = window.ADA_USER.uid;
+  var orgId = window.ADA_USER.orgId;
+  var db = window.db;
+  try {
+    // 1. Unlink all athletes
+    var athletes = window.ADA_USER.assignedAthletes || [];
+    var unlinkPromises = athletes.map(function(athUid) {
+      return db.collection('users').doc(athUid).update({
+        coachId: firebase.firestore.FieldValue.delete(),
+        orgId: ''
+      });
+    });
+    await Promise.all(unlinkPromises);
+    // 2. Delete microcycle docs
+    var microSnap = await db.collection('seasons').doc(orgId).collection('microcycles').get();
+    var microDeletes = microSnap.docs.map(function(d){ return d.ref.delete(); });
+    await Promise.all(microDeletes);
+    // 3. Delete season doc
+    await db.collection('seasons').doc(orgId).delete();
+    // 4. Delete user doc
+    await db.collection('users').doc(uid).delete();
+    // 5. Delete Auth account
+    await user.delete();
+    window.location.href = '/login.html';
+  } catch(e) {
+    setDelStatus('Error: ' + (e.message || 'deletion failed.'));
+    btn.disabled = false;
+  }
+}
+function copyTimInviteCode(){
+  var code=document.getElementById('tim-invite-code');
+  if(!code) return;
+  var btn=document.querySelector('.tim-invite-copy');
+  navigator.clipboard.writeText(code.textContent).then(function(){
+    if(btn){ var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=o; },1500); }
+  }).catch(function(){});
+}
+function copySettingsCode(){
+  var code=document.getElementById('set-invite-code');
+  if(!code) return;
+  var btn=document.querySelector('.set-code-copy');
+  navigator.clipboard.writeText(code.textContent).then(function(){
+    if(btn){ var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=o; },1500); }
+  }).catch(function(){});
+}
+
+function goTab(tab){
+  const cfg = TABS[tab];
+  if(!cfg) return;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(cfg.screen).classList.add('active');
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on'));
+  if(cfg.bn) document.getElementById(cfg.bn).classList.add('on');
+  document.getElementById('app-screen-title').textContent = cfg.title;
+  document.getElementById('app-sub').textContent = tab === 'pregled'
+    ? (coach.orgName||'') + (coach.discipline ? ' · '+coach.discipline : '')
+    : '';
+  // Close overlays
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('open'));
+  // Tab-specific refresh
+  if(tab === 'tim') renderTim();
+  if(tab === 'nedeljni') renderNedeljni();
+  if(tab === 'sezona') renderSeason();
+  if(tab === 'matches') renderMatches();
+}
+
+function closeOverlay(id){
+  document.getElementById(id).classList.remove('open');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+}
+
+// Close modals on bg tap
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+
+/* ── Contextual Tooltips ── */
+function ctxTipDismiss(key) {
+  localStorage.setItem('ada:tt:' + key, '1');
+  var el = document.getElementById('ctx-tip-' + key);
+  if (el) el.style.display = 'none';
+}
+
+/* ════════════════════════════════════════
+   MATCH CALENDAR — Firestore-backed
+════════════════════════════════════════ */
+function saveMatches() {
+  var db = window.db;
+  if (!db || !coach.orgId) return;
+  db.collection('seasons').doc(coach.orgId).set(
+    { matchCalendar: matches, updatedAt: new Date().toISOString(), updatedBy: (window.ADA_USER && window.ADA_USER.uid) || '' },
+    { merge: true }
+  ).catch(function(e){ console.warn('saveMatches failed:', e.message); });
+}
+
+function renderMatches() {
+  var el = document.getElementById('matches-content');
+  if (!el) return;
+  var todayISO = today();
+  var upcoming = matches.filter(function(m){ return m.date >= todayISO; })
+    .sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var past = matches.filter(function(m){ return m.date < todayISO; })
+    .sort(function(a,b){ return b.date.localeCompare(a.date); });
+
+  var TYPE_LABELS = { friendly:'Friendly', league:'League', cup:'Cup', championship:'Championship' };
+  var RES_COLOR   = { W:'var(--teal)', D:'var(--amber)', L:'var(--red)' };
+  var VENUE_LABEL = { home:'Home', away:'Away', neutral:'Neutral' };
+
+  function matchRow(m) {
+    var d = parseLocalDate(m.date);
+    var res = m.result || '';
+    var resBadge = res
+      ? '<span class="badge" style="font-size:0.6rem;background:'+(RES_COLOR[res]||'var(--s3)')+'1a;color:'+(RES_COLOR[res]||'var(--tl)')+'">'+res+(m.score?' '+m.score:'')+'</span>'
+      : '';
+    return '<div class="match-item'+(m.date<todayISO?' past':'')+'" onclick="openEditMatch(\''+m.id+'\')">'
+      +'<div class="match-date-col"><div class="match-day">'+p2(d.getDate())+'. '+MONTHS_SHORT[d.getMonth()]+'</div><div class="match-mon">'+d.getFullYear()+'</div></div>'
+      +'<div class="match-info"><div class="match-opp">'+(m.opponent||'—')+'</div>'
+      +'<div class="match-meta">'
+      +'<span class="badge bc" style="font-size:0.6rem">'+(TYPE_LABELS[m.matchType]||m.matchType||'League')+'</span>'
+      +'<span class="badge bc" style="font-size:0.6rem">'+(VENUE_LABEL[m.venue]||m.venue||'Home')+'</span>'
+      +resBadge
+      +'</div></div></div>';
+  }
+
+  var html = '';
+  html += '<button class="add-match-btn" onclick="openAddMatch()">+ Add Match</button>';
+  if (matches.length === 0) {
+    html += '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);text-align:center;padding:32px 0">No matches added yet.</div>';
+  } else {
+    if (upcoming.length) {
+      html += '<div class="sec">Upcoming</div>' + upcoming.map(matchRow).join('');
+    }
+    if (past.length) {
+      html += '<div class="sec" style="margin-top:4px">Played</div>'
+        + past.slice(0,5).map(matchRow).join('')
+        + (past.length > 5 ? '<div style="font-family:var(--mono);font-size:0.68rem;color:var(--tl);text-align:center;padding:6px">+ '+(past.length-5)+' more</div>' : '');
+    }
+  }
+  el.innerHTML = html;
+}
+
+function openAddMatch(preDate) {
+  editingMatchId = null;
+  document.getElementById('match-modal-title').textContent = 'Add Match';
+  document.getElementById('match-delete-btn').style.display = 'none';
+  document.getElementById('m-date').value = preDate || today();
+  document.getElementById('m-opponent').value = '';
+  document.getElementById('m-venue').value = 'home';
+  document.getElementById('m-matchType').value = 'league';
+  var noRes = document.querySelector('input[name="m-res"][value=""]');
+  if (noRes) noRes.checked = true;
+  document.getElementById('m-result-row').style.display = 'none';
+  document.getElementById('m-score').style.display = 'none';
+  openModal('modal-add-match');
+}
+
+function openEditMatch(id) {
+  var m = matches.find(function(x){ return x.id === id; });
+  if (!m) return;
+  editingMatchId = id;
+  document.getElementById('match-modal-title').textContent = 'Edit Match';
+  document.getElementById('match-delete-btn').style.display = '';
+  document.getElementById('m-date').value = m.date;
+  document.getElementById('m-opponent').value = m.opponent || '';
+  document.getElementById('m-venue').value = m.venue || 'home';
+  document.getElementById('m-matchType').value = m.matchType || 'league';
+  document.getElementById('m-result-row').style.display = '';
+  var resVal = m.result || '';
+  var resEl = document.querySelector('input[name="m-res"][value="'+resVal+'"]');
+  if (resEl) resEl.checked = true;
+  var scoreEl = document.getElementById('m-score');
+  scoreEl.value = m.score || '';
+  scoreEl.style.display = resVal ? '' : 'none';
+  openModal('modal-add-match');
+}
+
+function toggleScore() {
+  var res = document.querySelector('input[name="m-res"]:checked');
+  document.getElementById('m-score').style.display = (res && res.value) ? '' : 'none';
+}
+
+function saveMatch() {
+  var opponent = document.getElementById('m-opponent').value.trim();
+  if (!opponent) { alert('Please enter an opponent name.'); return; }
+  var res = document.querySelector('input[name="m-res"]:checked');
+  var resVal = (res && res.value) || '';
+  var data = {
+    id:        editingMatchId || (Date.now().toString(36) + Math.random().toString(36).slice(2,5)),
+    date:      document.getElementById('m-date').value,
+    opponent:  opponent,
+    venue:     document.getElementById('m-venue').value,
+    matchType: document.getElementById('m-matchType').value,
+    result:    resVal || null,
+    score:     resVal ? document.getElementById('m-score').value.trim() : null
+  };
+  if (editingMatchId) {
+    var existing = matches.find(function(x){ return x.id === editingMatchId; });
+    if (existing) Object.assign(existing, data);
+  } else {
+    matches.push(data);
+  }
+  saveMatches();
+  closeModal('modal-add-match');
+  renderMatches();
+}
+
+function deleteMatch() {
+  if (!editingMatchId) return;
+  if (!confirm('Delete this match?')) return;
+  matches = matches.filter(function(x){ return x.id !== editingMatchId; });
+  saveMatches();
+  closeModal('modal-add-match');
+  renderMatches();
+}
+</script>
+</body>
+</html>

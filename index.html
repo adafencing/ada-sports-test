@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADA Sports</title>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F7F2;
+  --s1:#EBF0E8;
+  --s2:#DFE8DA;
+  --tx:#1A2918;
+  --tm:#4A6645;
+  --tl:#8FA585;
+  --teal:#166534;
+  --coral:#EA580C;
+  --bdr:rgba(26,41,24,0.1);
+  --bdr2:rgba(26,41,24,0.15);
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Epilogue',sans-serif;
+}
+html,body{
+  min-height:100%;
+  background:var(--bg);
+  font-family:var(--sans);
+  color:var(--tx);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── NAV ── */
+nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:22px 48px;
+  border-bottom:1px solid var(--bdr);
+  background:var(--bg);
+}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:#1A2918;
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-dot{
+  width:14px;height:14px;border-radius:50%;
+  background:linear-gradient(135deg,#4ade80,#15803D);
+}
+.nav-name{
+  font-family:var(--mono);font-size:0.9rem;
+  font-weight:700;letter-spacing:0.04em;color:var(--tx);
+}
+.btn-nav{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 22px;border-radius:8px;
+  background:var(--teal);border:none;color:#fff;
+  font-family:var(--sans);font-size:0.9rem;font-weight:700;
+  cursor:pointer;text-decoration:none;
+  transition:background 0.12s,transform 0.1s;
+  letter-spacing:-0.01em;
+}
+.btn-nav:hover{background:#145c2e}
+.btn-nav:active{transform:scale(0.97)}
+
+/* ── HERO ── */
+.hero{
+  flex:1;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:80px 24px 60px;
+  text-align:center;
+}
+.hero-eyebrow{
+  font-family:var(--mono);
+  font-size:0.72rem;
+  text-transform:uppercase;
+  letter-spacing:0.2em;
+  color:var(--tl);
+  margin-bottom:24px;
+}
+.hero-h1{
+  font-size:clamp(2.2rem,5vw,3.4rem);
+  font-weight:900;
+  letter-spacing:-0.03em;
+  line-height:1.1;
+  color:var(--tx);
+  margin-bottom:20px;
+  max-width:580px;
+}
+.hero-h1 em{
+  font-style:normal;
+  color:var(--teal);
+}
+.hero-sub{
+  font-size:1.05rem;
+  color:var(--tm);
+  line-height:1.75;
+  margin-bottom:44px;
+  max-width:420px;
+  font-weight:400;
+}
+.btn-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:15px 36px;border-radius:10px;
+  background:var(--coral);border:none;color:#fff;
+  font-family:var(--sans);font-size:1rem;font-weight:800;
+  cursor:pointer;text-decoration:none;
+  transition:background 0.12s,transform 0.1s;
+  letter-spacing:-0.01em;
+}
+.btn-cta:hover{background:#d44f0a;transform:translateY(-1px)}
+.btn-cta:active{transform:scale(0.97)}
+.hero-note{
+  font-family:var(--mono);
+  font-size:0.72rem;
+  color:var(--tl);
+  margin-top:16px;
+}
+
+/* ── FOOTER ── */
+footer{
+  padding:20px 48px;
+  border-top:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.footer-copy{
+  font-family:var(--mono);font-size:0.72rem;color:var(--tl);
+}
+.footer-version{
+  font-family:var(--mono);font-size:0.68rem;
+  color:rgba(26,41,24,0.25);
+}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  nav{padding:18px 20px}
+  .hero{padding:60px 20px 48px}
+  footer{padding:16px 20px;flex-direction:column;gap:6px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-mark"><div class="nav-dot"></div></div>
+    <div class="nav-name">ADA Sports</div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center"><a class="btn-nav" href="/login.html">Log In</a></div>
+</nav>
+
+<section class="hero">
+  <h1 class="hero-h1">Welcome to<br><em>ADA Sports</em></h1>
+  <p class="hero-sub">A platform that helps coaches and athletes on the path to success.</p>
+  <a class="btn-cta" href="/signup.html">Sign Up Free →</a>
+  <div class="hero-note">Already have an account? <a href="/login.html" style="color:var(--teal);font-weight:700;text-decoration:none">Sign in</a></div>
+</section>
+
+<footer>
+  <div class="footer-copy">© 2026 ADA Sports</div>
+  <div class="footer-version">v2.0 BETA</div>
+</footer>
+
+</body>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script>
+firebase.initializeApp(FIREBASE_CONFIG);
+function buildDest(role, discipline) {
+  if (role === 'admin')      return '/admin/';
+  if (role === 'superadmin') return '/superadmin/';
+  if (role === 'athlete')    return '/' + (discipline||'handball') + '/index.html';
+  if (role === 'coach') {
+    var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
+    return '/' + (discipline||'handball') + '/' + app;
+  }
+  return null;
+}
+firebase.auth().onAuthStateChanged(async user => {
+  if (!user) return;
+  try {
+    const doc = await firebase.firestore().collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const d = doc.data();
+      const dest = buildDest(d.role, d.discipline);
+      if (dest) window.location.href = dest;
+    }
+  } catch(e) { /* silent — user stays on landing page */ }
+});
+</script>
+</html>
