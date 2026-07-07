@@ -332,6 +332,9 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 .ctx-tip-body{flex:1;font-size:0.84rem;color:var(--tm);line-height:1.6;}
 .ctx-tip-body strong{color:var(--text);}
 .ctx-tip-close{flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--tl);font-size:1rem;padding:0 2px;line-height:1;margin-top:-1px;}
+#save-error-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:9999;background:#ef4444;color:#fff;font-family:'JetBrains Mono',monospace;font-size:0.74rem;font-weight:700;padding:10px 16px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.18);display:none;align-items:center;gap:10px;max-width:92vw;text-align:center;}
+#save-error-toast.visible{display:flex;}
+#save-error-toast button{background:rgba(255,255,255,0.25);border:none;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:6px;cursor:pointer;flex-shrink:0;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -408,6 +411,14 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 
   <!-- NEDELJNI PLAN -->
   <div class="screen" id="s-nedeljni" style="flex-direction:column;overflow:hidden">
+    <div id="wn-not-configured" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 20px;">
+      <div style="font-size:2.2rem;margin-bottom:10px;">&#128197;</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Set up your season first</div>
+      <div style="font-size:0.82rem;color:var(--tl);max-width:280px;line-height:1.6;">
+        Weekly planning needs a season start date so training sessions line up correctly everywhere. Set it up once in Coach Desktop.
+      </div>
+    </div>
+    <div id="wn-active-content" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
     <div class="week-nav">
       <div class="wn-arrow" onclick="changeWeek(-1)">←</div>
       <div class="wn-center">
@@ -461,6 +472,7 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
     <div style="flex:1;overflow-y:auto;scrollbar-width:thin" id="sess-detail-wrap">
       <div class="sb" id="sess-detail"></div>
     </div>
+    </div><!-- /wn-active-content -->
   </div>
 
   <!-- TIM -->
@@ -734,6 +746,7 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
    STATE — Firestore backed
 ═══════════════════════════════════════ */
 var coach    = {};
+var seasonConfigured = false; // true only once a real season doc with startDate exists in Firestore
 var athletes = [];
 var sessions = {};  // keyed by ISO date — local weekly plan cache
 var matches  = [];  // matchCalendar — synced with Firestore seasons/{orgId}.matchCalendar
@@ -1035,54 +1048,63 @@ function loadInjuries(u) {
 
 function loadWeekPlan(u) {
   var db = window.db;
-  if (!db || !u.orgId) { enterApp(); return; }
+  if (!db || !u.orgId) {
+    console.warn('[ADA][date-diag] loadWeekPlan aborted — no db or orgId', { hasDb: !!db, orgId: u.orgId });
+    enterApp(); return;
+  }
 
   db.collection('seasons').doc(u.orgId).get().then(function(snap) {
-    if (snap.exists) {
+    console.log('[ADA][date-diag] loadWeekPlan season doc', { orgId: u.orgId, exists: snap.exists, startDate: snap.exists ? snap.data().startDate : null });
+    if (snap.exists && snap.data().startDate) {
       var d = snap.data();
       loadSeasonFromSnap(d);
-      coach.seasonStart = d.startDate || null;
+      coach.seasonStart = d.startDate;
+      seasonConfigured = true;
 
-      if (d.startDate) {
-        db.collection('seasons').doc(u.orgId).collection('microcycles').get()
-          .then(function(mSnap) {
-            var start    = parseLocalDate(d.startDate);
-            var startDow = start.getDay();
-            start.setDate(start.getDate() + (startDow === 0 ? -6 : 1 - startDow));
-            var DAY_KEYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-            mSnap.forEach(function(doc) {
-              var weekIdx = doc.data().weekIdx;
-              var plan    = doc.data().plan || {};
-              var weekMon = new Date(start.getTime() + weekIdx*7*24*3600*1000);
-              DAY_KEYS.forEach(function(dk, i) {
-                var dayDate  = new Date(weekMon.getTime() + i*24*3600*1000);
-                var iso      = toISO(dayDate);
-                var nonRest  = (plan[dk]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
-                if (nonRest.length > 0) {
-                  sessions[iso] = nonRest.map(function(s){
-                    return { name:s.label||s.type||'Training', type:s.type||'technical',
-                      dur:s.duration||s.dur||60, rpe:s.rpe||6, note:s.note||'',
-                      status:'published', weekIdx:weekIdx, dayKey:dk };
-                  });
-                }
-              });
+      db.collection('seasons').doc(u.orgId).collection('microcycles').get()
+        .then(function(mSnap) {
+          var start    = parseLocalDate(d.startDate);
+          var startDow = start.getDay();
+          start.setDate(start.getDate() + (startDow === 0 ? -6 : 1 - startDow));
+          var DAY_KEYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+          mSnap.forEach(function(doc) {
+            var weekIdx = doc.data().weekIdx;
+            var plan    = doc.data().plan || {};
+            var weekMon = new Date(start.getTime() + weekIdx*7*24*3600*1000);
+            DAY_KEYS.forEach(function(dk, i) {
+              var dayDate  = new Date(weekMon.getTime() + i*24*3600*1000);
+              var iso      = toISO(dayDate);
+              var nonRest  = (plan[dk]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
+              if (nonRest.length > 0) {
+                sessions[iso] = nonRest.map(function(s){
+                  return { name:s.label||s.type||'Training', type:s.type||'technical',
+                    dur:s.duration||s.dur||60, rpe:s.rpe||6, note:s.note||'',
+                    status:'published', weekIdx:weekIdx, dayKey:dk };
+                });
+              }
             });
-            enterApp();
-          }).catch(function(err){ console.error('[ADA] microcycles read error:', err); enterApp(); });
-      } else {
-        enterApp();
-      }
+          });
+          console.log('[ADA][date-diag] loadWeekPlan microcycles', { orgId: u.orgId, seasonStart: d.startDate, docsFound: mSnap.size, docIds: mSnap.docs.map(function(x){return x.id;}), sessionsLoaded: Object.keys(sessions) });
+          enterApp();
+        }).catch(function(err){
+          console.error('[ADA][date-diag] microcycles read error:', err.code || err.message, err);
+          showSaveError('Could not load your weekly plan: ' + (err.code || err.message || 'unknown error'));
+          enterApp();
+        });
     } else {
-      // No season doc yet — coach hasn't set up a season on desktop.
-      // Set a sensible default so weekIdx calculations work correctly.
-      if (!coach.seasonStart) {
-        var defaultStart = new Date();
-        defaultStart.setDate(defaultStart.getDate() - defaultStart.getDay() + 1); // this Monday
-        coach.seasonStart = defaultStart.toISOString().slice(0,10);
-      }
+      // No season configured yet for this org. Rather than silently guessing a
+      // start date (which caused sessions to become orphaned on reload), show
+      // the "set up your season" placeholder and point the coach to desktop.
+      seasonConfigured = false;
+      console.warn('[ADA][date-diag] loadWeekPlan — no season configured for this org yet');
       enterApp();
     }
-  }).catch(function(){ enterApp(); });
+  }).catch(function(err){
+    console.error('[ADA][date-diag] season doc read error:', err.code || err.message, err);
+    showSaveError('Could not load season data: ' + (err.code || err.message || 'unknown error'));
+    seasonConfigured = false;
+    enterApp();
+  });
 }
 
 // Get week index from a date ISO string relative to season start
@@ -1098,11 +1120,16 @@ function getWeekIdxForDate(isoDate) {
 // Convert mobile session type to desktop day plan format and save to Firestore
 function saveSessionToFirestore(iso, sessData, isNew) {
   var db = window.db;
-  if (!db || !coach.orgId) return;
+  if (!db || !coach.orgId) {
+    console.error('[ADA] saveSessionToFirestore aborted — missing db or coach.orgId', { hasDb: !!db, orgId: coach.orgId });
+    showSaveError('Save failed: not connected (orgId missing). Please sign out and back in.');
+    return;
+  }
   var weekIdx = sessData !== null && sessData.weekIdx !== undefined ? sessData.weekIdx : getWeekIdxForDate(iso);
   var DAY_FALLBACK = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(iso).getDay() === 0 ? 6 : parseLocalDate(iso).getDay() - 1];
   var dayKey  = (sessData && sessData.dayKey) ? sessData.dayKey : DAY_FALLBACK;
   var docRef  = db.collection('seasons').doc(coach.orgId).collection('microcycles').doc('week_'+weekIdx);
+  console.log('[ADA][date-diag] saveSessionToFirestore', { iso: iso, weekIdx: weekIdx, dayKey: dayKey, seasonStart: coach.seasonStart, orgId: coach.orgId, docPath: 'seasons/'+coach.orgId+'/microcycles/week_'+weekIdx });
 
   // Read existing plan first to avoid overwriting other days
   docRef.get().then(function(snap) {
@@ -1136,8 +1163,15 @@ function saveSessionToFirestore(iso, sessData, isNew) {
       plan[dayKey] = updated.concat(others);
     }
     docRef.set({ weekIdx: weekIdx, plan: plan, updatedAt: new Date().toISOString() }, { merge: true })
-      .catch(function(e){ console.warn('saveSessionToFirestore:', e.message); });
-  }).catch(function(e){ console.warn('saveSessionToFirestore read:', e.message); });
+      .then(function(){ console.log('[ADA][date-diag] saveSessionToFirestore SUCCESS', { docPath: 'seasons/'+coach.orgId+'/microcycles/week_'+weekIdx }); })
+      .catch(function(e){
+        console.error('[ADA] saveSessionToFirestore write failed:', e.code || e.message, e);
+        showSaveError('Session save failed: ' + (e.code || e.message || 'unknown error'));
+      });
+  }).catch(function(e){
+    console.error('[ADA] saveSessionToFirestore read failed:', e.code || e.message, e);
+    showSaveError('Session save failed (read): ' + (e.code || e.message || 'unknown error'));
+  });
 }
 
 function show(id){
@@ -1293,19 +1327,44 @@ let weekOffset = 0;
 let selectedDay = 0; // 0=Mon index
 
 function getWeekDates(offset){
+  var off = (offset !== undefined) ? offset : weekOffset;
+  if (coach.seasonStart) {
+    var start = parseLocalDate(coach.seasonStart);
+    var startDow = start.getDay();
+    var anchor = new Date(start);
+    anchor.setDate(anchor.getDate() + (startDow === 0 ? -6 : 1 - startDow));
+    var todayMid = new Date(); todayMid.setHours(0,0,0,0);
+    var baseIdx = Math.max(0, Math.floor((todayMid.getTime() - anchor.getTime()) / (7*24*3600*1000)));
+    var wIdx = Math.max(0, baseIdx + off);
+    var mon = new Date(anchor.getTime());
+    mon.setDate(mon.getDate() + wIdx*7);
+    return Array.from({length:7}, (_,i) => {
+      const d = new Date(mon); d.setDate(d.getDate()+i); return toISO(d);
+    });
+  }
+  // Fallback (no season set yet): today-relative calendar week
   const now = new Date();
   const dow = now.getDay();
   const diffToMon = (dow === 0) ? -6 : 1 - dow;
-  const mon = new Date(now);
-  mon.setDate(mon.getDate() + diffToMon + (offset||weekOffset)*7);
+  const mon2 = new Date(now);
+  mon2.setDate(mon2.getDate() + diffToMon + off*7);
   return Array.from({length:7}, (_,i) => {
-    const d = new Date(mon); d.setDate(d.getDate()+i); return toISO(d);
+    const d = new Date(mon2); d.setDate(d.getDate()+i); return toISO(d);
   });
 }
 
 function getWeekMon(offset){ const d = getWeekDates(offset); return d[0]; }
 
 function renderNedeljni(){
+  var notConfiguredEl = document.getElementById('wn-not-configured');
+  var activeContentEl = document.getElementById('wn-active-content');
+  if (!seasonConfigured) {
+    if (notConfiguredEl) notConfiguredEl.style.display = 'flex';
+    if (activeContentEl) activeContentEl.style.display = 'none';
+    return;
+  }
+  if (notConfiguredEl) notConfiguredEl.style.display = 'none';
+  if (activeContentEl) activeContentEl.style.display = 'flex';
   const dates = getWeekDates();
   const mon = new Date(dates[0]);
   const sun = new Date(dates[6]);
@@ -1317,7 +1376,7 @@ function renderNedeljni(){
   const todayISO = today();
   const LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   strip.innerHTML = dates.map((iso, i) => {
-    const d = new Date(iso);
+    const d = parseLocalDate(iso);
     const sess = sessions[iso];
     const sessArr = sess && sess.length > 0 ? sess : null;
     // Check if this day falls within a competition or camp
@@ -1479,7 +1538,7 @@ function renderSessDetail(){
   const dates = getWeekDates();
   const iso = dates[selectedDay];
   const sessArr = sessions[iso]; // now an array or undefined
-  const d = new Date(iso);
+  const d = parseLocalDate(iso);
   const todayISO = today();
   const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const el = document.getElementById('sess-detail');
@@ -1599,7 +1658,7 @@ let isNewSess = true;
 function openSessEditor(editISO, dateISO){
   editingISO = dateISO;
   isNewSess = !editISO || !sessions[editISO] || !sessions[editISO].length || editISO !== dateISO;
-  const d = new Date(dateISO);
+  const d = parseLocalDate(dateISO);
   const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const dayIdx = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(d.toLocaleString('en',{weekday:'short'}));
   document.getElementById('ov-sess-title').textContent = isNewSess ? 'New Session' : 'Edit Session';
@@ -1714,7 +1773,7 @@ function publishSession(){
   if(!editingISO) return;
   var sess = collectSessData('published');
   sess.weekIdx = getWeekIdxForDate(editingISO);
-  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][new Date(editingISO).getDay() === 0 ? 6 : new Date(editingISO).getDay() - 1];
+  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(editingISO).getDay() === 0 ? 6 : parseLocalDate(editingISO).getDay() - 1];
   if(isNewSess){
     if(!sessions[editingISO]) sessions[editingISO] = [];
     sessions[editingISO] = sessions[editingISO].concat([sess]);
@@ -1731,7 +1790,7 @@ function saveDraft(){
   if(!editingISO) return;
   var sess = collectSessData('draft');
   sess.weekIdx = getWeekIdxForDate(editingISO);
-  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][new Date(editingISO).getDay() === 0 ? 6 : new Date(editingISO).getDay() - 1];
+  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(editingISO).getDay() === 0 ? 6 : parseLocalDate(editingISO).getDay() - 1];
   if(isNewSess){
     if(!sessions[editingISO]) sessions[editingISO] = [];
     sessions[editingISO] = sessions[editingISO].concat([sess]);
@@ -1914,32 +1973,34 @@ function openAthlete(id){
         + '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tm);margin-top:2px">Self-reported · Monitor</div></div>'
         + '<button class="badge br" onclick="clearInjury(\x27'+id+'\x27)" style="cursor:pointer;border:none;padding:3px 8px;font-size:0.74rem">Resolve</button></div>'
       : '<div class="br-empty">✓ No active injuries</div>';
-    // #2 — 7-day commitment (days with training logged / 7)
+    // #2 — 7-day commitment (days with a readiness check-in submitted / 7)
+    // hist7 entries only exist for days where a wellness score could be computed,
+    // i.e. the athlete actually submitted a readiness check-in that day.
     var hist7 = a.hist7 || [];
-    var trainedDays = hist7.filter(function(h){ return h.tl > 0; }).length;
-    var commitPct = hist7.length ? Math.round(trainedDays/7*100) : null;
+    var checkedInDays = hist7.length;
+    var commitPct = Math.round(checkedInDays/7*100);
     var commitHTML = '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)">'
       + '<div style="flex:1">'
-      + '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">7-Day Commitment</div>'
+      + '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">7-Day Check-In Commitment</div>'
       + '<div style="display:flex;gap:4px">'
       + (function(){
           var days7 = [];
           for(var di=6;di>=0;di--){
             var dd=new Date(); dd.setDate(dd.getDate()-di);
-            var iso=dd.toISOString().slice(0,10);
+            var iso=toISO(dd);
             var h=hist7.find(function(x){return x.date===iso;});
-            var hasTL=h&&h.tl>0;
+            var hasCheckin=!!h;
             var isToday=iso===todayStr;
-            days7.push('<div title="'+iso+'" style="width:24px;height:24px;border-radius:5px;background:'+(hasTL?'var(--teal)':'var(--s2)')+';border:1.5px solid '+(isToday?'var(--teal)':'var(--bdr)')+';display:flex;align-items:center;justify-content:center">'
-              +(hasTL?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
+            days7.push('<div title="'+iso+'" style="width:24px;height:24px;border-radius:5px;background:'+(hasCheckin?'var(--teal)':'var(--s2)')+';border:1.5px solid '+(isToday?'var(--teal)':'var(--bdr)')+';display:flex;align-items:center;justify-content:center">'
+              +(hasCheckin?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
               +'</div>');
           }
           return days7.join('');
         })()
       + '</div></div>'
       + '<div style="text-align:right;flex-shrink:0">'
-      + '<div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--teal)">'+(commitPct!==null?commitPct+'%':'—')+'</div>'
-      + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+(trainedDays)+'/7 days</div>'
+      + '<div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--teal)">'+commitPct+'%</div>'
+      + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+(checkedInDays)+'/7 days</div>'
       + '</div></div>';
 
     // #3 — this week's plan schedule with completion status
@@ -2025,32 +2086,42 @@ function openAthlete(id){
     var hr7avg = hr7vals.length ? Math.round(hr7vals.reduce(function(s,v){ return s+v; },0)/hr7vals.length) : null;
     var hrElev = hrToday && hr7avg && (hrToday - hr7avg) >= 5;
     var hrColor = hrElev ? 'var(--red)' : hrToday ? 'var(--green)' : 'var(--tl)';
+    // Merged Resting HR card — today's value on the left, 7-day trend line on the right
+    var hrTrendChart = (function(){
+      if(hr7vals.length<2) return '<div style="font-family:var(--mono);font-size:0.68rem;color:var(--tl)">No trend data yet.</div>';
+      var days7=[]; for(var diT=6;diT>=0;diT--){var ddT=new Date();ddT.setDate(ddT.getDate()-diT);days7.push(toISO(ddT));}
+      var pts=days7.map(function(iso){var e=hr7.find(function(x){return x.date===iso;});return e?e.hr:null;});
+      var vals=pts.filter(function(v){return v!==null;});
+      var maxV=Math.max.apply(null,vals)+5, minV=Math.max(0,Math.min.apply(null,vals)-5), range=Math.max(maxV-minV,1);
+      var W=190, H=52, colW=Math.floor(W/7), toY=function(v){return Math.round(((maxV-v)/range)*(H-18))+4;};
+      var path='', dots='', avgLine='';
+      if(hr7avg!==null){var ay=toY(hr7avg); avgLine='<line x1="0" y1="'+ay+'" x2="'+W+'" y2="'+ay+'" stroke="var(--tl)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>';}
+      pts.forEach(function(v,i){
+        var cx=i*colW+colW/2;
+        if(v===null){ dots+='<circle cx="'+cx+'" cy="'+(H/2)+'" r="3" fill="none" stroke="var(--bdr)" stroke-width="1.5"/>'; return; }
+        var cy=toY(v), col=(hrElev&&v===hrToday)?'var(--red)':'var(--teal)';
+        if(path==='') path='M'+cx+','+cy; else path+=' L'+cx+','+cy;
+        dots+='<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="'+col+'"/>';
+        dots+='<text x="'+cx+'" y="'+(H-1)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">'+v+'</text>';
+      });
+      return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+avgLine+(path?'<path d="'+path+'" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round"/>':'')+dots+'</svg>';
+    })();
     var hrHTML = '<div class="card"><div class="cb">'
-      + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:'+(hr7vals.length>1?'10':'0')+'px">'
-      + '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;color:'+hrColor+'">'+(hrToday||'—')+'</div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:3px">bpm today</div></div>'
-      + '<div style="width:1px;height:36px;background:var(--bdr);flex-shrink:0"></div>'
-      + '<div style="text-align:center"><div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;color:var(--tl)">'+(hr7avg||'—')+'</div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:3px">7-day avg</div></div>'
       + (hrElev
-          ? '<div style="flex:1;display:flex;align-items:center;gap:5px;background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:6px 8px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span style="font-family:var(--mono);font-size:0.65rem;color:var(--red);font-weight:600">+'+(hrToday-hr7avg)+' bpm vs avg</span></div>'
-          : '<div style="flex:1;font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+(hrToday?'Within normal range':'Not logged today')+'</div>')
+          ? '<div style="display:flex;align-items:center;gap:5px;background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:5px 8px;margin-bottom:10px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span style="font-family:var(--mono);font-size:0.65rem;color:var(--red);font-weight:600">+'+(hrToday-hr7avg)+' bpm vs avg · Overreaching</span></div>'
+          : '')
+      + '<div style="display:flex;align-items:center;gap:14px">'
+      + '<div style="text-align:center;flex-shrink:0">'
+      + '<div style="font-family:var(--mono);font-size:1.7rem;font-weight:700;line-height:1;color:'+hrColor+'">'+(hrToday||'—')+'</div>'
+      + '<div style="font-family:var(--mono);font-size:0.62rem;color:var(--tl);margin-top:3px">bpm today</div>'
+      + (hr7avg!==null ? '<div style="font-family:var(--mono);font-size:0.58rem;color:var(--tl);margin-top:2px">avg '+hr7avg+'</div>' : '')
       + '</div>'
-      + (hr7vals.length > 1 ? (function(){
-          var maxHR=Math.max.apply(null,hr7vals), minHR=Math.min.apply(null,hr7vals), range=Math.max(maxHR-minHR,1);
-          var days7=[]; for(var di=6;di>=0;di--){var dd=new Date();dd.setDate(dd.getDate()-di);days7.push(dd.toISOString().slice(0,10));}
-          return '<div style="display:flex;align-items:flex-end;gap:4px;height:44px">'
-            +days7.map(function(iso){
-              var e=hr7.find(function(x){return x.date===iso;});
-              var v=e?e.hr:null;
-              var h=v?Math.max(4,Math.round(((v-minHR)/range)*28)+8):0;
-              var c=v?(hrElev&&v===hrToday?'var(--red)':'var(--teal)'):'transparent';
-              return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
-                +(v?'<div style="font-family:var(--mono);font-size:0.55rem;color:var(--tl)">'+v+'</div>':'')
-                +'<div style="width:100%;border-radius:2px;background:'+c+';height:'+h+'px"></div>'
-                +'<div style="font-family:var(--mono);font-size:0.55rem;color:var(--tl)">'+iso.slice(8)+'</div>'
-                +'</div>';
-            }).join('')+'</div>';
-        }()) : '')
-      + '</div></div>';
+      + '<div style="width:1px;align-self:stretch;background:var(--bdr);flex-shrink:0"></div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-family:var(--mono);font-size:0.6rem;color:var(--tl);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">7-Day Trend</div>'
+      + hrTrendChart
+      + '</div>'
+      + '</div></div></div>';
 
     return ''
       + S('Today&#x27;s Readiness', '<div class="card"><div class="cb">'+ciHTML+commitHTML+'</div></div>')
@@ -2059,34 +2130,6 @@ function openAthlete(id){
       + S('Injuries', '<div>'+injHTML+'</div>')
       + S('Resting HR', hrHTML)
       + (function(){
-          // CARD 1: Resting HR 7-Day Trend
-          var hrC=hrElev?'var(--red)':hrToday?'var(--green)':'var(--tl)';
-          var hrChartHtml=(function(){
-            if(hr7vals.length<2) return '<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tl);padding:8px 0">No HR trend data yet.</div>';
-            var days7=[];for(var di=6;di>=0;di--){var dd=new Date();dd.setDate(dd.getDate()-di);days7.push(dd.toISOString().slice(0,10));}
-            var pts=days7.map(function(iso){var e=hr7.find(function(x){return x.date===iso;});return e?e.hr:null;});
-            var vals=pts.filter(function(v){return v!==null;});
-            var maxV=Math.max.apply(null,vals)+5,minV=Math.max(0,Math.min.apply(null,vals)-5),range=Math.max(maxV-minV,1);
-            var W=300,H=56,colW=Math.floor(W/7),toY=function(v){return Math.round(((maxV-v)/range)*(H-18))+4;};
-            var path='',dots='',avgLine='';
-            if(hr7avg!==null){var ay=toY(hr7avg);avgLine='<line x1="0" y1="'+ay+'" x2="'+W+'" y2="'+ay+'" stroke="var(--tl)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>';}
-            pts.forEach(function(v,i){
-              var cx=i*colW+colW/2;
-              if(v===null){dots+='<circle cx="'+cx+'" cy="'+(H/2)+'" r="3" fill="none" stroke="var(--bdr)" stroke-width="1.5"/>';return;}
-              var cy=toY(v),col=(hrElev&&v===hrToday)?'var(--red)':'var(--teal)';
-              if(path==='') path='M'+cx+','+cy;else path+=' L'+cx+','+cy;
-              dots+='<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="'+col+'"/>';
-              dots+='<text x="'+cx+'" y="'+(H-1)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">'+v+'</text>';
-            });
-            return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+avgLine+(path?'<path d="'+path+'" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round"/>':'')+dots+'</svg>';
-          })();
-          var card1='<div class="card"><div class="cb">'
-            +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-            +'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl)">Resting HR · 7-Day</div>'
-            +(hrElev?'<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:var(--red);background:rgba(220,38,38,0.1);padding:2px 8px;border-radius:10px">&#9650; +'+(hrToday-hr7avg)+' bpm · Overreaching</span>'
-              :(hrToday?'<span style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+hrToday+' bpm · avg '+(hr7avg||'—')+'</span>':'<span style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">Not logged today</span>'))
-            +'</div>'+hrChartHtml+'</div></div>';
-
           // CARD 2: Training Load (ACWR + combined chart)
           var acwrV=a.acwr!==null&&a.acwr!==undefined?a.acwr:null;
           var acwrC2=acwrColor(acwrV),acwrLbl=acwrZone(acwrV),acwrDisp=acwrV!==null?acwrV.toFixed(2):'—';
@@ -2109,6 +2152,7 @@ function openAthlete(id){
               var cy=Math.round((1-v/100)*rdZone)+2,col=v>=71?'var(--green)':v>=55?'var(--amber)':'var(--red)';
               if(rdPathStr==='') rdPathStr='M'+cx+','+cy;else rdPathStr+=' L'+cx+','+cy;
               rdPts+='<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="'+col+'"/>';
+              rdPts+='<text x="'+cx+'" y="'+Math.max(7,cy-5)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="'+col+'">'+v+'</text>';
             });
             return '<svg width="100%" viewBox="0 0 '+W2+' '+H2+'" xmlns="http://www.w3.org/2000/svg">'
               +'<text x="2" y="9" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--tl)">READINESS</text>'
@@ -2179,7 +2223,7 @@ function openAthlete(id){
             +'<div style="font-family:var(--mono);font-size:0.6rem;color:var(--tl);margin-top:8px;text-align:right">Strain = Weekly TL × Monotony</div>'
             +'</div></div>';
 
-          return card1+card2+card3;
+          return card2+card3;
         })()
       + (athNote ? S('Athlete&#x27;s Note', '<div class="card"><div class="cb"><div style="font-size:0.82rem;color:var(--tm);line-height:1.6">'+athNote+'</div></div></div>') : '')
       + '<div style="height:24px"></div>';
@@ -3055,6 +3099,18 @@ function deleteMatch() {
   closeModal('modal-add-match');
   renderMatches();
 }
+
+var _saveErrorTimer;
+function showSaveError(msg) {
+  var toast = document.getElementById('save-error-toast');
+  var msgEl = document.getElementById('save-error-msg');
+  if (!toast || !msgEl) { alert('Save error: ' + msg); return; }
+  msgEl.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(_saveErrorTimer);
+  _saveErrorTimer = setTimeout(function() { toast.classList.remove('visible'); }, 8000);
+}
 </script>
+<div id="save-error-toast"><span id="save-error-msg"></span><button onclick="document.getElementById('save-error-toast').classList.remove('visible')">✕</button></div>
 </body>
 </html>

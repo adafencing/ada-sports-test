@@ -865,6 +865,15 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 
       <!-- ══════════ MICROCYCLE MODULE ══════════ -->
       <div class="module" id="mod-micro">
+        <div id="mc-not-configured" style="display:none;padding:60px 24px;text-align:center;">
+          <div style="font-size:2.4rem;margin-bottom:12px;">&#128197;</div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;">Set up your season first</div>
+          <div style="font-size:0.88rem;color:var(--muted);max-width:420px;margin:0 auto 20px;line-height:1.6;">
+            Weekly planning is organized around your season's start date. Set that up once, and every training session, phase, and week will line up correctly across desktop, mobile, and the athlete app.
+          </div>
+          <button class="nav-btn primary" onclick="switchModule('season')">Go to Season Setup</button>
+        </div>
+        <div id="mc-active-content">
         <div class="row sb-row mb-12" style="flex-wrap:wrap;gap:8px;">
           <div>
             <div class="row gap-8">
@@ -908,6 +917,7 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             <div id="mc-monotony-strain" style="flex:1;min-width:220px;"></div>
           </div>
         </div>
+        </div><!-- /mc-active-content -->
 
         <!-- Copy Plan Modal -->
         <div class="modal-overlay" id="copy-plan-overlay" onclick="closeCopyPlanModal(event)" style="display:none;">
@@ -1372,6 +1382,7 @@ let matchCalendar = [];  // [ { id, date, opponent, venue, result, score } ]
 let matchResults  = {};  // weekIdx → { result, score, opponent, venue, fromCalendar }
 let camps        = [];   // { id, title, location, startDate, endDate }
 let CURRENT_WEEK = 0;
+let seasonConfigured = false; // true only once a real season doc with startDate is loaded from Firestore
 
 const COMPETITION_IMPORTANCE = {
   1: { label: 'Friendly',              color: '#94a3b8' },
@@ -1416,6 +1427,7 @@ function updateSeasonDates() {
   if (!sv) return;
   seasonStartDate = parseLocalDate(sv); _seasonMondayAnchor = null;
   seasonEndDate   = new Date(seasonStartDate.getTime() + 52 * 7 * 24 * 3600 * 1000);
+  seasonConfigured = true;
   updateWeekCountLabel();
   computeCurrentWeek();
   syncCompetitionEvents();
@@ -2866,6 +2878,15 @@ function getMicroPlan(weekIdx) {
 }
 
 function renderMicro() {
+  var notConfiguredEl = document.getElementById('mc-not-configured');
+  var activeContentEl = document.getElementById('mc-active-content');
+  if (!seasonConfigured) {
+    if (notConfiguredEl) notConfiguredEl.style.display = '';
+    if (activeContentEl) activeContentEl.style.display = 'none';
+    return;
+  }
+  if (notConfiguredEl) notConfiguredEl.style.display = 'none';
+  if (activeContentEl) activeContentEl.style.display = '';
   const w     = currentMicroWeek;
   const phase = weekPhases[w] || 'none';
   const pc    = phaseConfig[phase];
@@ -3220,11 +3241,21 @@ function executeCopyPlan() {
 /* ── Auto-save: debounced, fires 800 ms after any plan mutation ── */
 var _autoSaveTimers = {};
 function autoSaveMicro(weekIdx, force) {
-  if (!microPlansLoaded && !force) return; // never overwrite Firestore before we've read it
+  if (!microPlansLoaded && !force) {
+    console.warn('[ADA] autoSaveMicro blocked — microcycles not yet loaded (week '+weekIdx+')');
+    showSaveError('Still loading — please wait a moment and try again.');
+    return;
+  }
   clearTimeout(_autoSaveTimers[weekIdx]);
   _autoSaveTimers[weekIdx] = setTimeout(function() {
-    if (!window.ADA_USER || !window.db) return;
+    if (!window.ADA_USER || !window.db) {
+      console.warn('[ADA] autoSaveMicro blocked — no user/db (week '+weekIdx+')');
+      showSaveError('Save failed: not connected. Please sign out and back in.');
+      return;
+    }
     setAutoSaveStatus('saving');
+    var docPath = 'seasons/'+window.ADA_USER.orgId+'/microcycles/week_'+weekIdx;
+    console.log('[ADA][date-diag] autoSaveMicro', { weekIdx: weekIdx, orgId: window.ADA_USER.orgId, seasonStart: toISO(seasonStartDate), weekStartDate: toISO(getWeekStartDate(weekIdx)), docPath: docPath });
     window.db.collection('seasons').doc(window.ADA_USER.orgId)
       .collection('microcycles').doc('week_' + weekIdx).set({
         weekIdx: weekIdx,
@@ -3232,7 +3263,7 @@ function autoSaveMicro(weekIdx, force) {
         updatedAt: new Date().toISOString(),
         updatedBy: window.ADA_USER.uid
       }, { merge: true })
-      .then(function()  { setAutoSaveStatus('saved'); })
+      .then(function()  { setAutoSaveStatus('saved'); console.log('[ADA][date-diag] autoSaveMicro SUCCESS', { docPath: docPath }); })
       .catch(function(err) {
         console.error('autoSaveMicro failed (week '+weekIdx+'):', err);
         setAutoSaveStatus('error');
@@ -3641,8 +3672,18 @@ window.addEventListener('ada:ready', (e) => {
           if (d.matchCalendar) matchCalendar  = d.matchCalendar || [];
           if (d.matchResults)  matchResults   = d.matchResults  || {};
           console.log('[ADA] Season doc loaded. competitions:', competitions.length, 'camps:', camps.length);
+          // Partial season doc (e.g. bootstrapped by coach-mobile's fallback, which only
+          // writes startDate) — complete it with a proper endDate + full shape so every
+          // app reads a consistent, fully-formed season record going forward.
+          if (d.startDate && !d.endDate) {
+            seasonEndDate = new Date(seasonStartDate.getTime() + 52 * 7 * 24 * 3600 * 1000);
+            console.warn('[ADA] Season doc was partial (no endDate) — completing it now.', { startDate: d.startDate, computedEndDate: toISO(seasonEndDate) });
+            autoSaveSeason();
+          }
+          seasonConfigured = !!d.startDate;
         } else {
           console.log('[ADA] No season doc found for orgId:', user.orgId);
+          seasonConfigured = false;
         }
         syncCompetitionEvents();
         syncDatePickers();
@@ -3657,6 +3698,7 @@ window.addEventListener('ada:ready', (e) => {
             microPlansLoaded = true;
             currentMicroWeek = CURRENT_WEEK; // anchor to actual current week, not always week 0
             console.log('[ADA] Microcycles loaded:', microSnap.size);
+            console.log('[ADA][date-diag] desktop loadWeekPlan', { orgId: user.orgId, seasonStart: toISO(seasonStartDate), todayLocal: toISO(new Date()), currentWeekIdx: CURRENT_WEEK, currentWeekStartDate: toISO(getWeekStartDate(CURRENT_WEEK)), weeksLoaded: Object.keys(microPlans) });
             // If coach already navigated to micro tab before load finished, re-render now
             var microMod = document.getElementById('mod-micro');
             if (microMod && microMod.classList.contains('active')) renderMicro();

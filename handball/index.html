@@ -1153,6 +1153,8 @@ var weekOffset=0;  // 0=current week, -1=last week etc
 var currentOrgId=null; // cached for week navigation
 var seasonMinOffset=null; // earliest allowed weekOffset (set when season loads)
 var seasonMaxOffset=null; // latest allowed weekOffset
+var _seasonMonAnchor=null; // Monday of the season's first week (Date), set once season loads
+var _seasonBaseWeekIdx=0;  // weekIdx of "today" relative to _seasonMonAnchor (clamped >=0)
 var restHRVal=null; // resting HR entered in checkin
 var pastSessions=[];// last 7 days from checkins
 
@@ -1164,7 +1166,23 @@ var _weekLoggedSessions={}; // day index -> full sessions[] array from Firestore
 var todayLogged=false,_loggedSessions=[],_loggingDate=null,_editingSessionId=null,todaySessionType='training',todaySessionName='Training';
 
 // Compute Mon–Sun dates for a given week offset (0=current, -1=last, etc)
+// Derives dates from the season's Monday anchor + weekIdx (same index used to fetch the
+// Firestore microcycle doc) so the calendar labels always match the fetched document —
+// even when "today" falls before the season start and weekIdx gets clamped to 0.
 function buildWeekDatesOffset(offset){
+  if(_seasonMonAnchor){
+    var wIdx=Math.max(0,_seasonBaseWeekIdx+(offset||0));
+    var mon=new Date(_seasonMonAnchor.getTime());
+    mon.setDate(mon.getDate()+wIdx*7);
+    var dates=[];
+    for(var i=0;i<7;i++){
+      var d=new Date(mon);
+      d.setDate(mon.getDate()+i);
+      dates.push(d);
+    }
+    return dates;
+  }
+  // Fallback (season not loaded yet): today-relative calendar week
   var now=new Date();
   var dow=now.getDay();
   var mon=new Date(now);
@@ -1192,6 +1210,8 @@ function buildWeekDates(){
 }
 
 function parseLocalDate(s){var p=s.split('-');return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));}
+function p2(n){return n<10?'0'+n:''+n;}
+function toISO(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
 
 function sessTypeInfo(type){
   return SESS_TYPES[type]||{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:type||'Training',col:'#9C9C92'};
@@ -1220,6 +1240,8 @@ async function loadWeekPlan(orgId,offset){
       // Use today's local midnight as anchor (not Date.now()) to avoid sub-day drift
       var todayMidnight=new Date(); todayMidnight.setHours(0,0,0,0);
       baseWeekIdx=Math.max(0,Math.floor((todayMidnight.getTime()-mondayAnchor.getTime())/(7*24*3600*1000)));
+      _seasonMonAnchor=mondayAnchor;
+      _seasonBaseWeekIdx=baseWeekIdx;
       // Compute and store season offset bounds for shiftWeek clamping
       seasonMinOffset=-baseWeekIdx; // can't go before season start
       if(end){
@@ -1235,6 +1257,7 @@ async function loadWeekPlan(orgId,offset){
       phase=phaseMap[weekIdx]||'none';
     }
     var weekIdx=Math.max(0,baseWeekIdx+weekOffset);
+    console.log('[ADA][date-diag] loadWeekPlan', { orgId: orgId, weekOffset: weekOffset, baseWeekIdx: baseWeekIdx, weekIdx: weekIdx, seasonStart: (seasonDoc.exists?seasonDoc.data().startDate:null), docPath: 'seasons/'+orgId+'/microcycles/week_'+weekIdx, todayLocal: toISO(new Date()) });
     const microDoc=await window.db.collection('seasons').doc(orgId)
       .collection('microcycles').doc('week_'+weekIdx).get();
     const weekDates=buildWeekDatesOffset(weekOffset);
@@ -1300,8 +1323,8 @@ async function loadWeekPlan(orgId,offset){
     if(ADA_UID && window.db){
       try{
         var weekDatesCheck=buildWeekDatesOffset(weekOffset);
-        var weekStart=weekDatesCheck[0].toISOString().slice(0,10);
-        var weekEnd=weekDatesCheck[6].toISOString().slice(0,10);
+        var weekStart=toISO(weekDatesCheck[0]);
+        var weekEnd=toISO(weekDatesCheck[6]);
         var weekSnap=await window.db.collection('checkins').doc(ADA_UID)
           .collection('sessions').where('date','>=',weekStart).where('date','<=',weekEnd).get();
         _weekLoggedSessions={};
@@ -1309,7 +1332,7 @@ async function loadWeekPlan(orgId,offset){
           var data=doc.data();
           var loggedIso=data.date;
           weekDatesCheck.forEach(function(d,i){
-            if(d.toISOString().slice(0,10)===loggedIso){
+            if(toISO(d)===loggedIso){
               var ps=sessions.find(function(x){return x.day===i;});
               if(ps){
                 ps.done=true;
@@ -1363,7 +1386,7 @@ async function loadLastCheckin(uid){
       mood: ['#ef4444','#f97316','#eab308','#86efac','#22c55e']
     };
     // Populate met-strip with last values
-    var _isToday = (d.date === new Date().toISOString().slice(0,10));
+    var _isToday = (d.date === toISO(new Date()));
     keys.forEach(function(k){
       var val=d[k];
       if(!val)return;
@@ -1400,7 +1423,7 @@ async function loadLastCheckin(uid){
       }
     }
     // Show date + time
-    var today=new Date().toISOString().slice(0,10);
+    var today=toISO(new Date());
     var ld=document.getElementById('last-checkin-date');
     var checkedInToday = (d.date === today);
     if(checkedInToday&&(d.sessions||d.tl)){todayLogged=true;}
@@ -1428,7 +1451,7 @@ async function loadLastCheckin(uid){
     }
     // 7-day query — powers trend, streak, personal best, weekly summary
     var since=new Date(); since.setDate(since.getDate()-7);
-    var sinceStr=since.toISOString().slice(0,10);
+    var sinceStr=toISO(since);
     window.db.collection('checkins').doc(uid)
       .collection('sessions').where('date','>=',sinceStr)
       .orderBy('date','asc').get().then(function(tSnap){
@@ -1463,7 +1486,7 @@ async function loadLastCheckin(uid){
           var count=0;
           for(var i=6;i>=0;i--){
             var day=new Date(); day.setDate(day.getDate()-i);
-            var dayStr=day.toISOString().slice(0,10);
+            var dayStr=toISO(day);
             var done=dates.indexOf(dayStr)>=0;
             if(done) count++;
             var dow=DAY[day.getDay()];
@@ -1512,7 +1535,7 @@ async function loadPastSessions(uid){
   try{
     const since=new Date();
     since.setDate(since.getDate()-7);
-    const sinceStr=since.toISOString().slice(0,10);
+    const sinceStr=toISO(since);
     const snap=await window.db.collection('checkins').doc(uid)
       .collection('sessions').where('date','>=',sinceStr)
       .orderBy('date','desc').get();
@@ -1546,7 +1569,7 @@ function checkRestHRTrend(uid){
   if(!uid||!window.db)return;
   var since=new Date();since.setDate(since.getDate()-7);
   window.db.collection('checkins').doc(uid).collection('sessions')
-    .where('date','>=',since.toISOString().slice(0,10)).orderBy('date','asc').get()
+    .where('date','>=',toISO(since)).orderBy('date','asc').get()
     .then(function(snap){
       var hrs=snap.docs.map(function(d){return d.data().restHR;}).filter(function(v){return v&&v>0;});
       if(hrs.length<3)return;
@@ -1587,7 +1610,7 @@ function saveInjury(btn){
   if(!injType){alert('Choose injury type.');return;}
   showSuccess('ok','Injury Reported','Your coach has been notified.');
   if(!ADA_UID||!window.db)return;
-  var today=new Date().toISOString().slice(0,10);
+  var today=toISO(new Date());
   window.db.collection('injuries').doc(ADA_UID).collection('reports').add({
     date:today,bodyPart:bodyPart,type:injType,severity:severity,
     athleteId:ADA_UID,
@@ -1604,7 +1627,7 @@ function saveWellness(){
   var score=Math.round(((sleep+fat+sor+stress+mood)/25)*100);
   showSuccess('ok','Check-in Saved','Wellness logged. Your coach can see this.');
   if(!ADA_UID||!window.db)return;
-  var today=new Date().toISOString().slice(0,10);
+  var today=toISO(new Date());
   var dataToSave={date:today,sleep:sleep,fat:fat,sor:sor,stress:stress,mood:mood,score:score};
   if(restHRVal)dataToSave.restHR=restHRVal;
   window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(today)
@@ -1662,7 +1685,7 @@ function renderPlan(){
   const todayIdx=(new Date().getDay()+6)%7;
   strip.innerHTML=dayNames.map((d,i)=>{
     const s=sessions.find(x=>x.day===i);
-    const iso=buildWeekDatesOffset(weekOffset)[i].toISOString().slice(0,10);
+    const iso=toISO(buildWeekDatesOffset(weekOffset)[i]);
     const comps=window._competitions||[];
     const campArr=window._camps||[];
     const inComp=comps.find(c=>iso>=c.startDate&&iso<=c.endDate);
@@ -1693,7 +1716,7 @@ function renderPlan(){
       +'</div>';
     if(showFormR){var rd=rpeData.find(function(r){return r.n===_planFormRpe;});var rdEl=document.getElementById('pf-rpe-desc');if(rdEl&&rd)rdEl.textContent='— '+rd.d;}
     document.getElementById('plan-all').innerHTML=sessions.map(function(s){
-      var iso=buildWeekDatesOffset(weekOffset)[s.day]?buildWeekDatesOffset(weekOffset)[s.day].toISOString().slice(0,10):null;
+      var iso=buildWeekDatesOffset(weekOffset)[s.day]?toISO(buildWeekDatesOffset(weekOffset)[s.day]):null;
       var comps=window._competitions||[],campArr=window._camps||[];
       var inComp=iso&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
       var inCamp=iso&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
@@ -1777,7 +1800,7 @@ function renderPlan(){
     +inlineForm+'</div>';
   if(showForm){var rd=rpeData.find(function(r){return r.n===_planFormRpe;});var rdEl=document.getElementById('pf-rpe-desc');if(rdEl&&rd)rdEl.textContent='— '+rd.d;}
   document.getElementById('plan-all').innerHTML=sessions.map(function(s){
-    var iso=buildWeekDatesOffset(weekOffset)[s.day]?buildWeekDatesOffset(weekOffset)[s.day].toISOString().slice(0,10):null;
+    var iso=buildWeekDatesOffset(weekOffset)[s.day]?toISO(buildWeekDatesOffset(weekOffset)[s.day]):null;
     var comps=window._competitions||[],campArr=window._camps||[];
     var inComp=iso&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
     var inCamp=iso&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
@@ -1843,7 +1866,7 @@ function openPlanForm(day,editing,addAnother,planIdx){
   var loggedArr=_weekLoggedSessions[day]||[];
   _planFormAddAnother=addAnother||(!!editing?false:loggedArr.length>0);
   if(editing&&ADA_UID&&window.db){
-    var iso=buildWeekDatesOffset(weekOffset)[day].toISOString().slice(0,10);
+    var iso=toISO(buildWeekDatesOffset(weekOffset)[day]);
     window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso)
       .get().then(function(doc){
         if(doc.exists){
@@ -1879,7 +1902,7 @@ function adjPlanDur(d){
 function submitPlanLog(day){
   var noteEl=document.getElementById('pf-note');
   _planFormNote=noteEl?noteEl.value.trim():'';
-  var iso=buildWeekDatesOffset(weekOffset)[day].toISOString().slice(0,10);
+  var iso=toISO(buildWeekDatesOffset(weekOffset)[day]);
   var tl=_planFormRpe*_planFormDur;
   var nm=SESS_TYPES[_planFormType]?SESS_TYPES[_planFormType].name:_planFormType;
   var sessId=(_planFormEditing&&_planFormOrigId)?_planFormOrigId:('s'+Date.now());
@@ -1924,7 +1947,7 @@ function submitPlanLog(day){
   }
 }
 function deletePlanLog(day){
-  var iso=buildWeekDatesOffset(weekOffset)[day].toISOString().slice(0,10);
+  var iso=toISO(buildWeekDatesOffset(weekOffset)[day]);
   if(!ADA_UID||!window.db)return;
   window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).delete()
     .then(function(){
