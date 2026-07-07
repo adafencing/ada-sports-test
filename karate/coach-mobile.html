@@ -1024,8 +1024,9 @@ function loadWeekPlan(u) {
       // Set a sensible default so weekIdx calculations work correctly.
       if (!coach.seasonStart) {
         var defaultStart = new Date();
-        defaultStart.setDate(defaultStart.getDate() - defaultStart.getDay() + 1); // this Monday
-        coach.seasonStart = defaultStart.toISOString().slice(0,10);
+        var dsDow = defaultStart.getDay();
+        defaultStart.setDate(defaultStart.getDate() + (dsDow === 0 ? -6 : 1 - dsDow)); // this Monday (local)
+        coach.seasonStart = toISO(defaultStart);
       }
       enterApp();
     }
@@ -1240,13 +1241,29 @@ let weekOffset = 0;
 let selectedDay = 0; // 0=Mon index
 
 function getWeekDates(offset){
+  var off = (offset !== undefined) ? offset : weekOffset;
+  if (coach.seasonStart) {
+    var start = parseLocalDate(coach.seasonStart);
+    var startDow = start.getDay();
+    var anchor = new Date(start);
+    anchor.setDate(anchor.getDate() + (startDow === 0 ? -6 : 1 - startDow));
+    var todayMid = new Date(); todayMid.setHours(0,0,0,0);
+    var baseIdx = Math.max(0, Math.floor((todayMid.getTime() - anchor.getTime()) / (7*24*3600*1000)));
+    var wIdx = Math.max(0, baseIdx + off);
+    var mon = new Date(anchor.getTime());
+    mon.setDate(mon.getDate() + wIdx*7);
+    return Array.from({length:7}, (_,i) => {
+      const d = new Date(mon); d.setDate(d.getDate()+i); return toISO(d);
+    });
+  }
+  // Fallback (no season set yet): today-relative calendar week
   const now = new Date();
   const dow = now.getDay();
   const diffToMon = (dow === 0) ? -6 : 1 - dow;
-  const mon = new Date(now);
-  mon.setDate(mon.getDate() + diffToMon + (offset||weekOffset)*7);
+  const mon2 = new Date(now);
+  mon2.setDate(mon2.getDate() + diffToMon + off*7);
   return Array.from({length:7}, (_,i) => {
-    const d = new Date(mon); d.setDate(d.getDate()+i); return toISO(d);
+    const d = new Date(mon2); d.setDate(d.getDate()+i); return toISO(d);
   });
 }
 
@@ -1264,7 +1281,7 @@ function renderNedeljni(){
   const todayISO = today();
   const LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   strip.innerHTML = dates.map((iso, i) => {
-    const d = new Date(iso);
+    const d = parseLocalDate(iso);
     const sess = sessions[iso];
     const sessArr = sess && sess.length > 0 ? sess : null;
     // Check if this day falls within a competition or camp
@@ -1426,7 +1443,7 @@ function renderSessDetail(){
   const dates = getWeekDates();
   const iso = dates[selectedDay];
   const sessArr = sessions[iso]; // now an array or undefined
-  const d = new Date(iso);
+  const d = parseLocalDate(iso);
   const todayISO = today();
   const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const el = document.getElementById('sess-detail');
@@ -1546,7 +1563,7 @@ let isNewSess = true;
 function openSessEditor(editISO, dateISO){
   editingISO = dateISO;
   isNewSess = !editISO || !sessions[editISO] || !sessions[editISO].length || editISO !== dateISO;
-  const d = new Date(dateISO);
+  const d = parseLocalDate(dateISO);
   const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const dayIdx = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(d.toLocaleString('en',{weekday:'short'}));
   document.getElementById('ov-sess-title').textContent = isNewSess ? 'New Session' : 'Edit Session';
@@ -1661,7 +1678,7 @@ function publishSession(){
   if(!editingISO) return;
   var sess = collectSessData('published');
   sess.weekIdx = getWeekIdxForDate(editingISO);
-  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][new Date(editingISO).getDay() === 0 ? 6 : new Date(editingISO).getDay() - 1];
+  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(editingISO).getDay() === 0 ? 6 : parseLocalDate(editingISO).getDay() - 1];
   if(isNewSess){
     if(!sessions[editingISO]) sessions[editingISO] = [];
     sessions[editingISO] = sessions[editingISO].concat([sess]);
@@ -1678,7 +1695,7 @@ function saveDraft(){
   if(!editingISO) return;
   var sess = collectSessData('draft');
   sess.weekIdx = getWeekIdxForDate(editingISO);
-  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][new Date(editingISO).getDay() === 0 ? 6 : new Date(editingISO).getDay() - 1];
+  sess.dayKey  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(editingISO).getDay() === 0 ? 6 : parseLocalDate(editingISO).getDay() - 1];
   if(isNewSess){
     if(!sessions[editingISO]) sessions[editingISO] = [];
     sessions[editingISO] = sessions[editingISO].concat([sess]);

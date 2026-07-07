@@ -1350,6 +1350,7 @@ function updateSeasonDates() {
   updateWeekCountLabel();
   computeCurrentWeek();
   syncCompetitionEvents();
+  syncCampEvents();
   renderSeason();
   autoSaveSeason();
 }
@@ -3420,6 +3421,7 @@ window.addEventListener('ada:ready', (e) => {
           console.log('[ADA] No season doc found for orgId:', user.orgId);
         }
         syncCompetitionEvents();
+        syncCampEvents();
         syncDatePickers();
         renderSeason();
         // Load microcycles separately — failure must not wipe season state

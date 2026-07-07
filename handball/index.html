@@ -1253,6 +1253,7 @@ async function loadWeekPlan(orgId,offset){
       weekEvents=seasonDoc.data().weekEvents||{};
       window._competitions=seasonDoc.data().competitions||[];
       window._camps=seasonDoc.data().camps||[];
+      window._matches=seasonDoc.data().matchCalendar||[];
       var weekIdx=Math.max(0,baseWeekIdx+weekOffset);
       phase=phaseMap[weekIdx]||'none';
     }
@@ -1674,6 +1675,10 @@ function savePast(i){
     .catch(function(e){console.warn('Past save:',e.message);});
 }
 
+function getMatchForISO(iso){
+  return (window._matches||[]).find(function(m){return m.date===iso;})||null;
+}
+
 function renderPlan(){
   const strip=document.getElementById('week-strip');
   if(!sessions.length||!dayDates.length){
@@ -1688,9 +1693,10 @@ function renderPlan(){
     const iso=toISO(buildWeekDatesOffset(weekOffset)[i]);
     const comps=window._competitions||[];
     const campArr=window._camps||[];
-    const inComp=comps.find(c=>iso>=c.startDate&&iso<=c.endDate);
-    const inCamp=!inComp&&campArr.find(c=>iso>=c.startDate&&iso<=c.endDate);
-    const evColor=inComp?'#f59e0b':inCamp?'#22c55e':null;
+    const inMatch=getMatchForISO(iso);
+    const inComp=!inMatch&&comps.find(c=>iso>=c.startDate&&iso<=c.endDate);
+    const inCamp=!inMatch&&!inComp&&campArr.find(c=>iso>=c.startDate&&iso<=c.endDate);
+    const evColor=inMatch?'#FF6F61':inComp?'#f59e0b':inCamp?'#22c55e':null;
     const evBg=evColor?`background:${evColor}18;`:'';
     const evBorder=evColor?`border-bottom:2px solid ${evColor};`:'';
     const dotColor=s?s.col:evColor?evColor:'transparent';
@@ -1702,13 +1708,23 @@ function renderPlan(){
   }).join('');
   const s=sessions.find(x=>x.day===activePlanDay);
   const dd=document.getElementById('plan-day-detail');
+  const selDateObj=buildWeekDatesOffset(weekOffset)[activePlanDay];
+  const selIso=selDateObj?toISO(selDateObj):null;
+  const selMatch=selIso?getMatchForISO(selIso):null;
+  const matchBannerHTML=selMatch?'<div style="background:rgba(255,111,97,0.08);border:1px solid rgba(255,111,97,0.3);border-left:3px solid #FF6F61;border-radius:10px;padding:11px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px">'
+    +'<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,111,97,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6F61" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>'
+    +'</div><div style="flex:1;min-width:0">'
+    +'<div style="font-family:var(--mono);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#FF6F61">Match Day</div>'
+    +'<div style="font-size:0.88rem;font-weight:800;margin-top:1px">vs '+(selMatch.opponent||'TBD')+'</div>'
+    +'</div></div>':'';
   if(!s||s.type==='rest'){
     var detTodayIdxR=(new Date().getDay()+6)%7;
     var canLogR=(weekOffset<0)||(weekOffset===0&&activePlanDay<=detTodayIdxR);
     var showFormR=(_planFormDay===activePlanDay);
     var inlineFormR=showFormR?(buildPlanInlineForm(activePlanDay)):'';
     _planFormDay=showFormR?_planFormDay:null;
-    dd.innerHTML='<div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;text-align:center">'
+    dd.innerHTML=matchBannerHTML+'<div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;text-align:center">'
       +'<div style="opacity:0.4;margin-bottom:6px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>'
       +'<div style="font-weight:700;font-size:0.85rem;margin-bottom:'+(canLogR&&!showFormR?'10':'0')+'px">Rest Day</div>'
       +(canLogR&&!showFormR?'<button class="btn" style="background:var(--s2);border:1px solid var(--bdr);font-size:0.82rem;margin-top:4px" onclick="openPlanForm('+activePlanDay+',false,false)">+ Add Session</button>':'')
@@ -1718,9 +1734,11 @@ function renderPlan(){
     document.getElementById('plan-all').innerHTML=sessions.map(function(s){
       var iso=buildWeekDatesOffset(weekOffset)[s.day]?toISO(buildWeekDatesOffset(weekOffset)[s.day]):null;
       var comps=window._competitions||[],campArr=window._camps||[];
-      var inComp=iso&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-      var inCamp=iso&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-      var evPill=inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
+      var inMatch=iso&&getMatchForISO(iso);
+      var inComp=iso&&!inMatch&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+      var inCamp=iso&&!inMatch&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+      var evPill=inMatch?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#FF6F6120;color:#FF6F61;border:1px solid #FF6F6140;border-radius:4px;padding:1px 5px">vs '+(inMatch.opponent||'Match')+'</span>'
+        :inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
         :inCamp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#22c55e20;color:#15803d;border:1px solid #22c55e40;border-radius:4px;padding:1px 5px">Camp</span>':'';
       var tIdx2=(new Date().getDay()+6)%7;
       var rowToday=(weekOffset===0&&s.day===tIdx2);
@@ -1784,7 +1802,7 @@ function renderPlan(){
       +'<span style="font-family:var(--mono);font-size:0.85rem;font-weight:700;color:var(--coral)">TL '+(allLogged?totalLoggedTL:totalPlannedTL)+'</span>'
       +'</div>'
     :'';
-  dd.innerHTML='<div style="'+border+bg+'border-radius:10px;padding:12px;">'
+  dd.innerHTML=matchBannerHTML+'<div style="'+border+bg+'border-radius:10px;padding:12px;">'
     +(isToday?'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--coral);margin-bottom:8px">&#x2605; Today</div>':'')
     +stackHTML
     +totalRow
@@ -1802,9 +1820,11 @@ function renderPlan(){
   document.getElementById('plan-all').innerHTML=sessions.map(function(s){
     var iso=buildWeekDatesOffset(weekOffset)[s.day]?toISO(buildWeekDatesOffset(weekOffset)[s.day]):null;
     var comps=window._competitions||[],campArr=window._camps||[];
-    var inComp=iso&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-    var inCamp=iso&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-    var evPill=inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
+    var inMatch=iso&&getMatchForISO(iso);
+    var inComp=iso&&!inMatch&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+    var inCamp=iso&&!inMatch&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+    var evPill=inMatch?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#FF6F6120;color:#FF6F61;border:1px solid #FF6F6140;border-radius:4px;padding:1px 5px">vs '+(inMatch.opponent||'Match')+'</span>'
+      :inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
       :inCamp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#22c55e20;color:#15803d;border:1px solid #22c55e40;border-radius:4px;padding:1px 5px">Camp</span>':'';
     var tIdx2=(new Date().getDay()+6)%7;
     var rowToday=(weekOffset===0&&s.day===tIdx2);

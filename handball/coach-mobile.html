@@ -1098,12 +1098,14 @@ function loadWeekPlan(u) {
       seasonConfigured = false;
       console.warn('[ADA][date-diag] loadWeekPlan — no season configured for this org yet');
       enterApp();
+      goTab('nedeljni'); // don't default to Overview when other functions are gated
     }
   }).catch(function(err){
     console.error('[ADA][date-diag] season doc read error:', err.code || err.message, err);
     showSaveError('Could not load season data: ' + (err.code || err.message || 'unknown error'));
     seasonConfigured = false;
     enterApp();
+    goTab('nedeljni');
   });
 }
 
@@ -1379,16 +1381,17 @@ function renderNedeljni(){
     const d = parseLocalDate(iso);
     const sess = sessions[iso];
     const sessArr = sess && sess.length > 0 ? sess : null;
-    // Check if this day falls within a competition or camp
-    const inComp = competitions.find(c => iso >= c.startDate && iso <= c.endDate);
-    const inCamp = !inComp && camps.find(c => iso >= c.startDate && iso <= c.endDate);
-    const evColor = inComp ? 'var(--amber)' : inCamp ? CAMP_COLOR : null;
+    // Check if this day falls within a competition, camp, or is a scheduled match
+    const inMatch = matches.find(m => m.date === iso);
+    const inComp = !inMatch && competitions.find(c => iso >= c.startDate && iso <= c.endDate);
+    const inCamp = !inMatch && !inComp && camps.find(c => iso >= c.startDate && iso <= c.endDate);
+    const evColor = inMatch ? '#FF6F61' : inComp ? 'var(--amber)' : inCamp ? CAMP_COLOR : null;
     const evBg = evColor ? `background:${evColor}18;` : '';
     const evBorder = evColor ? `border-bottom:2px solid ${evColor};` : '';
     const dot = sessArr
       ? `<div class="dc-dot" style="background:${TYPE_COLORS[sessArr[0].type]||'var(--tl)'}"></div>`
       : evColor
-        ? `<div class="dc-dot" style="background:${evColor};opacity:0.5"></div>`
+        ? `<div class="dc-dot" style="background:${evColor};opacity:0.5" title="${inMatch ? ('vs '+(inMatch.opponent||'Match')) : ''}"></div>`
         : `<div class="dc-dot" style="background:transparent"></div>`;
     return `<div class="day-cell${i===selectedDay?' sel':''}${iso===todayISO?' today':''}" onclick="selectDay(${i})" style="${evBg}${evBorder}">
       <div class="dc-dow" style="${evColor?`color:${evColor};font-weight:700`:''}">${LABELS[i]}</div>
@@ -1543,6 +1546,24 @@ function renderSessDetail(){
   const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const el = document.getElementById('sess-detail');
 
+  // Match banner — shown when the selected day has a scheduled match
+  const dayMatch = matches.find(m => m.date === iso);
+  const VENUE_LABEL_SD = { home:'Home', away:'Away', neutral:'Neutral' };
+  const TYPE_LABEL_SD  = { friendly:'Friendly', league:'League', cup:'Cup', championship:'Championship' };
+  const RES_COLOR_SD   = { W:'var(--teal)', D:'var(--amber)', L:'var(--red)' };
+  const matchBannerHTML = dayMatch ? `<div class="card" style="border-left:3px solid #FF6F61;margin-bottom:8px" onclick="openEditMatch('${dayMatch.id}')">
+    <div class="cb" style="display:flex;align-items:center;gap:10px">
+      <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,111,97,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6F61" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#FF6F61">Match Day</div>
+        <div style="font-size:0.92rem;font-weight:800;margin-top:1px">vs ${dayMatch.opponent || 'TBD'}</div>
+        <div style="font-family:var(--mono);font-size:0.68rem;color:var(--tl);margin-top:2px">${VENUE_LABEL_SD[dayMatch.venue]||'Home'} &nbsp;·&nbsp; ${TYPE_LABEL_SD[dayMatch.matchType]||'League'}${dayMatch.result ? ' &nbsp;·&nbsp; <span style="color:'+(RES_COLOR_SD[dayMatch.result]||'var(--tl)')+';font-weight:700">'+dayMatch.result+(dayMatch.score?' '+dayMatch.score:'')+'</span>' : ''}</div>
+      </div>
+    </div>
+  </div>` : '';
+
   // shared athlete-responses block
   function athleteResponsesHTML(){
     if(!athletes||!athletes.length)return '';
@@ -1575,6 +1596,7 @@ function renderSessDetail(){
           <button class="ctx-tip-close" onclick="ctxTipDismiss('mob-weekly')" title="Dismiss">&#x2715;</button>
         </div>` : '';
     el.innerHTML = `<div class="sec">${LABELS[selectedDay]}, ${fmtDate(d)}</div>
+    ${matchBannerHTML}
     ${ttWeeklyMob}
     <div class="empty" style="padding:24px 0">
       <div class="empty-icon" style="opacity:0.3"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
@@ -1631,6 +1653,7 @@ function renderSessDetail(){
         </div>` : '';
 
     el.innerHTML = `<div class="sec">${LABELS[selectedDay]}, ${fmtDate(d)}</div>
+    ${matchBannerHTML}
     <div class="card" style="border-left:3px solid ${TYPE_COLORS[primarySess.type]||'var(--teal)'}">
       <div class="cb">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -2385,6 +2408,30 @@ function syncCampEvents() {
   });
 }
 
+// Recompute weekEvents from the Match Calendar (matches[]) — same weekIdx logic as
+// coach-desktop's syncCalendarToSeason, so a match created on either app maps to the
+// identical weekIdx and shows up on the season week-grid in both apps.
+function getSeasonMondayAnchorMobile() {
+  var d = new Date(seasonStartDate.getTime());
+  var dow = d.getDay();
+  d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+  return d;
+}
+function syncMatchEvents() {
+  Object.keys(weekEvents).forEach(function(w) {
+    if (weekEvents[w] && weekEvents[w].fromCalendar) delete weekEvents[w];
+  });
+  var mondayAnchor = getSeasonMondayAnchorMobile();
+  matches.forEach(function(m) {
+    if (!m.date) return;
+    var matchDate = parseLocalDate(m.date);
+    if (isNaN(matchDate.getTime())) return;
+    var weekIdx = Math.floor((matchDate.getTime() - mondayAnchor.getTime()) / (7*24*3600*1000));
+    if (weekIdx < 0 || weekIdx >= NUM_WEEKS) return;
+    weekEvents[weekIdx] = { type:'match', label: m.opponent || 'Match', matchType: m.matchType || 'league', fromCalendar:true, calId:m.id };
+  });
+}
+
 function getCompetitionForWeek(w) {
   var ev = weekEvents[w];
   if (!ev || !ev.competitionId) return null;
@@ -2416,6 +2463,7 @@ function loadSeasonFromSnap(d) {
   if (d.matchCalendar)  matches         = d.matchCalendar || [];
   syncCompetitionEvents();
   syncCampEvents();
+  syncMatchEvents();
   computeCurrentSeasonWeek();
 }
 
@@ -2927,6 +2975,11 @@ function copySettingsCode(){
 }
 
 function goTab(tab){
+  // Block access to functions that depend on the season start date until it's set —
+  // reuse Weekly Plan's existing "set up your season first" gate rather than duplicating it.
+  if (!seasonConfigured && (tab === 'pregled' || tab === 'tim' || tab === 'matches')) {
+    tab = 'nedeljni';
+  }
   const cfg = TABS[tab];
   if(!cfg) return;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -2973,11 +3026,15 @@ function ctxTipDismiss(key) {
 ════════════════════════════════════════ */
 function saveMatches() {
   var db = window.db;
-  if (!db || !coach.orgId) return;
+  if (!db || !coach.orgId) { showSaveError('Save failed: not connected (orgId missing).'); return; }
+  syncMatchEvents();
   db.collection('seasons').doc(coach.orgId).set(
-    { matchCalendar: matches, updatedAt: new Date().toISOString(), updatedBy: (window.ADA_USER && window.ADA_USER.uid) || '' },
+    { matchCalendar: matches, weekEvents: weekEvents, updatedAt: new Date().toISOString(), updatedBy: (window.ADA_USER && window.ADA_USER.uid) || '' },
     { merge: true }
-  ).catch(function(e){ console.warn('saveMatches failed:', e.message); });
+  ).catch(function(e){
+    console.error('saveMatches failed:', e.code || e.message, e);
+    showSaveError('Match save failed: ' + (e.code || e.message || 'unknown error'));
+  });
 }
 
 function renderMatches() {
@@ -3089,6 +3146,7 @@ function saveMatch() {
   saveMatches();
   closeModal('modal-add-match');
   renderMatches();
+  if (document.getElementById('sezona-content')) renderSeason();
 }
 
 function deleteMatch() {
@@ -3098,6 +3156,7 @@ function deleteMatch() {
   saveMatches();
   closeModal('modal-add-match');
   renderMatches();
+  if (document.getElementById('sezona-content')) renderSeason();
 }
 
 var _saveErrorTimer;
