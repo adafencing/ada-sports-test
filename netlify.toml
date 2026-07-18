@@ -31,8 +31,18 @@
   status = 200
 
 [[redirects]]
+  from = "/handball/"
+  to = "/handball/athlete.html"
+  status = 200
+
+[[redirects]]
   from = "/squash/*"
   to = "/squash/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/squash/"
+  to = "/squash/athlete.html"
   status = 200
 
 [[redirects]]
@@ -46,13 +56,38 @@
   status = 200
 
 [[redirects]]
+  from = "/karate/"
+  to = "/karate/athlete.html"
+  status = 200
+
+[[redirects]]
   from = "/table-tennis/*"
   to = "/table-tennis/:splat"
   status = 200
 
 [[redirects]]
+  from = "/table-tennis/"
+  to = "/table-tennis/athlete.html"
+  status = 200
+
+[[redirects]]
   from = "/fencing/*"
   to = "/fencing/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/fencing/"
+  to = "/fencing/athlete.html"
+  status = 200
+
+[[redirects]]
+  from = "/tennis/*"
+  to = "/tennis/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/tennis/"
+  to = "/tennis/athlete.html"
   status = 200
 
 [[redirects]]

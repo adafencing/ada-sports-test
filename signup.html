@@ -109,12 +109,12 @@ body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--tx);max-
       <label>Choose your Sport</label>
       <select class="sport-select" id="sport-select" onchange="window._selectedDiscipline=this.value||null">
         <option value="">Select a sport…</option>
-        <option value="handball">Handball</option>
-        <option value="squash">Squash</option>
-        <option value="cycling">Cycling</option>
-        <option value="karate">Karate</option>
-        <option value="table-tennis">Table Tennis</option>
         <option value="fencing">Fencing</option>
+        <option value="karate">Karate</option>
+        <option value="tennis">Tennis</option>
+        <option value="squash">Squash</option>
+        <option value="table-tennis">Table Tennis</option>
+        <option value="handball">Handball</option>
         <option value="other">Other</option>
       </select>
       <div class="sport-inherited" id="sport-inherited"></div>
@@ -177,7 +177,7 @@ function togglePw(id, btn){
   function buildDest(role, discipline) {
     if (role === 'admin')      return '/admin/';
     if (role === 'superadmin') return '/superadmin/';
-    if (role === 'athlete')    return '/' + (discipline||'handball') + '/index.html';
+    if (role === 'athlete')    return '/' + (discipline||'handball') + '/athlete.html';
     if (role === 'coach') {
       var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
       return '/' + (discipline||'handball') + '/' + app;

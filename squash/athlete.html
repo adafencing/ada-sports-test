@@ -412,6 +412,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
 .plan-type-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
 .plan-type-pill{padding:4px 10px;border-radius:20px;border:1.5px solid var(--bdr);background:var(--s2);font-family:var(--mono);font-size:0.7rem;font-weight:600;cursor:pointer;color:var(--tl);transition:all 0.13s;}
 .plan-type-pill.on{color:#fff;}
+.plan-type-select{-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C5C54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") !important;background-repeat:no-repeat !important;background-position:right 11px center !important;background-size:13px !important;padding-right:32px !important;}
 .plan-rpe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0 10px;}
 .plan-rpe-btn{height:32px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--s2);font-family:var(--mono);font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.13s;}
 .plan-rpe-btn.on{color:#fff;border-color:transparent;}
@@ -1139,9 +1140,9 @@ const SESS_TYPES={
   tactical:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`,name:'Tactical',   col:'#8b5cf6'},
   strength:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Strength',   col:'#ef4444'},
   conditioning:{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,name:'Conditioning',col:'#22c55e'},
-  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`,name:'Sparring',   col:'#f59e0b'},
+  match:       {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Friendly Match', col:'#FF6F61'},
+  pressure:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,name:'Pressure',    col:'#ec4899'},
   competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Competition', col:'#FF6F61'},
-  match:       {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Match',      col:'#FF6F61'},
   recovery:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',   col:'#94a3b8'},
   rest:        {icon:'—',     name:'Rest day', col:'#cbd5e1'},
 };
@@ -1155,6 +1156,10 @@ var seasonMinOffset=null; // earliest allowed weekOffset (set when season loads)
 var seasonMaxOffset=null; // latest allowed weekOffset
 var _seasonMonAnchor=null; // Monday of the season's first week (Date), set once season loads
 var _seasonBaseWeekIdx=0;  // weekIdx of "today" relative to _seasonMonAnchor (clamped >=0)
+var _allMicrocycles={};    // weekIdx -> plan object; whole season preloaded once so week nav is instant (no per-click Firestore read)
+var _allCheckins={};       // ISO date -> checkin doc data; whole season preloaded once alongside microcycles
+var _seasonWeekEvents={};  // cached weekEvents map from season doc (competitions/camps overlay)
+var _seasonPhaseMap={};    // cached weekPhases map from season doc
 var restHRVal=null; // resting HR entered in checkin
 var pastSessions=[];// last 7 days from checkins
 
@@ -1217,19 +1222,20 @@ function sessTypeInfo(type){
   return SESS_TYPES[type]||{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:type||'Training',col:'#9C9C92'};
 }
 
-// Load current week plan from coach microcycle
+// Bulk-load the whole season once (season doc + ALL microcycles + ALL checkins) and cache
+// in memory, mirroring coach-mobile/coach-desktop's "load once, render from memory" pattern.
+// Week navigation (shiftWeek → renderWeek) then does zero Firestore reads.
 async function loadWeekPlan(orgId,offset){
   if(!orgId||!window.db)return;
   if(offset===undefined)offset=0;
-  weekOffset=offset; currentOrgId=orgId;
-  // Reset plan form state on week change
+  currentOrgId=orgId;
+  // Reset plan form state on season (re)load
   _loggingDate=null;
   _weekLoggedSessions={};
   try{
-    var phase='none'; // will be set from season doc
-    const seasonDoc=await window.db.collection('seasons').doc(orgId).get();
     var baseWeekIdx=0;
-    var weekEvents={};
+    var checkinsStartISO=null, checkinsEndISO=null;
+    const seasonDoc=await window.db.collection('seasons').doc(orgId).get();
     if(seasonDoc.exists&&seasonDoc.data().startDate){
       const start=parseLocalDate(seasonDoc.data().startDate);
       const end=seasonDoc.data().endDate?parseLocalDate(seasonDoc.data().endDate):null;
@@ -1246,119 +1252,138 @@ async function loadWeekPlan(orgId,offset){
       seasonMinOffset=-baseWeekIdx; // can't go before season start
       if(end){
         seasonMaxOffset=Math.floor((end.getTime()-Date.now())/(7*24*3600*1000))+1;
-        if(weekOffset>seasonMaxOffset) weekOffset=seasonMaxOffset;
+        if(offset>seasonMaxOffset) offset=seasonMaxOffset;
       }
-      if(weekOffset<seasonMinOffset) weekOffset=seasonMinOffset;
-      var phaseMap=seasonDoc.data().weekPhases||{};
-      weekEvents=seasonDoc.data().weekEvents||{};
+      if(offset<seasonMinOffset) offset=seasonMinOffset;
+      _seasonPhaseMap=seasonDoc.data().weekPhases||{};
+      _seasonWeekEvents=seasonDoc.data().weekEvents||{};
       window._competitions=seasonDoc.data().competitions||[];
       window._camps=seasonDoc.data().camps||[];
-      var weekIdx=Math.max(0,baseWeekIdx+weekOffset);
-      phase=phaseMap[weekIdx]||'none';
-    }
-    var weekIdx=Math.max(0,baseWeekIdx+weekOffset);
-    const microDoc=await window.db.collection('seasons').doc(orgId)
-      .collection('microcycles').doc('week_'+weekIdx).get();
-    const weekDates=buildWeekDatesOffset(weekOffset);
-    dayDates=weekDates.map(d=>d.getDate());
-    sessions=[];
-    if(microDoc.exists&&microDoc.data().plan){
-      const plan=microDoc.data().plan;
-      dayKeys.forEach(function(key,i){
-        const daySessions=plan[key]||[];
-        const nonRest=daySessions.filter(function(s){return s.type!=='rest'&&s.id!=='rest';});
-        if(!nonRest.length){
-          sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Rest day',dur:0,rpe:0,tl:0,done:false,_planned:[]});
-        } else {
-          const s=nonRest[0];
-          const t=sessTypeInfo(s.type);
-          const dur=s.duration||s.dur||0;
-          const rpe=s.rpe||0;
-          // Build _planned array for all non-rest sessions (multi-session support)
-          const plannedAll=nonRest.map(function(ps){
-            var pt=sessTypeInfo(ps.type);
-            var pd=ps.duration||ps.dur||0;
-            var pr=ps.rpe||0;
-            return {type:ps.type,icon:pt.icon,col:pt.col,name:ps.label||pt.name,dur:pd,rpe:pr,tl:pd*pr};
-          });
-          sessions.push({day:i,type:s.type,icon:t.icon,col:t.col,
-            name:s.label||t.name,dur:dur,rpe:rpe,tl:dur*rpe,done:false,_planned:plannedAll});
-        }
-      });
+      checkinsStartISO=toISO(mondayAnchor);
+      checkinsEndISO=toISO(end||new Date(Date.now()+120*24*3600*1000));
     } else {
-      // No plan yet — show empty days
-      for(var i=0;i<7;i++){
-        sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Plan not created',dur:0,rpe:0,tl:0,done:false});
-      }
+      // No season configured — fall back to a wide window around today so nav still works
+      _seasonMonAnchor=null; _seasonBaseWeekIdx=0;
+      var wideStart=new Date(); wideStart.setDate(wideStart.getDate()-90);
+      var wideEnd=new Date(); wideEnd.setDate(wideEnd.getDate()+90);
+      checkinsStartISO=toISO(wideStart); checkinsEndISO=toISO(wideEnd);
     }
-    // Show phase in topbar
-    var phTag=document.getElementById('phase-tag');
-    if(phTag&&phase&&phase!=='none'){
-      var phLabels={off:'Off-season',prep:'General Prep',phys:'Specific Prep',precomp:'Pre-Competitive',comp:'Competitive',trans:'Transition'};
-      phTag.textContent=(phLabels[phase]||phase)+' · W'+(weekIdx+1);
-      phTag.style.display='';
-    }
-    // Update Today screen hero card
-    if(weekOffset===0){
-      var tIdx=(new Date().getDay()===0?6:new Date().getDay()-1);
-      var tS=sessions.find(function(s){return s.day===tIdx;})||null;
-      var ea=document.getElementById('hero-sess-icon'),eb=document.getElementById('hero-sess-name'),ec=document.getElementById('hero-sess-meta'),ed=document.getElementById('hero-sess-badge');
-      if(eb){
-        if(tS&&tS.type!=='rest'){eb.textContent=tS.name||'Training';if(ec)ec.textContent=(tS.type||'')+' · '+tS.dur+' min · RPE '+tS.rpe;if(ea){ea.innerHTML=tS.svg||tS.icon||'';ea.style.background=(tS.col||'#888')+'20';}if(ed)ed.textContent='Planned';}
-        else{eb.textContent='Rest day';if(ec)ec.textContent='No training today';if(ea){ea.innerHTML='';ea.style.background='var(--s2)';}if(ed)ed.textContent='Rest';}
-      }
-    }
-    var weekStartDate=buildWeekDatesOffset(weekOffset)[0];
-    var weekEndDate=buildWeekDatesOffset(weekOffset)[6];
-    var fmtD=function(d){return d.getDate()+'. '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];};
-    var pl=document.getElementById('plan-week-label');
-    if(pl){
-      var lbl=weekOffset===0?'This Week':weekOffset===-1?'Last Week':weekOffset===1?'Next Week':(weekOffset>0?'+':'')+weekOffset+' weeks';
-      pl.textContent=lbl+' · '+fmtD(weekStartDate)+' – '+fmtD(weekEndDate)+' · '+weekEndDate.getFullYear();
-    }
-    // Store weekEvents for competition marking
-    window._weekEventsCache=weekEvents; window._currentWeekIdx=weekIdx;
-    // Mark sessions as done for any day in this week that has a logged checkin
-    if(ADA_UID && window.db){
-      try{
-        var weekDatesCheck=buildWeekDatesOffset(weekOffset);
-        var weekStart=toISO(weekDatesCheck[0]);
-        var weekEnd=toISO(weekDatesCheck[6]);
-        var weekSnap=await window.db.collection('checkins').doc(ADA_UID)
-          .collection('sessions').where('date','>=',weekStart).where('date','<=',weekEnd).get();
-        _weekLoggedSessions={};
-        weekSnap.forEach(function(doc){
-          var data=doc.data();
-          var loggedIso=data.date;
-          weekDatesCheck.forEach(function(d,i){
-            if(toISO(d)===loggedIso){
-              var ps=sessions.find(function(x){return x.day===i;});
-              if(ps){
-                ps.done=true;
-                // Overlay first logged session values over coach's plan
-                var ls=(data.sessions&&data.sessions.length)?data.sessions[0]:data;
-                if(ls.type&&ls.type!=='rest'){
-                  ps.type=ls.type;ps.name=ls.name||ps.name;ps.rpe=ls.rpe||ps.rpe;
-                  ps.dur=ls.duration||ls.dur||ps.dur;
-                  ps.tl=(data.sessions&&data.sessions.length)?data.sessions.reduce(function(s,x){return s+(x.tl||0);},0):(ls.rpe||ps.rpe)*(ls.duration||ls.dur||ps.dur);
-                  ps.col=(SESS_TYPES[ls.type]&&SESS_TYPES[ls.type].col)||ps.col;
-                }
-                // Cache full sessions array for multi-session display
-                _weekLoggedSessions[i]=(data.sessions&&data.sessions.length)?data.sessions
-                  :[{id:data.date,type:data.type||'training',name:data.name||'Training',
-                     rpe:data.rpe||0,duration:data.duration||0,tl:data.tl||0,note:data.note||''}];
-              }
-            }
-          });
-        });
+    weekOffset=offset;
 
+    // Preload ALL microcycles for the season in one round-trip (like coach-mobile/desktop)
+    _allMicrocycles={};
+    const microSnap=await window.db.collection('seasons').doc(orgId).collection('microcycles').get();
+    microSnap.forEach(function(doc){
+      var wIdx=(doc.data().weekIdx!==undefined)?doc.data().weekIdx:parseInt(doc.id.replace('week_',''),10);
+      _allMicrocycles[wIdx]=doc.data().plan||{};
+    });
+
+    // Preload ALL checkins across the season's date range in one query
+    _allCheckins={};
+    if(ADA_UID){
+      try{
+        const checkinSnap=await window.db.collection('checkins').doc(ADA_UID)
+          .collection('sessions').where('date','>=',checkinsStartISO).where('date','<=',checkinsEndISO).get();
+        checkinSnap.forEach(function(doc){ _allCheckins[doc.data().date]=doc.data(); });
       }catch(e){}
     }
-    renderPlan();
+
+    renderWeek(weekOffset);
   }catch(e){
     console.warn('loadWeekPlan:',e.message);
     renderPlan();
   }
+}
+
+// Pure in-memory render of a given week offset — reads from _allMicrocycles/_allCheckins
+// caches populated by loadWeekPlan. No Firestore calls, so week navigation is instant.
+function renderWeek(offset){
+  weekOffset=offset;
+  var weekIdx=Math.max(0,_seasonBaseWeekIdx+weekOffset);
+  var phase=_seasonPhaseMap[weekIdx]||'none';
+  const weekDates=buildWeekDatesOffset(weekOffset);
+  dayDates=weekDates.map(d=>d.getDate());
+  sessions=[];
+  const plan=_allMicrocycles[weekIdx];
+  if(plan){
+    dayKeys.forEach(function(key,i){
+      const daySessions=plan[key]||[];
+      const nonRest=daySessions.filter(function(s){return s.type!=='rest'&&s.id!=='rest';});
+      if(!nonRest.length){
+        sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Rest day',dur:0,rpe:0,tl:0,done:false,_planned:[]});
+      } else {
+        const s=nonRest[0];
+        const t=sessTypeInfo(s.type);
+        const dur=s.duration||s.dur||0;
+        const rpe=s.rpe||0;
+        // Build _planned array for all non-rest sessions (multi-session support)
+        const plannedAll=nonRest.map(function(ps){
+          var pt=sessTypeInfo(ps.type);
+          var pd=ps.duration||ps.dur||0;
+          var pr=ps.rpe||0;
+          return {type:ps.type,icon:pt.icon,col:pt.col,name:ps.label||pt.name,dur:pd,rpe:pr,tl:pd*pr};
+        });
+        sessions.push({day:i,type:s.type,icon:t.icon,col:t.col,
+          name:s.label||t.name,dur:dur,rpe:rpe,tl:dur*rpe,done:false,_planned:plannedAll});
+      }
+    });
+  } else {
+    // No plan cached for this week — show empty days
+    for(var i=0;i<7;i++){
+      sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Plan not created',dur:0,rpe:0,tl:0,done:false});
+    }
+  }
+  // Show phase in topbar
+  var phTag=document.getElementById('phase-tag');
+  if(phTag&&phase&&phase!=='none'){
+    var phLabels={off:'Off-season',prep:'General Prep',phys:'Specific Prep',precomp:'Pre-Competitive',comp:'Competitive',trans:'Transition'};
+    phTag.textContent=(phLabels[phase]||phase)+' · W'+(weekIdx+1);
+    phTag.style.display='';
+  }
+  // Update Today screen hero card
+  if(weekOffset===0){
+    var tIdx=(new Date().getDay()===0?6:new Date().getDay()-1);
+    var tS=sessions.find(function(s){return s.day===tIdx;})||null;
+    var ea=document.getElementById('hero-sess-icon'),eb=document.getElementById('hero-sess-name'),ec=document.getElementById('hero-sess-meta'),ed=document.getElementById('hero-sess-badge');
+    if(eb){
+      if(tS&&tS.type!=='rest'){eb.textContent=tS.name||'Training';if(ec)ec.textContent=(tS.type||'')+' · '+tS.dur+' min · RPE '+tS.rpe;if(ea){ea.innerHTML=tS.svg||tS.icon||'';ea.style.background=(tS.col||'#888')+'20';}if(ed)ed.textContent='Planned';}
+      else{eb.textContent='Rest day';if(ec)ec.textContent='No training today';if(ea){ea.innerHTML='';ea.style.background='var(--s2)';}if(ed)ed.textContent='Rest';}
+    }
+  }
+  var weekStartDate=weekDates[0];
+  var weekEndDate=weekDates[6];
+  var fmtD=function(d){return d.getDate()+'. '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];};
+  var pl=document.getElementById('plan-week-label');
+  if(pl){
+    var lbl=weekOffset===0?'This Week':weekOffset===-1?'Last Week':weekOffset===1?'Next Week':(weekOffset>0?'+':'')+weekOffset+' weeks';
+    pl.textContent=lbl+' · '+fmtD(weekStartDate)+' – '+fmtD(weekEndDate)+' · '+weekEndDate.getFullYear();
+  }
+  // Store weekEvents for competition marking
+  window._weekEventsCache=_seasonWeekEvents; window._currentWeekIdx=weekIdx;
+  // Mark sessions as done for any day in this week that has a logged checkin (from cache)
+  _weekLoggedSessions={};
+  weekDates.forEach(function(d,i){
+    var iso=toISO(d);
+    var data=_allCheckins[iso];
+    if(!data)return;
+    var ps=sessions.find(function(x){return x.day===i;});
+    if(ps){
+      ps.done=true;
+      // Overlay first logged session values over coach's plan
+      var ls=(data.sessions&&data.sessions.length)?data.sessions[0]:data;
+      if(ls.type&&ls.type!=='rest'){
+        ps.type=ls.type;ps.name=ls.name||ps.name;ps.rpe=ls.rpe||ps.rpe;
+        ps.dur=ls.duration||ls.dur||ps.dur;
+        ps.tl=(data.sessions&&data.sessions.length)?data.sessions.reduce(function(s,x){return s+(x.tl||0);},0):(ls.rpe||ps.rpe)*(ls.duration||ls.dur||ps.dur);
+        ps.col=(SESS_TYPES[ls.type]&&SESS_TYPES[ls.type].col)||ps.col;
+      }
+      // Cache full sessions array for multi-session display
+      _weekLoggedSessions[i]=(data.sessions&&data.sessions.length)?data.sessions
+        :[{id:data.date,type:data.type||'training',name:data.name||'Training',
+           rpe:data.rpe||0,duration:data.duration||0,tl:data.tl||0,note:data.note||''}];
+    }
+  });
+  renderPlan();
 }
 
 // Load last 7 checkin sessions for past sessions list
@@ -1727,7 +1752,7 @@ function renderPlan(){
       return '<div class="prev-day'+(s.done?' done':'')+(s.day===activePlanDay?' sel':'')+'\" '+rowStyle+' onclick="selectPlanDay('+s.day+')" style="cursor:pointer">'
         +'<div class="prev-date"><div class="pd-dow">'+dayNames[s.day]+'</div><div class="pd-n">'+dayDates[s.day]+'</div></div>'
         +'<div class="pd-div"></div>'
-        +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+s.name+evPill+'</div>'
+        +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+((SESS_TYPES[s.type]&&SESS_TYPES[s.type].name)||s.type)+evPill+'</div>'
         +'<div class="pd-meta">'+(s.type!=='rest'?s.dur+' min · RPE '+s.rpe+' · TL '+s.tl:'Rest day')+'</div></div>'
         +(s.type==='rest'?'<span class="badge" style="background:var(--s2);color:var(--tl);border:1px solid var(--bdr)">Rest</span>'
           :s.done?'<span class="badge bg">&#x2713; Logged</span>':'<span class="badge bc">Planned</span>')
@@ -1754,15 +1779,17 @@ function renderPlan(){
     var ls=loggedArr[idx];
     var isLogged=!!ls;
     var lc=(ls&&SESS_TYPES[ls.type]&&SESS_TYPES[ls.type].col)||ps.col;
+    var typeName=(SESS_TYPES[ps.type]&&SESS_TYPES[ps.type].name)||ps.type;
+    var hasObjective=ps.name&&ps.name!==typeName;
     return divider
       +'<div style="display:flex;align-items:flex-start;gap:9px">'
       +'<div style="width:3px;border-radius:2px;background:'+ps.col+';align-self:stretch;flex-shrink:0;margin-top:2px"></div>'
       +'<div style="flex:1;min-width:0">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px">'
-      +'<div style="font-size:0.88rem;font-weight:800">'+ps.name+'</div>'
+      +'<div style="font-size:0.88rem;font-weight:800">'+typeName+'</div>'
       +'<span class="badge '+(isLogged?'bg':'bc')+'" style="font-size:0.6rem;padding:2px 6px;flex-shrink:0">'+(isLogged?'&#x2713; Logged':'Planned')+'</span>'
       +'</div>'
-      +'<div style="font-family:var(--mono);font-size:0.68rem;color:'+ps.col+';margin-bottom:4px">'+ps.type+'</div>'
+      +'<div style="font-size:0.78rem;color:'+(hasObjective?'var(--tm)':'var(--tl)')+';margin-bottom:4px'+(hasObjective?'':';font-style:italic')+'">'+(hasObjective?ps.name:'No objective set')+'</div>'
       +'<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tl)">'+ps.dur+' min · RPE '+ps.rpe+' · TL '+ps.tl+'</div>'
       +(isLogged&&ls
         ?'<div style="margin-top:7px;padding:7px 9px;background:'+lc+'0f;border:1px solid '+lc+'30;border-left:2px solid '+lc+';border-radius:7px">'
@@ -1811,7 +1838,7 @@ function renderPlan(){
     return '<div class="prev-day'+(s.done?' done':'')+(s.day===activePlanDay?' sel':'')+'" '+rowStyle+' onclick="selectPlanDay('+s.day+')" style="cursor:pointer">'
       +'<div class="prev-date"><div class="pd-dow">'+dayNames[s.day]+'</div><div class="pd-n">'+dayDates[s.day]+'</div></div>'
       +'<div class="pd-div"></div>'
-      +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+s.name+evPill+'</div>'
+      +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+((SESS_TYPES[s.type]&&SESS_TYPES[s.type].name)||s.type)+evPill+'</div>'
       +'<div class="pd-meta">'+(s.type!=='rest'?s.dur+' min · RPE '+s.rpe+' · TL '+s.tl:'Rest day')+'</div></div>'
       +(s.type==='rest'?'<span class="badge" style="background:var(--s2);color:var(--tl);border:1px solid var(--bdr)">Rest</span>'
         :s.done?'<span class="badge bg">&#x2713; Logged</span>':'<span class="badge bc">Planned</span>')
@@ -1821,10 +1848,12 @@ function renderPlan(){
 
 /* ── Inline Plan Form ── */
 function buildPlanInlineForm(day){
-  var typeHtml=Object.keys(SESS_TYPES).filter(function(k){return k!=='rest';}).map(function(k){
-    var t=SESS_TYPES[k],on=(_planFormType===k);
-    return '<button class="plan-type-pill'+(on?' on':'')+'" style="'+(on?'background:'+t.col+';border-color:'+t.col+';':'')+'" onclick="setPlanFormType(\x27'+k+'\x27)">'+t.name+'</button>';
-  }).join('');
+  var typeHtml='<select class="plan-type-select" style="width:100%;background:var(--s1);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 11px;font-size:0.8rem;color:var(--tx);outline:none;margin-bottom:10px;-webkit-appearance:none" onchange="setPlanFormType(this.value)">'
+    +Object.keys(SESS_TYPES).filter(function(k){return k!=='rest';}).map(function(k){
+      var t=SESS_TYPES[k],on=(_planFormType===k);
+      return '<option value="'+k+'"'+(on?' selected':'')+'>'+t.name+'</option>';
+    }).join('')
+    +'</select>';
   var rpeHtml=rpeData.map(function(r){
     var on=(_planFormRpe===r.n);
     return '<button class="plan-rpe-btn'+(on?' on':'')+'" style="'+(on?'background:'+r.c+';':'')+'" onclick="setPlanFormRpe('+r.n+')">'+r.n+'</button>';
@@ -1849,7 +1878,7 @@ function shiftWeek(dir){
   if(seasonMinOffset!==null&&newOffset<seasonMinOffset)return;
   if(seasonMaxOffset!==null&&newOffset>seasonMaxOffset)return;
   _planFormDay=null;
-  loadWeekPlan(currentOrgId,newOffset);
+  renderWeek(newOffset);
 }
 function selectPlanDay(i){
   activePlanDay=i;_planFormDay=null;renderPlan();
@@ -1909,19 +1938,22 @@ function submitPlanLog(day){
   if(!ADA_UID||!window.db)return;
   if(_planFormAddAnother){
     // Append to existing sessions array — read first, then write
+    var _appendDocData=null;
     window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso)
       .get().then(function(doc){
         var existing=doc.exists?(doc.data().sessions||[]):[];
         var updatedSessions=existing.concat([newSess]);
         var combinedTL=updatedSessions.reduce(function(s,x){return s+(x.tl||0);},0);
-        var docData={date:iso,sessions:updatedSessions,tl:combinedTL};
-        return window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).set(docData,{merge:true});
+        _appendDocData={date:iso,sessions:updatedSessions,tl:combinedTL};
+        return window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).set(_appendDocData,{merge:true});
       }).then(function(){
         var ps=sessions.find(function(x){return x.day===day;});
         if(ps){ps.done=true;ps.tl=(ps.tl||0)+tl;}
         // Update local cache for immediate multi-session display
         if(!_weekLoggedSessions[day]) _weekLoggedSessions[day]=[];
         _weekLoggedSessions[day]=_weekLoggedSessions[day].concat([newSess]);
+        // Keep season-wide checkins cache in sync so revisiting this week later stays correct
+        _allCheckins[iso]=_appendDocData;
         _planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;
         renderPlan();
         showSuccess('ok','Session Added','TL '+tl+' · RPE '+_planFormRpe+' · '+_planFormDur+' min');
@@ -1939,6 +1971,8 @@ function submitPlanLog(day){
         }
         // Update local cache — replace first session (edit) or initialise (new)
         _weekLoggedSessions[day]=[newSess];
+        // Keep season-wide checkins cache in sync so revisiting this week later stays correct
+        _allCheckins[iso]=doc;
         _planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;
         renderPlan();
         showSuccess('ok','Session Saved','TL '+tl+' · RPE '+_planFormRpe+' · '+_planFormDur+' min');
@@ -1951,7 +1985,14 @@ function deletePlanLog(day){
   window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).delete()
     .then(function(){
       var ps=sessions.find(function(x){return x.day===day;});if(ps)ps.done=false;
-      _planFormDay=null;renderPlan();
+      // Keep season-wide checkins cache in sync
+      delete _allCheckins[iso];
+      delete _weekLoggedSessions[day];
+      _planFormDay=null;
+      // Rebuild sessions[] from cache so any overlaid logged-session fields
+      // (type/name/rpe/dur/tl/col) revert to the original planned session —
+      // renderPlan() alone would just re-render the still-stale data.
+      renderWeek(weekOffset);
       showSuccess('ok','Session Deleted','Log removed.');
     }).catch(function(e){console.warn('deletePlanLog:',e.message);});
 }

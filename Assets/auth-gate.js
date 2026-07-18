@@ -33,7 +33,7 @@
   function buildDest(role, discipline) {
     if (role === 'superadmin') return '/superadmin/';
     if (role === 'admin')      return '/admin/';
-    if (role === 'athlete')    return '/' + (discipline||'handball') + '/index.html';
+    if (role === 'athlete')    return '/' + (discipline||'handball') + '/athlete.html';
     if (role === 'coach') {
       var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
       return '/' + (discipline||'handball') + '/' + app;
