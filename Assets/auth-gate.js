@@ -33,10 +33,10 @@
   function buildDest(role, discipline) {
     if (role === 'superadmin') return '/superadmin/';
     if (role === 'admin')      return '/admin/';
-    if (role === 'athlete')    return '/' + (discipline||'handball') + '/athlete.html';
+    if (role === 'athlete')    return '/' + (discipline||'other') + '/athlete.html';
     if (role === 'coach') {
       var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
-      return '/' + (discipline||'handball') + '/' + app;
+      return '/' + (discipline||'other') + '/' + app;
     }
     return '/login.html';
   }
@@ -47,7 +47,7 @@
     if (role === 'superadmin') return path.indexOf('/superadmin/') === 0;
     if (role === 'admin')      return path.indexOf('/admin/')      === 0;
     // Coaches and athletes must be inside their sport folder
-    var sportFolder = '/' + (discipline||'handball') + '/';
+    var sportFolder = '/' + (discipline||'other') + '/';
     if (role === 'coach')   return path.indexOf(sportFolder) === 0;
     if (role === 'athlete') return path.indexOf(sportFolder) === 0;
     return false;

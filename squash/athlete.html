@@ -1916,8 +1916,12 @@ function openPlanForm(day,editing,addAnother,planIdx){
   }
 }
 function cancelPlanForm(){_planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;_planFormPlanIdx=0;renderPlan();}
-function setPlanFormType(t){_planFormType=t;renderPlan();}
+function setPlanFormType(t){
+  var noteEl=document.getElementById('pf-note'); if(noteEl)_planFormNote=noteEl.value;
+  _planFormType=t;renderPlan();
+}
 function setPlanFormRpe(n){
+  var noteEl=document.getElementById('pf-note'); if(noteEl)_planFormNote=noteEl.value;
   _planFormRpe=n;
   var rd=rpeData.find(function(r){return r.n===n;}),el=document.getElementById('pf-rpe-desc');
   if(el&&rd)el.textContent='— '+rd.d;

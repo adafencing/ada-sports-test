@@ -1141,6 +1141,7 @@ const SESS_TYPES={
   strength:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Strength',   col:'#ef4444'},
   conditioning:{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,name:'Conditioning',col:'#22c55e'},
   match:       {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Friendly Match', col:'#FF6F61'},
+  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,name:'Sparring',    col:'#ec4899'},
   competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Competition', col:'#FF6F61'},
   recovery:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',   col:'#94a3b8'},
   rest:        {icon:'—',     name:'Rest day', col:'#cbd5e1'},
@@ -1915,12 +1916,8 @@ function openPlanForm(day,editing,addAnother,planIdx){
   }
 }
 function cancelPlanForm(){_planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;_planFormPlanIdx=0;renderPlan();}
-function setPlanFormType(t){
-  var noteEl=document.getElementById('pf-note'); if(noteEl)_planFormNote=noteEl.value;
-  _planFormType=t;renderPlan();
-}
+function setPlanFormType(t){_planFormType=t;renderPlan();}
 function setPlanFormRpe(n){
-  var noteEl=document.getElementById('pf-note'); if(noteEl)_planFormNote=noteEl.value;
   _planFormRpe=n;
   var rd=rpeData.find(function(r){return r.n===n;}),el=document.getElementById('pf-rpe-desc');
   if(el&&rd)el.textContent='— '+rd.d;

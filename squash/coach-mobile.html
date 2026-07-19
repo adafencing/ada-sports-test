@@ -698,6 +698,13 @@ const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 function today(){ return toISO(new Date()); }
 function toISO(d){ return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
 function parseLocalDate(s){ var p=s.split('-'); return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])); }
+function latestAthleteNote(a){
+  if(!a || !a.sessionLogs) return null;
+  var withNotes = Object.values(a.sessionLogs).filter(function(s){ return s.note; });
+  if(!withNotes.length) return null;
+  withNotes.sort(function(x,y){ return y.date>x.date?1:(y.date<x.date?-1:0); });
+  return withNotes[0];
+}
 function p2(n){ return String(n).padStart(2,'0'); }
 function fmtDate(d){ return `${d.getDate()}. ${MONTHS_SHORT[d.getMonth()]}`; }
 function scoreColor(s){ return s === null ? 'var(--tl)' : s >= 71 ? 'var(--green)' : s >= 55 ? 'var(--amber)' : 'var(--red)'; }
@@ -910,7 +917,7 @@ function loadCheckins(u) {
                 note: s.note||''
               };
             });
-          } else if(getTotalTL(d)){
+          } else if(getTotalTL(d) || d.note){
             a.sessionLogs[d.date] = {
               date: d.date,
               actualTl: totalTL,
@@ -932,7 +939,11 @@ function loadCheckins(u) {
             : (d.sleep||d.fat||d.sor||d.stress||d.mood)
               ? Math.round(((d.sleep||0)+(d.fat||0)+(d.sor||0)+(d.stress||0)+(d.mood||0))/25*100)
               : null;
-          return sc !== null ? { date: d.date, score: sc, tl: getTotalTL(d) } : null;
+          var tl = getTotalTL(d);
+          // Keep the day if there's either a wellness score OR logged training load —
+          // previously a trained day with no wellness check-in was dropped entirely,
+          // undercounting 7-Day Commitment.
+          return (sc !== null || tl > 0) ? { date: d.date, score: sc, tl: tl } : null;
         }).filter(Boolean);
         a.trend = calcTrend(hist7);
         a.hist7 = hist7; // store for overlay charts
@@ -1205,16 +1216,17 @@ function renderPregled(){
   document.getElementById('pulse-r').textContent = r;
 
   // Today's session
-  const tod = sessions[today()];
+  const todArr = sessions[today()];
+  const tod = (todArr && todArr.length) ? todArr[0] : null;
   const ts = document.getElementById('pregled-today-sess');
   if(tod){
-    ts.innerHTML = `<div class="sess-card" onclick="goTab('nedeljni')">
+    ts.innerHTML = `<div class="sess-card" onclick="goToTodaySession()">
       <div class="sess-label">${tod.status === 'published' ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Published' : tod.status === 'completed' ? '✓ Completed' : 'Draft'}</div>
       <div class="sess-name">${tod.name||'Training'}</div>
       <div class="sess-meta"><span>${TYPE_ICONS[tod.type]||''}</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${tod.dur} min</span><span>RPE ${tod.rpe}</span><span>TL ${tod.rpe*tod.dur}</span></div>
     </div>`;
   } else {
-    ts.innerHTML = `<div class="card" style="padding:12px;cursor:pointer" onclick="goTab('nedeljni')">
+    ts.innerHTML = `<div class="card" style="padding:12px;cursor:pointer" onclick="goToTodaySession()">
       <div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl)">No session scheduled for today — </div>
       <div style="font-family:var(--mono);font-size:0.72rem;color:var(--teal);margin-top:2px">+ Create session →</div>
     </div>`;
@@ -1310,6 +1322,13 @@ function renderNedeljni(){
 function selectDay(i){
   selectedDay = i;
   renderNedeljni();
+}
+
+function goToTodaySession(){
+  weekOffset = 0;
+  var dow = parseLocalDate(today()).getDay();
+  selectedDay = (dow === 0) ? 6 : dow - 1; // Mon=0 ... Sun=6
+  goTab('nedeljni');
 }
 
 var crActiveCompId = null;
@@ -1769,6 +1788,7 @@ function renderAthList(){
     if(a.injury?.active) tags.push(`<span class="ath-tag br"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Injury</span>`);
     if(a.score !== null && a.score !== undefined && a.score < 55) tags.push(`<span class="ath-tag br"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Critical</span>`);
     if(a.lastCheckin !== today()) tags.push(`<span class="ath-tag ba">◌ Awaiting check-in</span>`);
+    if(latestAthleteNote(a)) tags.push(`<span class="ath-tag" style="background:rgba(22,101,52,0.08);border:1px solid rgba(22,101,52,0.25);color:var(--teal)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Note</span>`);
 
     var ost = overallStatus(a);
     var osc = overallStatusColor(ost);
@@ -1905,20 +1925,27 @@ function openAthlete(id){
           var planned = sessions[iso] && sessions[iso].length ? sessions[iso][0] : null;
           var loggedEntries = Object.values(a.sessionLogs||{}).filter(function(s){ return s.date===iso; });
           var isLogged = loggedEntries.length > 0;
+          // Fallback: if the coach didn't plan anything this day but the athlete logged a
+          // session anyway (ad-hoc / self-initiated), show that instead of "Rest".
+          var loggedOnly = (!planned && isLogged) ? loggedEntries[0] : null;
+          var dispName = planned ? planned.name : (loggedOnly ? loggedOnly.name : null);
+          var dispType = planned ? planned.type : (loggedOnly ? loggedOnly.type : null);
+          var dispDur  = planned ? planned.dur  : (loggedOnly ? loggedOnly.dur : null);
+          var dispRpe  = planned ? planned.rpe  : (loggedOnly ? loggedOnly.actualRpe : null);
           var isToday = iso === todayStr;
           var isPast = iso < todayStr;
-          var tc = planned ? (TYPE_COLORS[planned.type]||'var(--teal)') : 'var(--s3)';
+          var tc = dispType ? (TYPE_COLORS[dispType]||'var(--teal)') : 'var(--s3)';
           var statusIcon = isLogged
             ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
             : (planned && isPast ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
             : (planned ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tl)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' : ''));
           return '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:7px;background:'+(isToday?'rgba(22,101,52,0.07)':'transparent')+';border:1px solid '+(isToday?'rgba(22,101,52,0.2)':'transparent')+'">'
             + '<div style="font-family:var(--mono);font-size:0.72rem;color:'+(isToday?'var(--teal)':'var(--tl)')+';width:28px;font-weight:'+(isToday?'700':'400')+'">'+DAY_SHORT[i]+'</div>'
-            + (planned
+            + (dispName
                 ? '<div style="width:3px;height:28px;border-radius:2px;background:'+tc+';flex-shrink:0"></div>'
                   + '<div style="flex:1;min-width:0">'
-                  + '<div style="font-size:0.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+planned.name+'</div>'
-                  + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+planned.dur+' min · RPE '+planned.rpe+'</div>'
+                  + '<div style="font-size:0.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+dispName+(loggedOnly?' <span style="font-weight:400;color:var(--tl)">(self-logged)</span>':'')+'</div>'
+                  + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl)">'+dispDur+' min · RPE '+dispRpe+'</div>'
                   + '</div>'
                 : '<div style="flex:1;font-family:var(--mono);font-size:0.72rem;color:var(--tl)">Rest</div>')
             + '<div style="flex-shrink:0;display:flex;align-items:center">'+statusIcon+'</div>'
@@ -1965,11 +1992,7 @@ function openAthlete(id){
       +'</svg>';
 
     // #6 — athlete note from most recent session log
-    var athNote = (function(){
-      if(!a.sessionLogs) return '';
-      var sorted = Object.values(a.sessionLogs).sort(function(x,y){ return y.date>x.date?1:-1; });
-      return sorted.length && sorted[0].note ? sorted[0].note : '';
-    })();
+    var athNoteEntry = latestAthleteNote(a);
 
     var S = function(lbl,body){ return '<div style="display:flex;flex-direction:column;gap:6px"><div class="sec" style="margin:0">'+lbl+'</div>'+body+'</div>'; };
 
@@ -2009,6 +2032,10 @@ function openAthlete(id){
 
     return ''
       + S('Today&#x27;s Readiness', '<div class="card"><div class="cb">'+ciHTML+commitHTML+'</div></div>')
+      + (athNoteEntry ? S('Athlete&#x27;s Note', '<div class="card"><div class="cb">'
+          + '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:5px">'+fmtDate(parseLocalDate(athNoteEntry.date))+' · '+(athNoteEntry.name||'Session')+'</div>'
+          + '<div style="font-size:0.82rem;color:var(--tm);line-height:1.6">'+athNoteEntry.note+'</div>'
+          + '</div></div>') : '')
       + S('This Week', '<div class="card"><div class="cb" style="padding:8px 10px">'+weekSchedHTML+'</div></div>')
       + S('Latest Session', '<div class="card"><div class="cb">'+sessHTML+'</div></div>')
       + S('Injuries', '<div>'+injHTML+'</div>')
@@ -2136,7 +2163,6 @@ function openAthlete(id){
 
           return card1+card2+card3;
         })()
-      + (athNote ? S('Athlete&#x27;s Note', '<div class="card"><div class="cb"><div style="font-size:0.82rem;color:var(--tm);line-height:1.6">'+athNote+'</div></div></div>') : '')
       + '<div style="height:24px"></div>';
   })();
   document.getElementById('ath-overlay').classList.add('open');

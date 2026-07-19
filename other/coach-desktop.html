@@ -525,26 +525,6 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 #save-error-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:9999;background:#ef4444;color:#fff;font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:700;padding:10px 18px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.18);display:none;align-items:center;gap:10px;max-width:520px;text-align:center;}
 #save-error-toast.visible{display:flex;}
 #save-error-toast button{background:rgba(255,255,255,0.25);border:none;color:#fff;font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:6px;cursor:pointer;flex-shrink:0;}
-/* ── Match Calendar ── */
-.cal-table{width:100%;border-collapse:collapse;}
-.cal-table th{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:10px 12px;border-bottom:2px solid var(--border);text-align:left;font-weight:600;}
-.cal-table td{padding:0;border-bottom:1px solid var(--border);}
-.cal-row{display:contents;}
-.cal-row:hover td{background:var(--surface2);}
-.cal-cell{padding:10px 12px;font-size:0.9rem;vertical-align:middle;}
-.cal-input{width:100%;background:transparent;border:none;border-bottom:1px solid transparent;padding:5px 6px;font-family:'Epilogue',sans-serif;font-size:0.9rem;color:var(--text);outline:none;border-radius:0;transition:border-color 0.15s;}
-.cal-input:focus{border-bottom-color:var(--kgreen);background:rgba(5,150,105,0.04);}
-.cal-input[type="date"]{font-family:var(--mono);font-size:0.84rem;cursor:pointer;}
-.cal-venue-select{width:100%;background:transparent;border:none;border-bottom:1px solid transparent;padding:5px 6px;font-family:'Epilogue',sans-serif;font-size:0.9rem;color:var(--text);outline:none;cursor:pointer;transition:border-color 0.15s;appearance:none;-webkit-appearance:none;}
-.cal-venue-select:focus{border-bottom-color:var(--kgreen);background:rgba(5,150,105,0.04);}
-.cal-result-badge{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;font-family:var(--mono);font-size:0.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);transition:all 0.12s;}
-.cal-result-badge.W{background:rgba(34,197,94,0.15);border-color:#22c55e;color:#15803d;}
-.cal-result-badge.D{background:rgba(245,158,11,0.12);border-color:var(--amber);color:#d97706;}
-.cal-result-badge.L{background:rgba(239,68,68,0.12);border-color:var(--red);color:#dc2626;}
-.cal-del-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all 0.12s;display:inline-flex;align-items:center;justify-content:center;}
-.cal-del-btn:hover{border-color:var(--red);color:var(--red);background:rgba(239,68,68,0.06);}
-.cal-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:0.9rem;}
-.cal-score-input{width:90px;}
 </style>
 </head>
 <body>
@@ -564,10 +544,6 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
     <div class="sb-item" id="nav-micro" onclick="switchModule('micro',this)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14" stroke-width="2.5"/><line x1="12" y1="14" x2="12.01" y2="14" stroke-width="2.5"/><line x1="16" y1="14" x2="16.01" y2="14" stroke-width="2.5"/></svg>
       <span class="tip">Weekly Plan</span>
-    </div>
-    <div class="sb-item" id="nav-calendar" onclick="switchModule('calendar',this)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12a14.5 14.5 0 0 0 20 0"/><path d="m4.93 4.93 14.14 14.14"/></svg>
-      <span class="tip">Match Calendar</span>
     </div>
   </div>
   <div class="sb-footer">
@@ -610,6 +586,7 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
                 <button class="period-auto-btn" onclick="closePeriodDropdown();showAutoPeriodizeModal();">&#10022; Auto Periodization</button>
               </div>
             </div>
+            <button class="nav-btn" onclick="openCompetitionsModal()">&#127942; Competitions</button>
             <button class="nav-btn" onclick="openCampsModal()">&#9978; Camps</button>
             <button class="nav-btn" onclick="confirmResetSeason()">&#x21BA; New Season</button>
             <span id="season-autosave-status" style="font-family:var(--mono);font-size:0.72rem;color:var(--kgreen);opacity:0;transition:opacity 0.6s;margin-right:6px;"></span>
@@ -659,6 +636,7 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
         <!-- Right-click event popup -->
         <div class="event-popup" id="event-popup" style="display:none;">
           <div class="event-popup-title">Edit Week <span id="popup-week-num"></span></div>
+          <div class="event-option" onclick="openCompFromWeek(activePopupWeek)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Competition</div>
           <div class="event-option" onclick="openCampFromWeek(activePopupWeek)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/></svg> Camp</div>
           <div class="event-option" onclick="setEventType('clear')" style="color:var(--muted);">&#10005; Remove event</div>
           <div class="divider" style="margin:6px 0;"></div>
@@ -721,13 +699,13 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             <!-- Progress bar -->
             <div class="wiz-progress" id="wiz-progress"></div>
 
-            <!-- Step 1: Match Calendar -->
+            <!-- Step 1: Competition Calendar -->
             <div class="wiz-panel" id="wiz-s1">
-              <div class="wiz-section-title">Step 1 — Match Calendar</div>
-              <div class="wiz-section-sub">Review your fixtures in the Match Calendar. The schedule anchors all periodization decisions. Add any missing matches before proceeding.</div>
+              <div class="wiz-section-title">Step 1 — Competition Calendar</div>
+              <div class="wiz-section-sub">Review your competitions. The calendar anchors all periodization decisions. Add any missing competitions before proceeding.</div>
               <div id="wiz-comp-list"></div>
-              <button class="comp-add-toggle" style="margin-top:6px" onclick="switchModule('calendar', document.getElementById('nav-calendar'))">+ Go to Match Calendar</button>
-              <div class="wiz-warn show" id="wiz-s1-warn" style="display:none">No matches added yet. Add at least one to continue.</div>
+              <button class="comp-add-toggle" style="margin-top:6px" onclick="openCompetitionsModal()">+ Manage Competitions</button>
+              <div class="wiz-warn show" id="wiz-s1-warn" style="display:none">No competitions added yet. Add at least one to continue.</div>
             </div>
 
             <!-- Step 2: Number of peaks -->
@@ -865,15 +843,6 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 
       <!-- ══════════ MICROCYCLE MODULE ══════════ -->
       <div class="module" id="mod-micro">
-        <div id="mc-not-configured" style="display:none;padding:60px 24px;text-align:center;">
-          <div style="font-size:2.4rem;margin-bottom:12px;">&#128197;</div>
-          <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;">Set up your season first</div>
-          <div style="font-size:0.88rem;color:var(--muted);max-width:420px;margin:0 auto 20px;line-height:1.6;">
-            Your season needs a start date before other features are available. Set that up once, and every training session, match, and athlete metric will line up correctly across desktop, mobile, and the athlete app.
-          </div>
-          <button class="nav-btn primary" onclick="switchModule('season')">Go to Season Setup</button>
-        </div>
-        <div id="mc-active-content">
         <div class="row sb-row mb-12" style="flex-wrap:wrap;gap:8px;">
           <div>
             <div class="row gap-8">
@@ -917,7 +886,6 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             <div id="mc-monotony-strain" style="flex:1;min-width:220px;"></div>
           </div>
         </div>
-        </div><!-- /mc-active-content -->
 
         <!-- Copy Plan Modal -->
         <div class="modal-overlay" id="copy-plan-overlay" onclick="closeCopyPlanModal(event)" style="display:none;">
@@ -949,7 +917,7 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             </div>
             <div class="modal-field">
               <label>Session Objective</label>
-              <textarea class="modal-input" id="sess-label-input" rows="3" placeholder="e.g. Wing play — focus on 1-on-1 finishing under defensive pressure" style="resize:vertical;min-height:72px;line-height:1.5;font-family:inherit;"></textarea>
+              <textarea class="modal-input" id="sess-label-input" rows="3" placeholder="e.g. Rail drilling — focus on tight length and quick recovery to the T" style="resize:vertical;min-height:72px;line-height:1.5;font-family:inherit;"></textarea>
             </div>
             <div class="modal-field">
               <label>Duration</label>
@@ -981,51 +949,6 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
           </div>
         </div>
       </div><!-- /mod-micro -->
-
-      <!-- ══ MATCH CALENDAR MODULE ══ -->
-      <div class="module" id="mod-calendar">
-        <div class="row sb-row mb-12">
-          <div>
-            <h2>Match Calendar</h2>
-            <div style="font-size:0.78rem;color:var(--muted);margin-top:3px;" id="cal-season-label">Season</div>
-          </div>
-          <div class="row gap-8">
-            <button class="nav-btn" onclick="addCalendarMatch()">+ Add Match</button>
-            <button class="nav-btn primary" id="cal-save-btn" onclick="saveCalendar()">Save Calendar</button>
-          </div>
-        </div>
-        <div class="card mb-12" style="padding:12px 16px;">
-          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
-            <div><div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Total</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;" id="cal-stat-total">0</div></div>
-            <div><div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Home</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--blue);" id="cal-stat-home">0</div></div>
-            <div><div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Away</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--purple);" id="cal-stat-away">0</div></div>
-            <div><div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">W / D / L</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;" id="cal-stat-record">—</div></div>
-            <div><div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Next Match</div><div style="font-family:var(--mono);font-size:0.9rem;font-weight:700;color:var(--kgreen);margin-top:4px;" id="cal-stat-next">—</div></div>
-          </div>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden;">
-          <table class="cal-table">
-            <thead>
-              <tr>
-                <th style="width:40px;text-align:center;">#</th>
-                <th style="width:110px;">Date</th>
-                <th>Opponent</th>
-                <th style="width:120px;">Venue</th>
-                <th style="width:110px;">Type</th>
-                <th style="width:90px;">Result</th>
-                <th style="width:90px;">Score</th>
-                <th style="width:50px;"></th>
-              </tr>
-            </thead>
-            <tbody id="cal-tbody"></tbody>
-          </table>
-          <div id="cal-empty" class="cal-empty" style="display:none;">
-            <div style="display:flex;justify-content:center;margin-bottom:8px;opacity:0.35;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M6 8H3a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4h.5M18 8h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4h-.5M9 20h6M12 16v4"/></svg></div>
-            <div style="font-weight:700;margin-bottom:4px;">No matches</div>
-            <div style="font-size:0.75rem;">Click &ldquo;+ Add Match&rdquo; to add the first match of the season.</div>
-          </div>
-        </div>
-      </div><!-- /mod-calendar -->
 
       <!-- ══════════ COMPETITION CALENDAR MODULE ══════════ -->
 
@@ -1285,7 +1208,7 @@ const PHASE_GUIDANCE = {
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,name:'Instructions',text:'Select a phase from the Periodization dropdown, then click the weeks you want to color with that phase...'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,name:'Auto Periodization',text:'Use the Auto Periodization button to automatically assign phases based on Integrated Periodization principles...'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="7"/><path d="M12 2v6"/><path d="M12 12v.01" stroke-width="3"/></svg>`,name:'Right Click',text:'Right-click on any week to open the quick menu for setting phase, match, camp or tournament.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,name:'Match Calendar',text:'Use the Match Calendar tab to manage all fixtures. Matches automatically appear on the season grid — you can also set match type (League, Cup, etc.) for periodization context.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,name:'Competitions',text:'Use the Competitions button in the toolbar to add tournaments — they will automatically appear on the season grid and weekly plans.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg>`,name:'Tip',text:'Start from the season dates, then apply Auto Periodization as a starting point.'},
     ], warning:null
   },
@@ -1293,71 +1216,66 @@ const PHASE_GUIDANCE = {
     label:'Off-Season / Rest Period', color:'#94a3b8',
     duration:'2–4 weeks',
     durationNote:'More than 4 weeks risks detraining. Less than 2 weeks does not provide sufficient physical and mental recovery.',
-    objective:'Complete rest and regeneration from a handball season built on repeated jumping, throwing, contact and change of direction. Physical and mental recovery from competitive load. Restoration of motivation for the next season.',
+    objective:'Complete rest and regeneration. Physical and mental recovery from competitive load. Restoration of motivation for the next season.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'No structured handball training. Light activities of own choice (swimming, hiking, cycling). Milišić: the goal is genuine detachment and regeneration, not disguised training — resist the urge to keep athletes "ticking over" with ball work.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'No ball or throwing work. Mental detachment from handball is desirable in this phase — this is what allows real supercompensation before General Prep begins.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'No structured training. Light activities of own choice (swimming, hiking, cycling). Goal is active rest, not passivity.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'No technical work. Mental detachment from sport is desirable in this phase.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Priority is mental rest. Social activities, hobbies, travel. Evaluation of the past season and goal-setting for the next.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Reduce caloric intake proportionally to reduced activity. Focus on recovery and anti-inflammatory foods.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Prioritize sleep (8–9 hours). Massage and passive recovery. Psychological recovery through activities outside sport.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,name:'Position Focus',text:'Backs & Pivots carrying end-of-season shoulder soreness: use this window for a full assessment — physio/imaging now if symptomatic, before General Prep throwing volume resumes. Wings/anyone with prior ankle or knee issues: low-intensity rehab can continue. GKs: no throwing- or save-specific loading needed this phase.'},
     ], warning:null
   },
   prep: {
     label:'General Preparation Phase', color:'#3b82f6',
     duration:'6–10 weeks',
-    durationNote:'Less than 6 weeks does not build sufficient aerobic base. More than 10 weeks may slow sport-specific adaptation. Follows a 3-load : 1-deload week pattern (Bompa) — every 4th week in this phase automatically reduces volume ~40–50% so the next loading block starts from full recovery, not accumulated fatigue.',
-    objective:'Building general physical fitness, aerobic base and technical foundations for handball. High volume, moderate intensity.',
+    durationNote:'Less than 6 weeks does not build sufficient aerobic base. More than 10 weeks may slow sport-specific adaptation.',
+    objective:'Building general physical fitness, aerobic base and technical foundations. High volume, moderate intensity.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High volume, moderate intensity — aerobic base (70–75% HRmax) and general strength. The weekly plan follows Milišić\'s efficiency → peak → aerobic → active rest → peak → aerobic → rest cycle: two harder "peak" sessions per week (small-sided/game-realistic play), always separated by an aerobic day so the previous peak session can supercompensate — never two peak days back-to-back.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Ball-handling, passing and shooting fundamentals without tactical pressure or defensive resistance — correcting off-season technical drift before intensity ramps up. The efficiency day (start of the week) should never be fatiguing: quality and speed only, technique already well-grooved.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High volume, moderate intensity. Aerobic base (70–75% HRmax). General strength and conditioning. 5–6 sessions per week. Goal: adaptive platform for advanced phases.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Fundamentals of technical elements without tactical pressure. Analysis of errors from last season. Individual development of weak points.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Building group cohesion and team culture. Clear season goals. Routines and habits for training quality.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Increase carbohydrate intake for training. Protein for muscle adaptation (1.6–2.0 g/kg). Hydration 35–40 ml/kg/day.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'9 hours sleep as priority. Active recovery between sessions. This is also the phase to standardize shoulder and landing-mechanics prevention work as a default part of training — not an optional extra added later once someone is already hurt.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,name:'Position Focus',text:'Backs & Pivots: begin standing rotator cuff/scapular strength work every session — this is the foundation phase for shoulder durability all season. Wings: prioritize landing mechanics and change-of-direction technique at low fatigue. GKs: build an aerobic base like outfield players, but keep reactive/save-specific volume low until Specific Prep.'},
-    ], warning:'Preparation is the foundation of the season — mistakes here directly impact competitive performance, and skipping the built-in deload weeks is the most common cause of early-season overreaching.'
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'9 hours sleep as priority. Active recovery between sessions. Regular massage, foam rolling, stretching.'},
+    ], warning:'Preparation is the foundation of the season. Mistakes here directly impact competitive performance.'
   },
   phys: {
     label:'Specific Prep', color:'#8b5cf6',
     duration:'3–5 weeks',
-    durationNote:'This phase is intense and short. More than 5 weeks increases risk of overtraining. Monitor ACWR daily. Same 3-load : 1-deload cadence as General Prep applies here.',
-    objective:'Development of handball-specific strength, speed and explosiveness — sprinting, jumping, throwing power and change of direction under increasing game-realistic pressure. Moderate-high volume, high intensity.',
+    durationNote:'This phase is intense and short. More than 5 weeks increases risk of overtraining. Monitor ACWR daily.',
+    objective:'Development of sport-specific strength, speed and explosiveness. Moderate volume, high intensity. Peak of physical preparation.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High intensity (85–95% max). Sport-specific conditioning: repeated sprints, jumps, direction change, throwing power. The two weekly "peak" sessions now use game-realistic small-sided handball rather than generic conditioning — this is where general fitness becomes handball fitness. ACWR must not exceed 1.5.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Technique performed under fatigue and opposition — this is where general skills become handball-specific under realistic defensive pressure and game speed.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High intensity (85–95% max). Strength and explosiveness. Sport-specific conditioning (sprint, jumps, direction change). ACWR must not exceed 1.5.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Technique under high intensity. Sport-specificity increases — integration of technical and physical elements.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Tolerance for high load. Mental toughness and focus on quality under fatigue.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Maximum carbohydrate support. Increase protein for regeneration. Pre/post-training nutrition is critical.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Critical recovery phase. Cold water immersion after intense sessions. Sleep tracking. Periodized rest days.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,name:'Position Focus',text:'Backs & Pivots: shift toward explosive/rotational strength (cable rotations, medicine ball throws) and progressively increase throwing volume — this is when shoulder overuse risk peaks if that progression is too fast. Wings: repeated-sprint and reactive change-of-direction work is the priority. GKs: introduce high-volume reactive save work now — low running volume, but highly specific movement patterns.'},
     ], warning:'High overtraining risk! Monitor ACWR daily. Acute:chronic load ratio >1.5 requires immediate reduction.'
   },
   precomp: {
     label:'Pre-Competitive Phase', color:'#f59e0b',
     duration:'2–4 weeks',
     durationNote:'Tapering phase. Volume decreases, intensity stays high. Preparation for peak form.',
-    objective:'Achieving competitive form. Reducing fatigue while maintaining fitness. Integration of tactics and system variants against real opposition.',
+    objective:'Achieving competitive form. Reducing fatigue while maintaining fitness. Integration of tactics and system variants.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduce volume by 40–60% from Specific Prep. Maintain intensity near maximum, short sharp sessions. The weekly plan now reacts to the actual fixture list — friendly and control matches replace one or both "peak" training slots as they appear on the Match Calendar, exactly as they would once the real competitive calendar begins.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'High specificity. Tactical preparation for the team\'s defensive and offensive systems. Video analysis of game systems against upcoming opponents.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduce volume by 40–60% from previous phase. Maintain intensity near maximum. Short, sharp sessions.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'High specificity. Tactical preparation for specific opponents. Video analysis of game systems.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Building confidence. Performance visualization. Pre-match routines. Anxiety management.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Carbohydrate loading before first matches. Test the nutrition protocols that will be used during competition.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'CHO loading before first matches. Test nutrition protocols that will be used during competition.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Maximum recovery priority. CWI 10–15 min after key sessions. Massage. 9 hours sleep.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,name:'Position Focus',text:'Backs & Pivots: taper general strength volume but keep 1–2 short high-intensity throwing sessions to maintain shot velocity. Wings: keep sprint exposure — this quality detrains fastest of all. GKs: maintain reactive save volume even as overall team volume drops.'},
     ], warning:null
   },
   comp: {
     label:'Competitive Phase', color:'#FF6F61',
     duration:'Depends on calendar',
-    durationNote:'Longest phase of the season. With 1–2 matches per week common in domestic handball (league + cup), training volume is secondary to match recovery for most of this phase.',
-    objective:'Maximum competitive performance. Balance training and competition. Fatigue management across a congested fixture list.',
+    durationNote:'Longest phase of the season. Goal is to maintain form and manage cumulative fatigue throughout.',
+    objective:'Maximum competitive performance. Balance training and competition. Fatigue management.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Weekly load is now dictated by the fixture list, not a fixed template. 1-match weeks keep a single "peak" training session alongside efficiency, aerobic and rest days built around the match. 2-match weeks (league + cup) drop manufactured peak training entirely — both matches already provide that stimulus, and the week becomes almost entirely efficiency/aerobic/recovery. Watch Monotony and Strain closely in 2-match weeks; that combination is exactly when both spike.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Low volume (3–5 sessions/week). High intensity in specific sessions. Recovery between matches is the priority.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Maximum specificity. Tactical preparation for each opponent. Video review and analysis of every match.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Confidence, flexibility, self-belief. Match plan. Error tolerance. Accepting uncertainty.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Full carbohydrate support for matches and training. Pre/during/post-match protocols practiced.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Maximum recovery before each match. CWI immediately after (10–15 min @ 12°C). Active fatigue management.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,name:'Position Focus',text:'Backs & Pivots: in-season shoulder maintenance (rotator cuff/scapular) stays in every microcycle regardless of match count — the highest shoulder-injury-risk group all season. Wings: ankle/knee landing-mechanics work continues year-round, especially after a 2-match week. GKs: individual reactive work is largely unaffected by fixture congestion since running load is low — keep it consistent.'},
-    ], warning:'In 2-match weeks, resist the instinct to add "one more" training session — the matches themselves are the peak stimulus.'
+    ], warning:null
   },
   trans: {
     label:'Transition Period', color:'#10b981',
@@ -1367,10 +1285,9 @@ const PHASE_GUIDANCE = {
     pillars:[
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduced load. Active recovery. Corrective work and injury prevention without time pressure.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Lower specificity. Correction of technical errors identified during competition. Setting the base for the next cycle.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Mental rest from competitive stress. Honest evaluation of the last competitive block. Restoration of motivation and energy.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Mental rest from competitive stress. Honest evaluation of the first competitive block. Restoration of motivation and energy.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Reduce intake proportionally to lower load. Focus on recovery and anti-inflammatory foods.'},
       {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Sleep priority (quality and duration). Massage, passive recovery. Psychological rest through activities outside sport.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,name:'Position Focus',text:'Good window for any position-specific rehab that couldn\'t fit during the season — shoulder or knee follow-ups for backs, pivots and wings; a general physical reset for goalkeepers.'},
     ], warning:null
   }
 };
@@ -1384,11 +1301,8 @@ let seasonEndDate   = new Date(new Date(new Date().getFullYear(), 5, 1).getTime(
 let weekPhases   = Array(NUM_WEEKS).fill('none');
 let weekEvents   = {};   // weekIdx → { type, label, competitionId? }
 let competitions = [];   // { id, title, location, startDate, endDate, importance, target }
-let matchCalendar = [];  // [ { id, date, opponent, venue, result, score } ]
-let matchResults  = {};  // weekIdx → { result, score, opponent, venue, fromCalendar }
 let camps        = [];   // { id, title, location, startDate, endDate }
 let CURRENT_WEEK = 0;
-let seasonConfigured = false; // true only once a real season doc with startDate is loaded from Firestore
 
 const COMPETITION_IMPORTANCE = {
   1: { label: 'Friendly',              color: '#94a3b8' },
@@ -1401,9 +1315,7 @@ const COMPETITION_IMPORTANCE = {
 const CAMP_COLOR = '#22c55e'; // green — distinct from competition coral
 
 function computeCurrentWeek() {
-  var anchor = getSeasonMondayAnchor();
-  var todayMidnight = new Date(); todayMidnight.setHours(0,0,0,0);
-  const diff = todayMidnight.getTime() - anchor.getTime();
+  const diff = Date.now() - seasonStartDate.getTime();
   CURRENT_WEEK = Math.max(0, Math.min(NUM_WEEKS - 1, Math.floor(diff / (7*24*3600*1000))));
 }
 
@@ -1435,10 +1347,10 @@ function updateSeasonDates() {
   if (!sv) return;
   seasonStartDate = parseLocalDate(sv); _seasonMondayAnchor = null;
   seasonEndDate   = new Date(seasonStartDate.getTime() + 52 * 7 * 24 * 3600 * 1000);
-  seasonConfigured = true;
   updateWeekCountLabel();
   computeCurrentWeek();
   syncCompetitionEvents();
+  syncCampEvents();
   renderSeason();
   autoSaveSeason();
 }
@@ -1520,12 +1432,6 @@ function getCompetitionForDate(date) {
     if (d >= sd && d <= ed) return c;
   }
   return null;
-}
-
-// Returns the Match Calendar entry (if any) scheduled on the given day
-function getMatchForDate(date) {
-  const iso = toISO(date);
-  return matchCalendar.find(function(m){ return m.date === iso; }) || null;
 }
 
 /* ════════════════════════════════════════════════
@@ -2652,7 +2558,7 @@ function wizSaveMicrocycles() {
         plan: plan,
         updatedAt: new Date().toISOString(),
         updatedBy: window.ADA_USER.uid
-      }, { merge: true }).then(function() {
+      }).then(function() {
         saved++;
         if (saved === total) setAutoSaveStatus('saved');
       }).catch(function(err) {
@@ -2711,8 +2617,6 @@ function confirmResetSeason() {
   weekEvents  = {};
   competitions = [];
   camps = [];
-  matchCalendar = [];
-  matchResults  = {};
   // Clear weekly plans from memory
   microPlans = {};
   microPlansLoaded = false;
@@ -2778,13 +2682,14 @@ function setSeasonAutoSaveStatus(state) {
    MICROCYCLE
 ════════════════════════════════════════════════ */
 const sessionTypes = [
-  {id:'technical',    icon:'🎯', svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`, name:'Technical',   color:'#3b82f6', rpe:6, dur:75},
-  {id:'sparring',     icon:'⚔️', svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`, name:'Sparring',    color:'#f59e0b', rpe:8, dur:75},
-  {id:'tactical',     icon:'♟',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`, name:'Tactical',    color:'#8b5cf6', rpe:7, dur:60},
-  {id:'strength',     icon:'🏋',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`, name:'Strength',    color:'#ef4444', rpe:8, dur:60},
-  {id:'conditioning', icon:'🏃',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`, name:'Conditioning', color:'#22c55e', rpe:6, dur:45},
-  {id:'competition',  icon:'🏆',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Game',  color:'#FF6F61', rpe:10, dur:120},
-  {id:'recovery',     icon:'🧘',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`, name:'Recovery',    color:'#94a3b8', rpe:2, dur:40},
+  {id:'technical',    icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`, name:'Technical',   color:'#3b82f6', rpe:6, dur:75},
+  {id:'tactical',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`, name:'Tactical',    color:'#8b5cf6', rpe:7, dur:60},
+  {id:'strength',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`, name:'Strength',    color:'#ef4444', rpe:8, dur:60},
+  {id:'conditioning', icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`, name:'Conditioning', color:'#22c55e', rpe:6, dur:45},
+  {id:'match',        icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Friendly Match', color:'#FF6F61', rpe:8, dur:90},
+  {id:'sparring',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`, name:'Sparring',     color:'#ec4899', rpe:8, dur:60},
+  {id:'competition',  icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Competition',  color:'#FF6F61', rpe:10, dur:120},
+  {id:'recovery',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`, name:'Recovery',    color:'#94a3b8', rpe:2, dur:40},
   {id:'rest',         icon:'—',   svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, name:'Rest Day',    color:'#cbd5e1', rpe:0, dur:0},
 ];
 
@@ -2803,71 +2708,65 @@ const PHASE_LOAD_TARGETS = {
 const PHASE_WEEKLY_TEMPLATES = {
   // Off-season: passive rest, no structured training
   off:     {Mon:[{type:'rest'}],Tue:[{type:'rest'}],Wed:[{type:'rest'}],Thu:[{type:'rest'}],Fri:[{type:'rest'}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
-  // General Preparation — Milišić (2003) Ch.2 weekly microcycle: efficiency → peak → aerobic →
-  // active rest → peak → aerobic → rest. Peak days use game-realistic small-sided play.
-  // Bompa & Buzzichelli (2019): high volume, moderate intensity; 5–6 sessions; 3-load:1-deload cadence.
-  prep:    {Mon:[{type:'technical',dur:45,rpe:5}],Tue:[{type:'sparring',dur:70,rpe:8,peakDay:true}],Wed:[{type:'conditioning',dur:55,rpe:6}],Thu:[{type:'recovery',dur:35,rpe:3}],Fri:[{type:'sparring',dur:70,rpe:8,peakDay:true}],Sat:[{type:'conditioning',dur:55,rpe:6}],Sun:[{type:'rest'}]},
-  // Specific Preparation — same Milišić cycle, higher intensity; sparring = simulated match intensity.
-  // Turner (2011): shift from general to specific; ACWR target 1.0–1.3; 3-load:1-deload cadence.
-  phys:    {Mon:[{type:'technical',dur:45,rpe:6}],Tue:[{type:'sparring',dur:75,rpe:9,peakDay:true}],Wed:[{type:'conditioning',dur:45,rpe:6}],Thu:[{type:'recovery',dur:35,rpe:3}],Fri:[{type:'sparring',dur:75,rpe:9,peakDay:true}],Sat:[{type:'conditioning',dur:45,rpe:6}],Sun:[{type:'rest'}]},
-  // Pre-Competitive (taper): same skeleton, volume cut ~40–60%; peak-day slots are where
-  // control/friendly matches from the Match Calendar will substitute in automatically.
-  // Mujika et al. (2004): exponential taper; reduce volume 40–60%, keep intensity.
-  precomp: {Mon:[{type:'technical',dur:40,rpe:6}],Tue:[{type:'sparring',dur:60,rpe:8,peakDay:true}],Wed:[{type:'conditioning',dur:35,rpe:5}],Thu:[{type:'recovery',dur:30,rpe:3}],Fri:[{type:'sparring',dur:60,rpe:8,peakDay:true}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
-  // Competitive: minimal skeleton — real fixtures (from Match Calendar) override the peak-day
-  // slots below on their actual calendar day; a 2nd match in the same week downgrades the
-  // *other* peak slot to recovery instead of stacking manufactured peak training on two matches.
-  // Franchini et al. (2011): preserve peak form; limit fatigue accumulation.
-  comp:    {Mon:[{type:'technical',dur:35,rpe:5}],Tue:[{type:'sparring',dur:50,rpe:7,peakDay:true}],Wed:[{type:'tactical',dur:40,rpe:5}],Thu:[{type:'recovery',dur:30,rpe:3}],Fri:[{type:'sparring',dur:45,rpe:6,peakDay:true}],Sat:[{type:'rest'}],Sun:[{type:'recovery',dur:30,rpe:2}]},
-  // Transition: active recovery; cross-training; no sparring; restore motivation
+  // General Preparation: aerobic base + general strength; light technical to maintain skill
+  // Bompa & Buzzichelli (2019): high volume, moderate intensity; 5–6 sessions
+  prep:    {Mon:[{type:'conditioning',dur:50,rpe:6}],Tue:[{type:'strength',dur:60,rpe:7}],Wed:[{type:'technical',dur:75,rpe:5}],Thu:[{type:'conditioning',dur:50,rpe:6}],Fri:[{type:'strength',dur:60,rpe:7}],Sat:[{type:'technical',dur:75,rpe:6}],Sun:[{type:'rest'}]},
+  // Specific Preparation: sport-specific conditioning + technical volume + sparring training introduced
+  // Turner (2011): shift from general to specific; ACWR target 1.0–1.3
+  phys:    {Mon:[{type:'strength',dur:60,rpe:8}],Tue:[{type:'technical',dur:75,rpe:7}],Wed:[{type:'sparring',dur:75,rpe:8}],Thu:[{type:'conditioning',dur:45,rpe:7}],Fri:[{type:'technical',dur:75,rpe:7}],Sat:[{type:'sparring',dur:75,rpe:8}],Sun:[{type:'recovery',dur:40,rpe:2}]},
+  // Pre-Competitive (taper): sharp volume reduction, maintain intensity; technical sharpening
+  // Mujika et al. (2004): exponential taper; reduce volume 40–60%, keep intensity
+  precomp: {Mon:[{type:'technical',dur:60,rpe:7}],Tue:[{type:'sparring',dur:60,rpe:8}],Wed:[{type:'tactical',dur:60,rpe:6}],Thu:[{type:'recovery',dur:40,rpe:2}],Fri:[{type:'technical',dur:45,rpe:7}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
+  // Competitive: competition day Saturday; activation Friday, recovery Sunday; minimal load
+  // Franchini et al. (2011): preserve peak form; limit fatigue accumulation
+  comp:    {Mon:[{type:'recovery',dur:40,rpe:2}],Tue:[{type:'technical',dur:60,rpe:6}],Wed:[{type:'sparring',dur:60,rpe:7}],Thu:[{type:'tactical',dur:45,rpe:5}],Fri:[{type:'technical',dur:30,rpe:5}],Sat:[{type:'competition',dur:120,rpe:10}],Sun:[{type:'recovery',dur:40,rpe:2}]},
+  // Transition: active recovery; cross-training; no high-intensity sparring work; restore motivation
   // Bompa (2019): 2–3 weeks; prevent detraining without accumulated fatigue
   trans:   {Mon:[{type:'conditioning',dur:35,rpe:4}],Tue:[{type:'recovery',dur:40,rpe:2}],Wed:[{type:'technical',dur:50,rpe:4}],Thu:[{type:'rest'}],Fri:[{type:'conditioning',dur:35,rpe:4}],Sat:[{type:'recovery',dur:40,rpe:2}],Sun:[{type:'rest'}]},
 };
 
-// Deload-week variants (Bompa 3-load:1-deload) — applied automatically to every 4th
-// consecutive week within Prep or Specific Prep. Volume/intensity cut ~40–50%, and the
-// second weekly "peak" session is dropped to recovery rather than run at reduced load,
-// so the block genuinely supercompensates before the next loading cycle.
+// Reduced-volume variants for the 3-load:1-deload cadence — only Prep and Specific Prep
+// carry sustained enough weekly load to need a scheduled deload week (see
+// countConsecutivePhaseWeeks / generateRecommendedPlan).
 const PHASE_WEEKLY_TEMPLATES_DELOAD = {
-  prep: {Mon:[{type:'technical',dur:35,rpe:4}],Tue:[{type:'sparring',dur:45,rpe:6,peakDay:true}],Wed:[{type:'conditioning',dur:35,rpe:5}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'recovery',dur:30,rpe:3}],Sat:[{type:'conditioning',dur:35,rpe:4}],Sun:[{type:'rest'}]},
-  phys: {Mon:[{type:'technical',dur:35,rpe:5}],Tue:[{type:'sparring',dur:50,rpe:7,peakDay:true}],Wed:[{type:'conditioning',dur:35,rpe:5}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'recovery',dur:30,rpe:3}],Sat:[{type:'conditioning',dur:35,rpe:4}],Sun:[{type:'rest'}]},
+  prep: {Mon:[{type:'conditioning',dur:35,rpe:4}],Tue:[{type:'strength',dur:40,rpe:5}],Wed:[{type:'technical',dur:45,rpe:4}],Thu:[{type:'recovery',dur:35,rpe:2}],Fri:[{type:'strength',dur:40,rpe:5}],Sat:[{type:'technical',dur:45,rpe:4}],Sun:[{type:'rest'}]},
+  phys: {Mon:[{type:'strength',dur:40,rpe:5}],Tue:[{type:'technical',dur:45,rpe:5}],Wed:[{type:'recovery',dur:35,rpe:2}],Thu:[{type:'conditioning',dur:30,rpe:5}],Fri:[{type:'technical',dur:45,rpe:5}],Sat:[{type:'sparring',dur:40,rpe:5}],Sun:[{type:'recovery',dur:35,rpe:2}]},
 };
 
 const EXERCISE_REC = {
   prep: {
-    conditioning:['Continuous aerobic run 25–35 min @ Zone 2 (60–70% HRmax)','Aerobic intervals: 4×4 min shuttle running @ Zone 3 · 3 min active rest','General circuit: squats, lunges, push-ups, pull-ups · 3×10','Cycling or rowing 30 min @ moderate pace — cross-training base'],
-    strength:['Lower body compound: back squat 4×5 @ 75% 1RM','Upper body push/pull: bench press + bent-over row 3×8 — general base before throwing volume increases','Core stability: plank progressions, anti-rotation holds · 3×30 sec','Scapular & rotator cuff foundation: external rotations, band pull-aparts, Y-T-W raises · 3×12 — start now, every session, all season'],
-    technical:['Footwork patterns: defensive shuffle and close-out drills 15–20 min','Isolated skill repetition: passing and catching with no pressure · 3×10 min blocks','Solo shooting drills at low intensity — technique quality over speed','Video review + deliberate practice on one technical element (e.g. jump-shot arm path)'],
-    sparring:['Small-sided games (4v4/5v5), reduced court, low-moderate intensity — introduce game rhythm without full tactical load','Conditioned game: score only from outside 9m, or 2-touch max — technical constraint under light game pressure','Controlled 6v6 possession game, no full-speed defense — build toward match intensity gradually','Progressive intensity: 60–70% game speed building to 80% across the session'],
-    recovery:['Easy jog or walk 15–20 min @ Zone 1','Foam rolling: quads, hip flexors, upper back and shoulders · 10–15 min','Static stretching: full body, 30 sec holds','Cold water immersion 10–12 min @ 14°C (optional)'],
+    conditioning:['Continuous aerobic run 25–35 min @ Zone 2 (60–70% HRmax)','Aerobic intervals: 4×4 min @ Zone 3 · 3 min active rest','General circuit: squats, lunges, push-ups, pull-ups · 3×10','Cycling or rowing 30 min @ moderate pace — cross-training base'],
+    strength:['Lower body compound: back squat 4×5 @ 75% 1RM','Upper body push/pull: bench press + bent-over row 3×8','Core stability: plank progressions, anti-rotation holds · 3×30 sec','Olympic lifting intro: power clean 3×5 @ technique focus'],
+    technical:['Footwork patterns: shadow movement 15–20 min','Isolated skill repetition: 3×10 min blocks with rest','Solo drill sequences at low intensity — quality over speed','Video review + deliberate practice on one technical element'],
+    recovery:['Easy jog or walk 15–20 min @ Zone 1','Foam rolling: quads, hip flexors, upper back · 10–15 min','Static stretching: full body, 30 sec holds','Cold water immersion 10–12 min @ 14°C (optional)'],
   },
   phys: {
-    conditioning:['Repeated sprint ability: 10×20m shuttle sprints with 20–30 sec rest','Sport-specific footwork circuits: defensive slides + close-outs · 5×2 min @ high intensity','Power endurance: 8×20 sec explosive lateral bounds + 40 sec rest','Change-of-direction ladder and cone drills at game-realistic speed'],
-    strength:['Max strength phase: squat/deadlift 5×3 @ 85–90% 1RM','Explosive power: jump squats, rotational medicine ball throws · 4×6','Throwing power: cable/band rotational throws, landmine rotations · 3×8','Progressive throwing-volume build: overhead med ball throws for distance · 3×6, increasing week to week'],
-    sparring:['Full-intensity small-sided games (5v5/6v6), full court, game-realistic defense','Progressive-intensity scrimmage: 70% → 90% across four 8-min blocks','Conditioned game scenario: fast-break emphasis, or a specific defensive system (e.g. 6-0) at match pace','Structured scrimmage with short breaks — simulates in-season match rhythm'],
-    technical:['Technical combinations under fatigue and light opposition · 3×10 min','Shooting under defensive pressure — 1v1 and 2v1 finishing drills','Video analysis of own recent scrimmage — one correction focus','Tactical variation: apply one new offensive or defensive pattern to practiced skills'],
-    recovery:['Contrast hydrotherapy: 3×(2 min warm / 1 min cold)','Aqua jogging or swimming 15–20 min','Therapeutic massage of shoulders and lower back — the highest-loaded areas in this phase','Progressive muscle relaxation + breathing 15 min'],
+    conditioning:['Speed endurance intervals: 6×30 sec max effort + 90 sec rest','Sport-specific footwork circuits: 5×2 min @ high intensity','Power endurance: 8×20 sec explosive effort + 40 sec rest','Repeated sprint ability: 10×10m with 30 sec rest'],
+    strength:['Max strength phase: squat/deadlift 5×3 @ 85–90% 1RM','Explosive power: jump squats, medicine ball throws · 4×6','Sport-specific resistance: partner resistance drills','Rotational power: cable rotations, landmine press · 3×8'],
+    sparring:['Controlled partner drilling: technical focus, agreed patterns · 20–30 min','Progressive intensity sparring: 60–70% → 80% across rounds · 4–6 rounds','Specific scenario drilling: one situation repeated under resistance','Point/round sparring with structured recovery between rounds'],
+    technical:['Technical combinations at 70–80% speed · 3×10 min','Isolated pattern drilling against a partner at controlled intensity','Video analysis of own recent performance — 1 correction focus','Tactical variation: apply one new strategy to practiced skills'],
+    recovery:['Contrast hydrotherapy: 3×(2 min warm / 1 min cold)','Aqua jogging or swimming 15–20 min','Therapeutic massage of primary loaded muscle groups','Progressive muscle relaxation + breathing 15 min'],
   },
   precomp: {
-    technical:['Match-speed technical rehearsal: shooting and passing combinations at 90–95% speed','Set-piece rehearsal: fast breaks, 7m throws, timeout plays','Warm-up routine rehearsal — exact match-day sequence','Refine one team offensive or defensive system with the full squad'],
-    sparring:['Competitive-intensity scrimmage: 80–90% · 3–4 rounds only','Scenario drilling: specific game situations (e.g. defending a 1-goal lead in the final 5 minutes)','Controlled friendly/practice match at match intensity — quality over volume','Restart simulation: timeouts, 7m throws and fast-break transitions under pressure'],
-    tactical:['Match-plan rehearsal: defensive system (e.g. 6-0/5-1), fast-break entries','Video scouting of upcoming opponents — 30–40 min session','Mental rehearsal + visualisation: 15–20 min','Pre-match tactical debrief with coaching staff'],
-    recovery:['Full-body massage 45–60 min','Cold water immersion 12–15 min @ 12–14°C post key sessions','9 hrs sleep; no screens 60 min before bed','Nutrition: carbohydrate loading 2 days before first matches'],
+    technical:['Competition-speed technical rehearsal: 3×8 min rounds','Sharpening: full combination sequences at 90–95% speed','Competition simulation warm-up routine — rehearse exactly','Refine one competition-specific strategy with partner'],
+    sparring:['Competitive intensity sparring: 80–90% · 3–4 rounds only','Scenario drilling: specific situations from competition format','Controlled competitive exchange — quality not quantity','Point simulation: practice start/reset/restart under pressure'],
+    tactical:['Match-plan rehearsal: entry strategies, defensive patterns','Video scouting of likely opponents — 30–40 min session','Mental rehearsal + visualisation: 15–20 min','Pre-competition tactical debrief with coach'],
+    recovery:['Full-body massage 45–60 min','Cold water immersion 12–15 min @ 12–14°C post key sessions','9 hrs sleep; no screens 60 min before bed','Nutrition: carb load 2 days pre-competition'],
   },
   comp: {
-    technical:['Pre-match activation: technical warm-up 20–25 min at 80% intensity','Maintenance drilling: passing/shooting 30–40 min at moderate intensity · mid-week only','Post-match technical debrief — identify 1–2 correction points from match video','Light technical touch session: low fatigue, high confidence focus'],
-    sparring:['Mid-week controlled scrimmage: 2–3 short rounds at 70% only','Avoid high-intensity scrimmage within 48 hrs of a match','Scenario work: specific in-match situations (defending a lead, late-game fast break) at controlled pace'],
-    tactical:['Match-week strategy review: opponent\'s defensive system and known threats','Opponent analysis: key shooters, preferred fast-break patterns','Mental preparation: visualisation, pre-match routine rehearsal'],
-    recovery:['CWI immediately post-match: 10–15 min @ 12°C','Carbohydrate + protein intake within 30 min of full-time','Active recovery: 15–20 min easy movement the day after a match','Sleep priority: 9+ hrs in match weeks'],
+    technical:['Pre-competition activation: technical warm-up 20–25 min at 80% intensity','Maintenance drilling: 30–40 min at moderate intensity · mid-week only','Post-competition technical debrief — identify 1–2 correction points','Light technical touch session: low fatigue, high confidence focus'],
+    sparring:['Mid-week controlled sparring: 2–3 short rounds at 70% only','Avoid high-intensity sparring within 48 hrs of competition','Scenario work: practice specific competition situations at controlled pace'],
+    tactical:['Competition week strategy review: 20–30 min','Opponent analysis if known: key patterns, preferred entries','Mental preparation: visualisation, competition routine rehearsal'],
+    recovery:['CWI immediately post-competition: 10–15 min @ 12°C','Carbohydrate + protein intake within 30 min of finish','Active recovery: 15–20 min easy movement day after competition','Sleep priority: 9+ hrs in competition week'],
   },
   trans: {
     conditioning:['Cross-training: cycling, swimming, hiking — 30 min @ own pace','General movement circuit: bodyweight only, low intensity','Recreational activity of own choice — maintain enjoyment','Yoga or mobility flow: 30–40 min'],
-    technical:['Light ball-handling maintenance: 30–40 min, no partner pressure','Focus on enjoyment — free shooting practice without correction pressure','Optional: introduce one new technical element for curiosity (e.g. a new shot type)'],
-    recovery:['Full passive rest days — no structured exercise','Sleep at own schedule: recovery debt repayment','Deep tissue massage of chronic problem areas (shoulders, knees)','Mindfulness or breathing practice: 10–15 min daily'],
+    technical:['Light skill maintenance: 30–40 min, no partner pressure','Focus on enjoyment — free practice without correction pressure','Optional: introduce one new technical element for curiosity'],
+    recovery:['Full passive rest days — no structured exercise','Sleep at own schedule: recovery debt repayment','Deep tissue massage of chronic problem areas','Mindfulness or breathing practice: 10–15 min daily'],
   },
   off: {
     conditioning:['Recreational activity of own choice: 30–40 min','Unstructured movement — walks, leisure sports, gardening','No performance targets — enjoyment only'],
-    recovery:['Full passive rest — no structured recovery protocol','Sleep at own schedule','Socialise and disconnect from handball mentally'],
+    recovery:['Full passive rest — no structured recovery protocol','Sleep at own schedule','Socialise and disconnect from sport mentally'],
   },
 };
 
@@ -2876,35 +2775,12 @@ let microPlans = {}, currentMicroWeek = 0, microPlansLoaded = false;
 function getSessionType(id) { return sessionTypes.find(s=>s.id===id) || sessionTypes[0]; }
 
 // How many consecutive weeks (including this one) have carried the same phase —
-// used to find the 4th week in a Prep/Specific Prep block for deload cycling.
+// used to trigger a deload week every 4th consecutive week in Prep/Specific Prep.
 function countConsecutivePhaseWeeks(weekIdx) {
-  var phase = weekPhases[weekIdx];
-  if (!phase || phase === 'none') return 0;
-  var count = 0;
-  for (var i = weekIdx; i >= 0; i--) {
-    if (weekPhases[i] === phase) count++;
-    else break;
-  }
+  const phase = weekPhases[weekIdx];
+  let count = 1, w = weekIdx - 1;
+  while (w >= 0 && weekPhases[w] === phase) { count++; w--; }
   return count;
-}
-
-// Bompa 3-load : 1-deload — every 4th consecutive week within Prep or Specific Prep only.
-function isDeloadWeek(weekIdx) {
-  var phase = weekPhases[weekIdx];
-  return (phase === 'prep' || phase === 'phys') && (countConsecutivePhaseWeeks(weekIdx) % 4 === 0);
-}
-
-// Real scheduled matches (from the Match Calendar) that fall within this week's Mon–Sun span.
-function getMatchesInWeek(weekIdx) {
-  var weekMon = getWeekStartDate(weekIdx);
-  var found = [];
-  for (var i = 0; i < 7; i++) {
-    var d = new Date(weekMon); d.setDate(d.getDate() + i);
-    var iso = toISO(d);
-    var m = matchCalendar.find(function(x){ return x.date === iso; });
-    if (m) found.push({ day: DAYS[i], match: m });
-  }
-  return found;
 }
 
 function generateRecommendedPlan(weekIdx) {
@@ -2912,12 +2788,38 @@ function generateRecommendedPlan(weekIdx) {
   if (!phase || phase === 'none') {
     const empty = {}; DAYS.forEach(d => { empty[d] = [{id:'rest',type:'rest',duration:0,rpe:0,label:'',recommended:false}]; }); return empty;
   }
-  // Deload week (Bompa 3-load:1-deload, Prep/Specific Prep only)
-  const deloadSet = (phase === 'prep' || phase === 'phys') && isDeloadWeek(weekIdx)
-    ? PHASE_WEEKLY_TEMPLATES_DELOAD[phase] : null;
-  const template = deloadSet || PHASE_WEEKLY_TEMPLATES[phase] || PHASE_WEEKLY_TEMPLATES['prep'];
+  // Deload cadence: every 4th consecutive week in Prep/Specific Prep drops to the
+  // reduced-volume template — the two phases with sustained enough weekly load to need it.
+  const consecutiveWeeks = countConsecutivePhaseWeeks(weekIdx);
+  const isDeload = (phase === 'prep' || phase === 'phys') && consecutiveWeeks % 4 === 0;
+  const template = (isDeload && PHASE_WEEKLY_TEMPLATES_DELOAD[phase]) || PHASE_WEEKLY_TEMPLATES[phase] || PHASE_WEEKLY_TEMPLATES['prep'];
+
+  // Multi-day tournament handling: detect every day this week that falls inside a
+  // registered Competition's date range and treat each one as a match/competition day,
+  // not just the template's single default Saturday slot.
+  const weekStart = getWeekStartDate(weekIdx);
+  const tournamentDays = {};
+  DAYS.forEach((d, i) => {
+    const dayDate = new Date(weekStart); dayDate.setDate(dayDate.getDate() + i);
+    const comp = getCompetitionForDate(dayDate);
+    if (comp) tournamentDays[d] = comp;
+  });
+  const tournamentDayCount = Object.keys(tournamentDays).length;
+
   const plan = {};
-  DAYS.forEach(d => {
+  DAYS.forEach((d, i) => {
+    if (tournamentDays[d]) {
+      const comp = tournamentDays[d];
+      plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'competition', duration:90, rpe:9, label:comp.title, recommended:true}];
+      return;
+    }
+    // Day immediately after a tournament block ends this week — enforced recovery,
+    // not whatever the template would normally schedule.
+    const prevDay = DAYS[i-1];
+    if (prevDay && tournamentDays[prevDay]) {
+      plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'recovery', duration:30, rpe:2, label:'', recommended:true}];
+      return;
+    }
     const tpl = template[d] || [{type:'rest'}];
     plan[d] = tpl.map(t => {
       const st = getSessionType(t.type);
@@ -2925,24 +2827,19 @@ function generateRecommendedPlan(weekIdx) {
     });
   });
 
-  // Overlay real scheduled matches onto their actual day (Milišić: a match already
-  // provides the "peak" stimulus). If 2+ matches fall in the same week, downgrade the
-  // *other* template peak-day slot to recovery instead of stacking manufactured peak
-  // training on top of an already-congested week.
-  const weekMatches = getMatchesInWeek(weekIdx);
-  if (weekMatches.length > 0) {
-    weekMatches.forEach(function(wm) {
-      plan[wm.day] = [{id:'match_'+wm.match.id, type:'competition', duration:90, rpe:9, label:'vs '+(wm.match.opponent||'Match'), recommended:true}];
+  // If a tournament consumed 2+ days this week, downgrade any remaining high-intensity
+  // slot (sparring/strength) elsewhere in the week to recovery — avoids stacking fresh
+  // training load on top of tournament fatigue, same principle as the single-match
+  // downgrade rule, generalised to a multi-day block.
+  if (tournamentDayCount >= 2) {
+    DAYS.forEach(d => {
+      if (tournamentDays[d]) return;
+      const daySessions = plan[d] || [];
+      const hasHighIntensity = daySessions.some(s => s.type === 'sparring' || s.type === 'strength');
+      if (hasHighIntensity) {
+        plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'recovery', duration:30, rpe:2, label:'', recommended:true}];
+      }
     });
-    if (weekMatches.length >= 2) {
-      const matchDays = weekMatches.map(function(wm){ return wm.day; });
-      DAYS.forEach(function(d) {
-        if (matchDays.indexOf(d) === -1 && template[d] && template[d][0] && template[d][0].peakDay) {
-          const rec = getSessionType('recovery');
-          plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'recovery', duration:rec.dur, rpe:rec.rpe, label:'', recommended:true}];
-        }
-      });
-    }
   }
   return plan;
 }
@@ -2961,15 +2858,6 @@ function getMicroPlan(weekIdx) {
 }
 
 function renderMicro() {
-  var notConfiguredEl = document.getElementById('mc-not-configured');
-  var activeContentEl = document.getElementById('mc-active-content');
-  if (!seasonConfigured) {
-    if (notConfiguredEl) notConfiguredEl.style.display = '';
-    if (activeContentEl) activeContentEl.style.display = 'none';
-    return;
-  }
-  if (notConfiguredEl) notConfiguredEl.style.display = 'none';
-  if (activeContentEl) activeContentEl.style.display = '';
   const w     = currentMicroWeek;
   const phase = weekPhases[w] || 'none';
   const pc    = phaseConfig[phase];
@@ -2981,7 +2869,7 @@ function renderMicro() {
   if(!timDataLoaded && !_timCheckinsLoading) loadTimCheckinsForMicro();
   document.getElementById('micro-week-label').textContent = `W${w+1}`;
   document.getElementById('micro-phase-subtitle').innerHTML =
-    `${getWeekDateLabel(w)} &nbsp;·&nbsp; <span style="color:${pc.color};font-weight:700;">${pc.label}</span>${weekEvents[w] ? ' &nbsp;·&nbsp; ' + weekEvents[w].label : ''}${isDeloadWeek(w) ? ' &nbsp;·&nbsp; <span style="color:#f59e0b;font-weight:700">&#8635; Deload Week</span>' : ''}`;
+    `${getWeekDateLabel(w)} &nbsp;·&nbsp; <span style="color:${pc.color};font-weight:700;">${pc.label}</span>${weekEvents[w] ? ' &nbsp;·&nbsp; ' + weekEvents[w].label : ''}`;
 
   // Competition / Camp banners — shows if this week is part of a registered event
   const comp = getCompetitionForWeek(w);
@@ -3052,12 +2940,11 @@ function renderMicro() {
     dateD.setDate(dateD.getDate() + DAYS.indexOf(day));
     const dateStr = dateD.toLocaleDateString('en-GB', {month:'short', day:'numeric'});
     const dateISO = toISO(dateD);
-    const dayMatch = getMatchForDate(dateD);
     const dayComp = getCompetitionForDate(dateD);
     const dayCamp = getCampForDate(dateD);
-    const compClass = (dayMatch || dayComp) ? ' mc-day-comp' : (dayCamp ? ' mc-day-camp' : '');
-    const compBadge = (dayMatch || dayComp)
-      ? `<span class="mc-day-comp-badge" title="${dayMatch ? ('vs ' + (dayMatch.opponent||'Match')) : dayComp.title}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span>`
+    const compClass = dayComp ? ' mc-day-comp' : (dayCamp ? ' mc-day-camp' : '');
+    const compBadge = dayComp
+      ? `<span class="mc-day-comp-badge" title="${dayComp.title}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span>`
       : dayCamp
       ? `<span class="mc-day-camp-badge" title="${dayCamp.title}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/></svg></span>`
       : '';
@@ -3066,7 +2953,6 @@ function renderMicro() {
         <span style="display:flex;align-items:center;gap:5px;">${day}${compBadge}</span>
         <span style="font-size:0.75rem;color:var(--muted);">${dateStr}</span>
       </div>
-      ${dayMatch ? `<div style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:#FF6F61;margin-bottom:8px;" title="Match day">vs ${dayMatch.opponent || 'Match'}</div>` : ''}
       ${sessions.map((sess, si) => {
         const st = getSessionType(sess.type);
         if (sess.type === 'rest') return `
@@ -3100,6 +2986,7 @@ function renderMicro() {
               +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px">'
               +'<span style="font-size:0.72rem;font-weight:700;color:'+st.color+'">'+st.name+'</span>'
               +'<span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted2);margin-left:auto;white-space:nowrap">TL '+(s.tl||s.rpe*s.duration)+'</span>'
+              +'<div class="comp-del-btn" style="font-size:0.68rem;padding:2px;" onclick="event.stopPropagation();deleteAthleteCheckin(\''+athUid+'\',\''+dateISO+'\')" title="Delete this logged session">&#10005;</div>'
               +'</div>'
               +'<div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">'+s.duration+'m · RPE '+s.rpe+'</div>'
               +'<div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(ath.name||'Athlete')+'</div>'
@@ -3171,6 +3058,24 @@ function renderMicro() {
     var allRest = DAYS.every(function(d){ return (plan[d]||[]).every(function(s){ return s.type==='rest'; }); });
     ttWeeklyEl.style.display = (allRest && !localStorage.getItem('ada:tt:weekly')) ? 'flex' : 'none';
   }
+}
+
+// Coach-side deletion of an athlete's self-logged check-in session.
+// Deletes the whole checkins/{athleteUid}/sessions/{iso} doc — same scope
+// as the athlete's own deletePlanLog (removes the full day's log, not a
+// single session within a multi-session day). Mirrors coach-mobile.html's
+// deleteAthleteCheckin.
+function deleteAthleteCheckin(athleteUid, iso){
+  if(!window.db || !athleteUid || !iso) return;
+  if(!confirm('Delete this athlete\'s logged session? This cannot be undone.')) return;
+  window.db.collection('checkins').doc(athleteUid).collection('sessions').doc(iso).delete()
+    .then(function(){
+      if(timCheckinMap[athleteUid]){
+        timCheckinMap[athleteUid] = timCheckinMap[athleteUid].filter(function(c){ return c.date !== iso; });
+      }
+      renderMicro();
+    })
+    .catch(function(e){ console.warn('deleteAthleteCheckin:', e.message); alert('Could not delete session — please try again.'); });
 }
 
 async function renderReportedTL(weekIdx) {
@@ -3326,21 +3231,11 @@ function executeCopyPlan() {
 /* ── Auto-save: debounced, fires 800 ms after any plan mutation ── */
 var _autoSaveTimers = {};
 function autoSaveMicro(weekIdx, force) {
-  if (!microPlansLoaded && !force) {
-    console.warn('[ADA] autoSaveMicro blocked — microcycles not yet loaded (week '+weekIdx+')');
-    showSaveError('Still loading — please wait a moment and try again.');
-    return;
-  }
+  if (!microPlansLoaded && !force) return; // never overwrite Firestore before we've read it
   clearTimeout(_autoSaveTimers[weekIdx]);
   _autoSaveTimers[weekIdx] = setTimeout(function() {
-    if (!window.ADA_USER || !window.db) {
-      console.warn('[ADA] autoSaveMicro blocked — no user/db (week '+weekIdx+')');
-      showSaveError('Save failed: not connected. Please sign out and back in.');
-      return;
-    }
+    if (!window.ADA_USER || !window.db) return;
     setAutoSaveStatus('saving');
-    var docPath = 'seasons/'+window.ADA_USER.orgId+'/microcycles/week_'+weekIdx;
-    console.log('[ADA][date-diag] autoSaveMicro', { weekIdx: weekIdx, orgId: window.ADA_USER.orgId, seasonStart: toISO(seasonStartDate), weekStartDate: toISO(getWeekStartDate(weekIdx)), docPath: docPath });
     window.db.collection('seasons').doc(window.ADA_USER.orgId)
       .collection('microcycles').doc('week_' + weekIdx).set({
         weekIdx: weekIdx,
@@ -3348,7 +3243,7 @@ function autoSaveMicro(weekIdx, force) {
         updatedAt: new Date().toISOString(),
         updatedBy: window.ADA_USER.uid
       }, { merge: true })
-      .then(function()  { setAutoSaveStatus('saved'); console.log('[ADA][date-diag] autoSaveMicro SUCCESS', { docPath: docPath }); })
+      .then(function()  { setAutoSaveStatus('saved'); })
       .catch(function(err) {
         console.error('autoSaveMicro failed (week '+weekIdx+'):', err);
         setAutoSaveStatus('error');
@@ -3455,10 +3350,7 @@ function updateSessTL() {
 }
 
 function saveSessEditor() {
-  const typeId = sessionTypes.find(st => {
-    const btn = document.getElementById('stp-'+st.id);
-    return btn && btn.style.borderColor && btn.style.borderColor !== 'var(--border)' && btn.style.borderColor !== '';
-  })?.id || 'technical';
+  const typeId = document.getElementById('sess-type-select').value || 'technical';
   const duration = +document.getElementById('sess-dur-slider').value;
   const rpe      = +document.getElementById('sess-rpe-slider').value;
   const label    = document.getElementById('sess-label-input').value.trim();
@@ -3498,24 +3390,17 @@ function closeSessEditor(e) {
    MODULE SWITCHING
 ════════════════════════════════════════════════ */
 function switchModule(name, btn) {
-  // Block access to functions that depend on the season start date until it's set —
-  // reuse Weekly Plan's existing "set up your season first" gate rather than duplicating it.
-  if (!seasonConfigured && (name === 'tim' || name === 'calendar')) {
-    name = 'micro';
-    btn = document.getElementById('nav-micro');
-  }
   document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('mod-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
-  const labels = {season:'Season Plan', micro:'Weekly Plan', tim:'Athlete Roster', calendar:'Match Calendar', settings:'Settings'};
-  const mods   = {season:'SEASON',      micro:'WEEKLY',      tim:'ROSTER',        calendar:'CALENDAR',       settings:'SETTINGS'};
+  const labels = {season:'Season Plan', micro:'Weekly Plan', tim:'Athlete Roster', settings:'Settings'};
+  const mods   = {season:'SEASON',      micro:'WEEKLY',           tim:'ROSTER',    settings:'SETTINGS'};
   document.getElementById('topbar-title').textContent  = labels[name] || name;
   document.getElementById('topbar-module').textContent = mods[name]  || name.toUpperCase();
   if (name === 'micro')    { renderMicro(); var mdb=document.getElementById('micro-delete-btn');if(mdb)mdb.style.display=''; }
   else { var mdb2=document.getElementById('micro-delete-btn');if(mdb2){mdb2.style.display='none';if(_deleteMode)toggleDeleteMode();} }
   if (name === 'tim')      loadTimData();
-  if (name === 'calendar') renderCalendar();
 }
 
 /* ════════════════════════════════════════════════
@@ -3536,161 +3421,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-
-/* ════════════════════════════════════════════════
-   MATCH CALENDAR
-════════════════════════════════════════════════ */
-function calNewMatch() {
-  return { id: Date.now().toString(36) + Math.random().toString(36).slice(2,5), date:'', opponent:'', venue:'home', matchType:'league', result:'', score:'' };
-}
-
-function addCalendarMatch() {
-  matchCalendar.push(calNewMatch());
-  renderCalendar();
-  setTimeout(function() {
-    var tbody = document.getElementById('cal-tbody');
-    if (tbody && tbody.lastElementChild) tbody.lastElementChild.scrollIntoView({behavior:'smooth', block:'nearest'});
-  }, 80);
-}
-
-function deleteCalendarMatch(id) {
-  matchCalendar = matchCalendar.filter(function(m){ return m.id !== id; });
-  syncCalendarToSeason();
-  renderCalendar();
-  renderSeason();
-}
-
-function updateCalField(id, field, value) {
-  var m = matchCalendar.find(function(x){ return x.id === id; });
-  if (!m) return;
-  m[field] = value;
-  if (field === 'date' || field === 'result' || field === 'score' || field === 'opponent' || field === 'venue') {
-    syncCalendarToSeason();
-    renderCalStats();
-    renderSeason();
-  }
-}
-
-function cycleResult(id) {
-  var m = matchCalendar.find(function(x){ return x.id === id; });
-  if (!m) return;
-  var cycle = {'':'W','W':'D','D':'L','L':''};
-  m.result = cycle[m.result] !== undefined ? cycle[m.result] : '';
-  syncCalendarToSeason();
-  renderCalendar();
-  renderSeason();
-}
-
-function syncCalendarToSeason() {
-  // Clear match events/results that came from calendar
-  Object.keys(weekEvents).forEach(function(k){ if (weekEvents[k] && weekEvents[k].fromCalendar) delete weekEvents[k]; });
-  Object.keys(matchResults).forEach(function(k){ if (matchResults[k] && matchResults[k].fromCalendar) delete matchResults[k]; });
-  var mondayAnchor = getSeasonMondayAnchor(); // must match getWeekStartDate's anchor, not raw seasonStartDate
-  matchCalendar.forEach(function(m) {
-    if (!m.date) return;
-    var matchDate = parseLocalDate(m.date);
-    if (isNaN(matchDate.getTime())) return;
-    var diff = matchDate.getTime() - mondayAnchor.getTime();
-    var weekIdx = Math.floor(diff / (7*24*3600*1000));
-    if (weekIdx < 0 || weekIdx >= NUM_WEEKS) return;
-    weekEvents[weekIdx] = { type:'match', label: m.opponent || 'Match', matchType: m.matchType || 'league', fromCalendar:true, calId:m.id };
-    if (m.result) {
-      matchResults[weekIdx] = { result:m.result, score:m.score||'', opponent:m.opponent||'', venue:m.venue||'home', fromCalendar:true, calId:m.id };
-    }
-  });
-}
-
-function renderCalendar() {
-  var SVG_HOME    = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
-  var SVG_AWAY    = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 2.13 5.18 2 2 0 0 1 4.09 3h3.09a2 2 0 0 1 2 1.72c.13 1 .37 1.97.71 2.9a2 2 0 0 1-.45 2.11L8.09 10.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.93.34 1.9.58 2.9.71A2 2 0 0 1 22 16.92z"/></svg>';
-  var SVG_NEUTRAL = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
-  var SVG_DEL     = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-  var sorted = matchCalendar.slice().sort(function(a, b) {
-    if (!a.date) return 1;
-    if (!b.date) return -1;
-    return new Date(a.date) - new Date(b.date);
-  });
-  var tbody = document.getElementById('cal-tbody');
-  var empty = document.getElementById('cal-empty');
-  if (!tbody) return;
-  if (sorted.length === 0) {
-    tbody.innerHTML = '';
-    if (empty) empty.style.display = 'block';
-  } else {
-    if (empty) empty.style.display = 'none';
-    tbody.innerHTML = sorted.map(function(m, i) {
-      var venueLabel = {home:'&#127968; Home', away:'&#9992; Away', neutral:'&#127757; Neutral'}[m.venue] || m.venue;
-      var resCls = m.result || '';
-      var isFuture = m.date && new Date(m.date) > new Date();
-      return '<tr style="transition:background 0.12s;" onmouseover="this.style.background=\'var(--surface2)\'" onmouseout="this.style.background=\'\'">'
-        + '<td class="cal-cell" style="font-family:var(--mono);font-size:0.82rem;color:var(--muted);width:40px;text-align:center;">'+(i+1)+'</td>'
-        + '<td class="cal-cell" style="width:110px;"><input class="cal-input" type="date" value="'+m.date+'" onchange="updateCalField(\''+m.id+'\',\'date\',this.value)" style="font-family:var(--mono);font-size:0.84rem;width:100%;"></td>'
-        + '<td class="cal-cell"><input class="cal-input" type="text" value="'+m.opponent+'" placeholder="Opponent..." oninput="updateCalField(\''+m.id+'\',\'opponent\',this.value)" style="width:100%;min-width:140px;"></td>'
-        + '<td class="cal-cell" style="width:130px;"><select class="cal-venue-select" onchange="updateCalField(\''+m.id+'\',\'venue\',this.value)">'
-        +   '<option value="home"'+(m.venue==='home'?' selected':'')+'>Home</option>'
-        +   '<option value="away"'+(m.venue==='away'?' selected':'')+'>Away</option>'
-        +   '<option value="neutral"'+(m.venue==='neutral'?' selected':'')+'>Neutral</option>'
-        + '</select></td>'
-        + '<td class="cal-cell" style="width:110px;"><select class="cal-venue-select" onchange="updateCalField(\''+m.id+'\',\'matchType\',this.value)">'
-        +   '<option value="friendly"'+(m.matchType==='friendly'?' selected':'')+'>Friendly</option>'
-        +   '<option value="league"'+((!m.matchType||m.matchType==='league')?' selected':'')+'>League</option>'
-        +   '<option value="cup"'+(m.matchType==='cup'?' selected':'')+'>Cup</option>'
-        +   '<option value="championship"'+(m.matchType==='championship'?' selected':'')+'>Championship</option>'
-        + '</select></td>'
-        + '<td class="cal-cell" style="width:90px;">'
-        + (isFuture
-            ? '<span style="font-family:var(--mono);font-size:0.78rem;color:var(--muted2);">Upcoming</span>'
-            : '<span class="cal-result-badge '+resCls+'" onclick="cycleResult(\''+m.id+'\')" title="Click to change">'+(m.result||'?')+'</span>')
-        + '</td>'
-        + '<td class="cal-cell" style="width:90px;"><input class="cal-input cal-score-input" type="text" value="'+m.score+'" placeholder="32-28" oninput="updateCalField(\''+m.id+'\',\'score\',this.value)" style="font-family:var(--mono);font-size:0.88rem;"></td>'
-        + '<td class="cal-cell" style="width:50px;text-align:right;"><button class="cal-del-btn" onclick="deleteCalendarMatch(\''+m.id+'\')" title="Delete">'+SVG_DEL+'</button></td>'
-        + '</tr>';
-    }).join('');
-  }
-  renderCalStats();
-  var sy = seasonStartDate.getFullYear(), ey = seasonEndDate.getFullYear();
-  var lbl = document.getElementById('cal-season-label');
-  if (lbl) lbl.textContent = 'Season ' + sy + '/' + String(ey).slice(2);
-}
-
-function renderCalStats() {
-  var total  = matchCalendar.length;
-  var home   = matchCalendar.filter(function(m){ return m.venue === 'home'; }).length;
-  var away   = matchCalendar.filter(function(m){ return m.venue === 'away'; }).length;
-  var wins   = matchCalendar.filter(function(m){ return m.result === 'W'; }).length;
-  var draws  = matchCalendar.filter(function(m){ return m.result === 'D'; }).length;
-  var losses = matchCalendar.filter(function(m){ return m.result === 'L'; }).length;
-  var t = document.getElementById('cal-stat-total'); if(t) t.textContent = total;
-  var h = document.getElementById('cal-stat-home');  if(h) h.textContent = home;
-  var a = document.getElementById('cal-stat-away');  if(a) a.textContent = away;
-  var r = document.getElementById('cal-stat-record');
-  if(r) r.textContent = (wins+draws+losses) > 0 ? wins+'/'+draws+'/'+losses : '—';
-  var now = new Date();
-  var upcoming = matchCalendar.filter(function(m){ return m.date && new Date(m.date) >= now; })
-    .sort(function(a,b){ return new Date(a.date)-new Date(b.date); })[0];
-  var n = document.getElementById('cal-stat-next');
-  if(n) n.textContent = upcoming ? (upcoming.opponent||'N/A') + ' · ' + upcoming.date : '—';
-}
-
-function saveCalendar() {
-  if (!window.ADA_USER || !window.db) { showSaveError('No connection — calendar not saved.'); return; }
-  var btn = document.getElementById('cal-save-btn');
-  if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
-  window.db.collection('seasons').doc(window.ADA_USER.orgId).set({
-    matchCalendar: matchCalendar,
-    weekEvents:    weekEvents,
-    matchResults:  matchResults,
-    updatedAt: new Date().toISOString(),
-    updatedBy: window.ADA_USER.uid
-  }, { merge: true })
-    .then(function() {
-      if (btn) { btn.textContent = 'Saved ✓'; btn.style.background = 'var(--kgreen)'; setTimeout(function(){ btn.textContent = 'Save Calendar'; btn.style.background = ''; btn.disabled = false; }, 2000); }
-    })
-    .catch(function(err) {
-      if (btn) { btn.textContent = 'Save Calendar'; btn.disabled = false; }
-      showSaveError('Calendar save failed: ' + (err.code || err.message || err));
-    });
-}
 
 /* ════════════════════════════════════════════════
    INIT — fired by auth-gate.js via ada:ready
@@ -3750,27 +3480,12 @@ window.addEventListener('ada:ready', (e) => {
           if (d.weekEvents)   weekEvents      = d.weekEvents   || {};
           if (d.competitions) competitions    = d.competitions || [];
           if (d.camps)        camps           = d.camps        || [];
-          if (d.matchCalendar) matchCalendar  = d.matchCalendar || [];
-          if (d.matchResults)  matchResults   = d.matchResults  || {};
-          // Recompute weekEvents from matchCalendar (source of truth) rather than trusting
-          // the stored weekEvents blindly — self-heals matches that were mis-mapped to the
-          // wrong week by the old (pre-fix) date logic in syncCalendarToSeason.
-          syncCalendarToSeason();
           console.log('[ADA] Season doc loaded. competitions:', competitions.length, 'camps:', camps.length);
-          // Partial season doc (e.g. bootstrapped by coach-mobile's fallback, which only
-          // writes startDate) — complete it with a proper endDate + full shape so every
-          // app reads a consistent, fully-formed season record going forward.
-          if (d.startDate && !d.endDate) {
-            seasonEndDate = new Date(seasonStartDate.getTime() + 52 * 7 * 24 * 3600 * 1000);
-            console.warn('[ADA] Season doc was partial (no endDate) — completing it now.', { startDate: d.startDate, computedEndDate: toISO(seasonEndDate) });
-            autoSaveSeason();
-          }
-          seasonConfigured = !!d.startDate;
         } else {
           console.log('[ADA] No season doc found for orgId:', user.orgId);
-          seasonConfigured = false;
         }
         syncCompetitionEvents();
+        syncCampEvents();
         syncDatePickers();
         renderSeason();
         // Load microcycles separately — failure must not wipe season state
@@ -3783,7 +3498,6 @@ window.addEventListener('ada:ready', (e) => {
             microPlansLoaded = true;
             currentMicroWeek = CURRENT_WEEK; // anchor to actual current week, not always week 0
             console.log('[ADA] Microcycles loaded:', microSnap.size);
-            console.log('[ADA][date-diag] desktop loadWeekPlan', { orgId: user.orgId, seasonStart: toISO(seasonStartDate), todayLocal: toISO(new Date()), currentWeekIdx: CURRENT_WEEK, currentWeekStartDate: toISO(getWeekStartDate(CURRENT_WEEK)), weeksLoaded: Object.keys(microPlans) });
             // If coach already navigated to micro tab before load finished, re-render now
             var microMod = document.getElementById('mod-micro');
             if (microMod && microMod.classList.contains('active')) renderMicro();

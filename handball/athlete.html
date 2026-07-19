@@ -1136,12 +1136,11 @@ const rpeData=[{n:1,c:'#4ade80',d:'Very easy'},{n:2,c:'#86efac',d:'Easy'},{n:3,c
 // Session type → icon + color (mirrors coach-desktop sessionTypes)
 const SESS_TYPES={
   technical:   {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,name:'Technical',  col:'#3b82f6'},
+  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`,name:'Sparring',   col:'#f59e0b'},
   tactical:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`,name:'Tactical',   col:'#8b5cf6'},
   strength:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Strength',   col:'#ef4444'},
   conditioning:{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,name:'Conditioning',col:'#22c55e'},
-  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`,name:'Sparring',   col:'#f59e0b'},
-  competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Competition', col:'#FF6F61'},
-  match:       {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Match',      col:'#FF6F61'},
+  competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Game', col:'#FF6F61'},
   recovery:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',   col:'#94a3b8'},
   rest:        {icon:'—',     name:'Rest day', col:'#cbd5e1'},
 };
@@ -1842,10 +1841,12 @@ function renderPlan(){
 
 /* ── Inline Plan Form ── */
 function buildPlanInlineForm(day){
-  var typeHtml=Object.keys(SESS_TYPES).filter(function(k){return k!=='rest';}).map(function(k){
-    var t=SESS_TYPES[k],on=(_planFormType===k);
-    return '<button class="plan-type-pill'+(on?' on':'')+'" style="'+(on?'background:'+t.col+';border-color:'+t.col+';':'')+'" onclick="setPlanFormType(\x27'+k+'\x27)">'+t.name+'</button>';
-  }).join('');
+  var typeHtml='<select class="plan-type-select" style="width:100%;background:var(--s1);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 11px;font-size:0.8rem;color:var(--tx);outline:none;margin-bottom:10px;-webkit-appearance:none" onchange="setPlanFormType(this.value)">'
+    +Object.keys(SESS_TYPES).filter(function(k){return k!=='rest';}).map(function(k){
+      var t=SESS_TYPES[k],on=(_planFormType===k);
+      return '<option value="'+k+'"'+(on?' selected':'')+'>'+t.name+'</option>';
+    }).join('')
+    +'</select>';
   var rpeHtml=rpeData.map(function(r){
     var on=(_planFormRpe===r.n);
     return '<button class="plan-rpe-btn'+(on?' on':'')+'" style="'+(on?'background:'+r.c+';':'')+'" onclick="setPlanFormRpe('+r.n+')">'+r.n+'</button>';
@@ -1908,8 +1909,12 @@ function openPlanForm(day,editing,addAnother,planIdx){
   }
 }
 function cancelPlanForm(){_planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;_planFormPlanIdx=0;renderPlan();}
-function setPlanFormType(t){_planFormType=t;renderPlan();}
+function setPlanFormType(t){
+  var noteEl=document.getElementById('pf-note'); if(noteEl)_planFormNote=noteEl.value;
+  _planFormType=t;renderPlan();
+}
 function setPlanFormRpe(n){
+  var noteEl=document.getElementById('pf-note'); if(noteEl)_planFormNote=noteEl.value;
   _planFormRpe=n;
   var rd=rpeData.find(function(r){return r.n===n;}),el=document.getElementById('pf-rpe-desc');
   if(el&&rd)el.textContent='— '+rd.d;
