@@ -2250,6 +2250,18 @@ window.addEventListener('ada:ready', function(e){
 var clbResolvedCoach = null;
 var clbCheckTimer    = null;
 
+// Invite-code lookup goes through a Cloud Function, not a direct Firestore
+// query — no rule permits an athlete to list coaches by an arbitrary field
+// like inviteCode, and rightly so (that's the same broad access we removed
+// for security reasons). Region must match where the function is deployed.
+// Lazily resolved (not a top-level firebase.app() call) because the Firebase
+// SDK scripts load at the bottom of this file, after this block is parsed —
+// calling firebase.app() here at parse time would throw before the SDK exists.
+function clbLookupCoachFn(payload){
+  return firebase.app().functions('asia-southeast1')
+    .httpsCallable('lookupCoachByInviteCode')(payload);
+}
+
 function openCoachLinkModal(){
   document.getElementById('clb-modal').classList.add('open');
   document.getElementById('clb-code-input').value = '';
@@ -2279,19 +2291,15 @@ document.getElementById('clb-code-input').addEventListener('input', function(){
 
   clbCheckTimer = setTimeout(async function(){
     try {
-      var snap = await window.db.collection('users')
-        .where('role','==','coach')
-        .where('inviteCode','==',val)
-        .limit(1).get();
-      if(snap.empty){
+      var res = await clbLookupCoachFn({ code: val });
+      if(!res.data || !res.data.found){
         st.className='clb-status err';
         st.textContent='No coach found with that code.';
       } else {
-        var doc = snap.docs[0];
-        var d   = doc.data();
-        clbResolvedCoach = { uid: doc.id, orgId: d.orgId || doc.id, name: d.name || '' };
+        var d = res.data;
+        clbResolvedCoach = { uid: d.uid, orgId: d.orgId, name: d.name || '' };
         st.className='clb-status ok';
-        st.textContent='Coach found: ' + (d.name || doc.id);
+        st.textContent='Coach found: ' + (d.name || d.uid);
         document.getElementById('clb-link-btn').disabled = false;
       }
     } catch(err){
@@ -2360,6 +2368,7 @@ function ctxTipDismiss(key) {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script src="../assets/firebase-config.js"></script>
 <script>firebase.initializeApp(FIREBASE_CONFIG);</script>
 <script src="../assets/auth-gate.js"></script>
