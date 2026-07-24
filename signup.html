@@ -143,6 +143,7 @@ body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--tx);max-
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script src="/assets/firebase-config.js"></script>
 <script>firebase.initializeApp(FIREBASE_CONFIG);</script>
 
@@ -174,13 +175,32 @@ function togglePw(id, btn){
 
   var resolvedCoach = null; // {uid, orgId, discipline} once a valid code is confirmed
 
+  // Invite-code lookups go through a Cloud Function, not a direct Firestore
+  // query — the visitor isn't signed in yet at this point in the flow, and
+  // Firestore rules correctly require auth for list queries on `users`.
+  // Region must match where lookupCoachByInviteCode is deployed.
+  var lookupCoachFn = firebase.app().functions('asia-southeast1')
+    .httpsCallable('lookupCoachByInviteCode');
+  var checkCodesFn = firebase.app().functions('asia-southeast1')
+    .httpsCallable('checkInviteCodesAvailable');
+
+  async function lookupCoach(code){
+    try {
+      var res = await lookupCoachFn({ code: code });
+      return res.data; // { found: true, uid, orgId, name, discipline } or { found: false }
+    } catch(e){
+      console.error('lookupCoach failed:', e);
+      return { found: false, error: true };
+    }
+  }
+
   function buildDest(role, discipline) {
     if (role === 'admin')      return '/admin/';
     if (role === 'superadmin') return '/superadmin/';
-    if (role === 'athlete')    return '/' + (discipline||'handball') + '/athlete.html';
+    if (role === 'athlete')    return '/' + (discipline||'other') + '/athlete.html';
     if (role === 'coach') {
       var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
-      return '/' + (discipline||'handball') + '/' + app;
+      return '/' + (discipline||'other') + '/' + app;
     }
     return '/login.html';
   }
@@ -216,10 +236,18 @@ function togglePw(id, btn){
   }
 
   async function uniqueInviteCode(){
-    for (var attempt=0; attempt<6; attempt++){
-      var candidate = genCode();
-      var snap = await db.collection('users').where('inviteCode','==',candidate).limit(1).get();
-      if (snap.empty) return candidate;
+    var candidates = [];
+    for (var i=0; i<6; i++) candidates.push(genCode());
+
+    try {
+      var res = await checkCodesFn({ codes: candidates });
+      var taken = {};
+      ((res.data && res.data.taken) || []).forEach(function(c){ taken[c] = true; });
+      for (var j=0; j<candidates.length; j++){
+        if (!taken[candidates[j]]) return candidates[j];
+      }
+    } catch(e){
+      console.error('checkInviteCodesAvailable failed:', e);
     }
     // Extremely unlikely fallback: timestamp-suffixed
     return genCode() + Date.now().toString(36).slice(-2).toUpperCase();
@@ -249,35 +277,31 @@ function togglePw(id, btn){
     codeStatus.style.display = 'block';
 
     codeCheckTimer = setTimeout(async function(){
-      try {
-        var snap = await db.collection('users')
-          .where('role','==','coach')
-          .where('inviteCode','==',val)
-          .limit(1).get();
-        if (snap.empty){
-          codeStatus.className = 'code-status err';
-          codeStatus.textContent = 'No coach found with that code.';
-        } else {
-          var doc = snap.docs[0];
-          var d = doc.data();
-          resolvedCoach = { uid: doc.id, orgId: d.orgId || doc.id, name: d.name || '', discipline: d.discipline || '' };
-          codeStatus.className = 'code-status ok';
-          codeStatus.textContent = 'Linked to coach: ' + (d.name || doc.id);
-          // Auto-select discipline from coach
-          if (d.discipline) {
-            window._selectedDiscipline = d.discipline;
-            var sel = document.getElementById('sport-select');
-            sel.value = d.discipline;
-            sel.disabled = true;
-            var inherited = document.getElementById('sport-inherited');
-            inherited.textContent = '✓ Sport: ' + d.discipline.replace('-',' ') + ' (from coach)';
-            inherited.style.display = 'block';
-          }
-        }
-      } catch(e){
-        console.error('Invite code lookup failed:', e);
+      var result = await lookupCoach(val);
+
+      if (result.error){
         codeStatus.className = 'code-status err';
         codeStatus.textContent = 'Could not verify code. You can still create your account and link later.';
+        return;
+      }
+      if (!result.found){
+        codeStatus.className = 'code-status err';
+        codeStatus.textContent = 'No coach found with that code.';
+        return;
+      }
+
+      resolvedCoach = { uid: result.uid, orgId: result.orgId, name: result.name || '', discipline: result.discipline || '' };
+      codeStatus.className = 'code-status ok';
+      codeStatus.textContent = 'Linked to coach: ' + (result.name || result.uid);
+      // Auto-select discipline from coach
+      if (result.discipline) {
+        window._selectedDiscipline = result.discipline;
+        var sel = document.getElementById('sport-select');
+        sel.value = result.discipline;
+        sel.disabled = true;
+        var inherited = document.getElementById('sport-inherited');
+        inherited.textContent = '✓ Sport: ' + result.discipline.replace('-',' ') + ' (from coach)';
+        inherited.style.display = 'block';
       }
     }, 500);
   });
@@ -350,14 +374,9 @@ function togglePw(id, btn){
 
         // If they typed a code but it wasn't resolved yet (e.g. submitted fast), try once more.
         if (codeVal && !coachLink){
-          var snap = await db.collection('users')
-            .where('role','==','coach')
-            .where('inviteCode','==',codeVal)
-            .limit(1).get();
-          if (!snap.empty){
-            var doc = snap.docs[0];
-            var d = doc.data();
-            coachLink = { uid: doc.id, orgId: d.orgId || doc.id, name: d.name || '' };
+          var result = await lookupCoach(codeVal);
+          if (result.found){
+            coachLink = { uid: result.uid, orgId: result.orgId, name: result.name || '', discipline: result.discipline || '' };
           }
         }
 
@@ -385,10 +404,21 @@ function togglePw(id, btn){
       }
     } catch(err){
       console.error('Profile write failed:', err);
-      // Account exists in Auth but Firestore write failed — let auth-gate.js retry logic
-      // on first app load handle it; still route them forward.
-      showError('Account created, but profile setup hit a snag. Redirecting to sign in…');
-      setTimeout(function(){ window.location.href = '/login.html'; }, 2200);
+      var isCapError = err && err.code === 'permission-denied';
+
+      // The Auth account was created above, but has no Firestore profile —
+      // it's not a usable account. Roll it back so retrying with the same
+      // email works normally, instead of a confusing "email already in use".
+      try { await cred.user.delete(); } catch(delErr){ console.error('Rollback delete failed:', delErr); }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Account';
+
+      if (isCapError && role === 'athlete') {
+        showError('This coach\u2019s roster is currently full, or their account isn\u2019t fully set up yet. Please contact your coach, or try again in a few minutes.');
+      } else {
+        showError('Something went wrong creating your account. Please try again.');
+      }
       return;
     }
   });

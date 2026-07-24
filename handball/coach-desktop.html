@@ -153,7 +153,9 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 .s-imp-cell{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.75rem;font-weight:800;letter-spacing:0.04em;border:1.5px solid currentColor;opacity:1;}
 .s-result-cell{height:34px;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:filter 0.12s;font-family:var(--mono);font-size:0.72rem;font-weight:700;letter-spacing:0.02em;text-align:center;padding:0 2px;overflow:hidden;white-space:nowrap;}
 .s-result-cell:hover{filter:brightness(1.1);}
-.s-result-cell.has-result{background:rgba(34,197,94,0.15);color:#15803d;border:1px solid rgba(34,197,94,0.3);}
+.s-result-cell.result-w{background:rgba(34,197,94,0.15);color:#15803d;border:1px solid rgba(34,197,94,0.3);}
+.s-result-cell.result-d{background:rgba(245,158,11,0.15);color:#b45309;border:1px solid rgba(245,158,11,0.3);}
+.s-result-cell.result-l{background:rgba(239,68,68,0.15);color:#b91c1c;border:1px solid rgba(239,68,68,0.3);}
 .s-result-cell.empty{background:var(--surface2);border:1px dashed var(--border);color:var(--muted);font-size:0.72rem;}
 
 /* ── MODALS ── */
@@ -301,6 +303,8 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 .mc-exercise-chip:hover{background:var(--surface3);color:var(--text);}
 .mc-tl-bar-wrap{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:4px;}
 .mc-tl-bar{height:100%;border-radius:3px;transition:width 0.4s ease;}
+.mc-vtl-bar-wrap{height:40px;display:flex;align-items:flex-end;justify-content:center;margin:4px 0;}
+.mc-vtl-bar{width:60%;border-radius:2px 2px 0 0;transition:height 0.3s ease;min-height:2px;}
 
 /* ── SESSION EDITOR ── */
 .sess-editor{width:620px;max-height:90vh;overflow-y:auto;}
@@ -678,24 +682,13 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             <div class="modal-title">Competition Result</div>
             <div class="modal-sub" id="cr-event-label">Record result and notes</div>
             <div class="modal-field">
-              <label>Result / Placement</label>
-              <select class="modal-input" id="cr-placement" onchange="onCrPlacementChange()">
+              <label>Result</label>
+              <select class="modal-input" id="cr-placement">
                 <option value="">— Select —</option>
-                <option value="Gold">Gold</option>
-                <option value="Silver">Silver</option>
-                <option value="Bronze">Bronze</option>
-                <option value="4th place">4th place</option>
-                <option value="5th-8th place">5th–8th place</option>
-                <option value="Did not place">Did not place</option>
-                <option value="Eliminated R1">Eliminated — Round 1</option>
-                <option value="Eliminated R2">Eliminated — Round 2</option>
-                <option value="Eliminated R3">Eliminated — Round 3</option>
-                <option value="other">Other&#8230;</option>
+                <option value="W">W — Win</option>
+                <option value="D">D — Draw</option>
+                <option value="L">L — Loss</option>
               </select>
-            </div>
-            <div class="modal-field" id="cr-other-field" style="display:none;">
-              <label>Other &#8212; specify</label>
-              <input class="modal-input" id="cr-other" type="text" placeholder="e.g. Withdrew, DSQ, 9th place">
             </div>
             <div class="modal-field">
               <label>Competition notes</label>
@@ -721,47 +714,39 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             <!-- Progress bar -->
             <div class="wiz-progress" id="wiz-progress"></div>
 
-            <!-- Step 1: Match Calendar -->
-            <div class="wiz-panel" id="wiz-s1">
-              <div class="wiz-section-title">Step 1 — Match Calendar</div>
-              <div class="wiz-section-sub">Review your fixtures in the Match Calendar. The schedule anchors all periodization decisions. Add any missing matches before proceeding.</div>
-              <div id="wiz-comp-list"></div>
-              <button class="comp-add-toggle" style="margin-top:6px" onclick="switchModule('calendar', document.getElementById('nav-calendar'))">+ Go to Match Calendar</button>
-              <div class="wiz-warn show" id="wiz-s1-warn" style="display:none">No matches added yet. Add at least one to continue.</div>
-            </div>
-
-            <!-- Step 2: Number of peaks -->
+            <!-- Step 1: Peaking Periods -->
             <div class="wiz-panel" id="wiz-s2">
-              <div class="wiz-section-title">Step 2 — Season Peaks</div>
-              <div class="wiz-section-sub">How many A-level competition peaks does your season have? Each peak gets its own full taper (Pre-Competitive phase). Equal priority between all peaks.</div>
+              <div class="wiz-section-title">Step 1 — Peaking Periods</div>
+              <div class="wiz-section-sub">How many peaking periods does your season have? Each one gets a full taper leading into it — a playoff stretch, a cup run, a qualification block — not a single match.</div>
               <div style="display:flex;gap:10px;margin-bottom:16px;">
                 <button class="wiz-peak-btn on" id="wiz-peak-1" onclick="wizSetPeaks(1)"><div class="wiz-peak-num">1</div><div class="wiz-peak-lbl">Single peak</div></button>
                 <button class="wiz-peak-btn" id="wiz-peak-2" onclick="wizSetPeaks(2)"><div class="wiz-peak-num">2</div><div class="wiz-peak-lbl">Double peak</div></button>
                 <button class="wiz-peak-btn" id="wiz-peak-3" onclick="wizSetPeaks(3)"><div class="wiz-peak-num">3</div><div class="wiz-peak-lbl">Triple peak</div></button>
               </div>
-              <div id="wiz-a-event-select"></div>
+              <div id="wiz-peak-periods"></div>
+              <div class="wiz-warn" id="wiz-s2-warn"></div>
             </div>
 
-            <!-- Step 3: Phase durations -->
+            <!-- Step 2: Phase durations -->
             <div class="wiz-panel" id="wiz-s3">
-              <div class="wiz-section-title">Step 3 — Phase Durations</div>
+              <div class="wiz-section-title">Step 2 — Phase Durations</div>
               <div class="wiz-section-sub">Adjust durations for each phase. Defaults are evidence-based. Warnings appear if values fall outside recommended ranges.</div>
               <div id="wiz-dur-blocks"></div>
               <div class="wiz-warn" id="wiz-s3-warn"></div>
             </div>
 
-            <!-- Step 4: Preview -->
+            <!-- Step 3: Preview -->
             <div class="wiz-panel" id="wiz-s4">
-              <div class="wiz-section-title">Step 4 — Season Preview</div>
-              <div class="wiz-section-sub">Review the proposed phase plan. A-events are marked in red. You can go back to adjust any settings.</div>
+              <div class="wiz-section-title">Step 3 — Season Preview</div>
+              <div class="wiz-section-sub">Review the proposed phase plan. Peaking periods are marked in red. You can go back to adjust any settings.</div>
               <div class="wiz-preview-wrap"><div class="wiz-preview-bar" id="wiz-preview-bar"></div><div id="wiz-a-markers"></div></div>
               <div id="wiz-preview-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
               <div id="wiz-preview-blocks"></div>
             </div>
 
-            <!-- Step 5: Apply -->
+            <!-- Step 4: Apply -->
             <div class="wiz-panel" id="wiz-s5">
-              <div class="wiz-section-title">Step 5 — Apply Plan</div>
+              <div class="wiz-section-title">Step 4 — Apply Plan</div>
               <div class="wiz-section-sub">The plan below will be written to your Season Plan. This will overwrite any existing phase assignments. You can manually adjust weeks afterwards.</div>
               <div class="wiz-preview-wrap" style="margin-bottom:12px"><div class="wiz-preview-bar" id="wiz-preview-bar2"></div><div id="wiz-a-markers2"></div></div>
               <div id="wiz-summary"></div>
@@ -812,10 +797,6 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
                 <label>Importance</label>
                 <div class="comp-imp-pills" id="comp-imp-pills-add"></div>
                 <input type="hidden" id="comp-importance" value="1">
-              </div>
-              <div class="modal-field">
-                <label>Targeted result</label>
-                <input class="modal-input" id="comp-target" type="text" placeholder="e.g. Top 3, Gold, Qualify for finals">
               </div>
               <div class="modal-btns">
                 <button class="modal-btn-save" onclick="addCompetition()">Add Competition</button>
@@ -1710,9 +1691,6 @@ function renderCompetitionsList() {
           </div>
           <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:5px">IMPORTANCE</div>
           <div class="comp-imp-pills">${pillsHtml}</div>
-          <div style="margin-top:8px"><div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:4px">TARGET</div>
-            <input class="modal-input" style="font-size:0.82rem;padding:6px 9px" value="${c.target||''}" placeholder="e.g. Gold, Top 3" oninput="editCompField('${c.id}','target',this.value)">
-          </div>
         </div>
       </div>`;
     }).join('');
@@ -1786,12 +1764,11 @@ function addCompetition() {
   const start    = document.getElementById('comp-start').value;
   const end      = document.getElementById('comp-end').value || start;
   const importance = parseInt(document.getElementById('comp-importance').value, 10);
-  const target   = document.getElementById('comp-target').value.trim();
 
   if (!title || !start) { alert('Please enter at least a title and start date.'); return; }
   if (new Date(end) < new Date(start)) { alert('End date cannot be before start date.'); return; }
 
-  competitions.push({ id: 'comp_' + Date.now(), title, location, startDate: start, endDate: end, importance, target });
+  competitions.push({ id: 'comp_' + Date.now(), title, location, startDate: start, endDate: end, importance });
   syncCompetitionEvents(); renderSeason(); autoSaveSeason();
   if (typeof renderMicro === 'function' && document.getElementById('mod-micro').classList.contains('active')) renderMicro();
 
@@ -1799,7 +1776,6 @@ function addCompetition() {
   document.getElementById('comp-location').value = '';
   document.getElementById('comp-start').value = '';
   document.getElementById('comp-end').value = '';
-  document.getElementById('comp-target').value = '';
   document.getElementById('comp-date-warn').style.display = 'none';
   document.getElementById('comp-add-form').classList.remove('open');
   document.getElementById('comp-add-toggle').textContent = '+ Add Competition';
@@ -1933,33 +1909,23 @@ function renderSeason() {
   }
   html += `</div>`;
 
-  // ── Row 5: Importance row (only for competition weeks) ──
+  // ── Result row (only for weeks with a scheduled match) — click jumps to Match Calendar,
+  // since that's where results are actually entered (W/D/L cycle-click on each match).
+  // Importance row removed: team sports don't need a per-match importance ranking —
+  // "which matches matter for periodization" is now handled by Peaking Periods instead.
   html += `<div style="display:flex;margin-bottom:3px;margin-top:4px;">`;
   for (let w=0;w<NUM_WEEKS;w++) {
-    const comp = getCompetitionForWeek(w);
-    if (comp) {
-      const imp = COMPETITION_IMPORTANCE[comp.importance] || COMPETITION_IMPORTANCE[1];
-      html += `<div class="s-imp-cell"
-        style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;background:${imp.color}1a;color:${imp.color};"
-        title="${imp.label}">${comp.importance}</div>`;
-    } else {
-      html += `<div style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;height:26px;"></div>`;
-    }
-  }
-  html += `</div>`;
-
-  // ── Row 6: Result row (only for competition weeks) — click opens Competition Result modal ──
-  html += `<div style="display:flex;margin-bottom:3px;">`;
-  for (let w=0;w<NUM_WEEKS;w++) {
-    const comp = getCompetitionForWeek(w);
-    if (comp) {
-      const hasResult = !!comp.result;
-      const cls = hasResult ? 'has-result' : 'empty';
-      const txt = hasResult ? comp.result : '+ Result';
+    const ev = weekEvents[w];
+    const hasMatch = ev && ev.type === 'match';
+    if (hasMatch) {
+      const mr = matchResults[w];
+      const hasResult = !!(mr && mr.result);
+      const cls = mr && mr.result === 'W' ? 'result-w' : mr && mr.result === 'D' ? 'result-d' : mr && mr.result === 'L' ? 'result-l' : 'empty';
+      const txt = hasResult ? mr.result : '+ Result';
       html += `<div class="s-result-cell ${cls}"
         style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;"
-        onclick="openCompResultModal('${comp.id}')"
-        title="${hasResult ? comp.result + (comp.notes ? ' — ' + comp.notes : '') : 'Add result'}">${txt}</div>`;
+        onclick="switchModule('calendar', document.getElementById('nav-calendar'))"
+        title="${hasResult ? mr.result + ' vs ' + (mr.opponent||'') : 'Enter result in Match Calendar'}">${txt}</div>`;
     } else {
       html += `<div style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;height:34px;"></div>`;
     }
@@ -2199,7 +2165,6 @@ function openAddEventHint() {
 ════════════════════════════════════════════════ */
 let crActiveCompId = null;
 
-const CR_PLACEMENT_OPTIONS = ['Gold','Silver','Bronze','4th place','5th-8th place','Did not place','Eliminated R1','Eliminated R2','Eliminated R3'];
 
 function openCompResultModal(compId) {
   const c = competitions.find(x => x.id === compId);
@@ -2208,29 +2173,10 @@ function openCompResultModal(compId) {
 
   document.getElementById('cr-event-label').textContent = `${c.title} · ${getWeekDateLabel(getWeeksForDateRange(c.startDate,c.endDate)[0] ?? 0)}`;
 
-  const placementSel = document.getElementById('cr-placement');
-  const otherField   = document.getElementById('cr-other-field');
-  const otherInput   = document.getElementById('cr-other');
-  const result = c.result || '';
-
-  if (result && !CR_PLACEMENT_OPTIONS.includes(result)) {
-    placementSel.value = 'other';
-    otherField.style.display = '';
-    otherInput.value = result;
-  } else {
-    placementSel.value = result;
-    otherField.style.display = (result === 'other') ? '' : 'none';
-    otherInput.value = '';
-  }
-
+  document.getElementById('cr-placement').value = c.result || '';
   document.getElementById('cr-notes').value = c.notes || '';
   document.getElementById('cr-del-btn').style.display = (c.result || c.notes) ? 'inline-block' : 'none';
   document.getElementById('comp-result-overlay').style.display = 'flex';
-}
-
-function onCrPlacementChange() {
-  const val = document.getElementById('cr-placement').value;
-  document.getElementById('cr-other-field').style.display = (val === 'other') ? '' : 'none';
 }
 
 function saveCompResult() {
@@ -2238,12 +2184,7 @@ function saveCompResult() {
   const c = competitions.find(x => x.id === crActiveCompId);
   if (!c) { closeCompResultModal(); return; }
 
-  const placementSel = document.getElementById('cr-placement').value;
-  const result = placementSel === 'other'
-    ? document.getElementById('cr-other').value.trim()
-    : placementSel;
-
-  c.result = result;
+  c.result = document.getElementById('cr-placement').value;
   c.notes  = document.getElementById('cr-notes').value.trim();
 
   closeCompResultModal();
@@ -2274,7 +2215,7 @@ function closeCompResultModal(e) {
 ════════════════════════════════════════════════ */
 var wizStep = 1;
 var wizPeaks = 1;
-var wizAEvents = [];   // array of competition IDs selected as A-events (in date order)
+var wizPeakPeriods = [];   // array of {start, end} ISO date strings, one per peak, in peak order (1..wizPeaks)
 var wizDurs = {};      // {offStart, prep, phys, precomp, trans, offEnd} for block 1; blocks 2+ omit prep
 var _wizPlan = [];     // computed phase array, length = actual season weeks
 
@@ -2290,15 +2231,10 @@ var WIZ_DUR_RANGES   = {
 
 function showAutoPeriodizeModal() {
   closePeriodDropdown();
-  wizStep = 1;
+  wizStep = 2; // wizard now starts at the Peaking Periods panel (wiz-s2) — Match Calendar review step removed
   wizPeaks = 1;
-  wizAEvents = [];
+  wizPeakPeriods = [{start:'', end:''}];
   wizDurs = Object.assign({}, WIZ_DUR_DEFAULTS);
-  // Auto-select highest importance competitions as A-events
-  var sorted = [...competitions].sort((a,b) => new Date(a.startDate)-new Date(b.startDate));
-  var candidates = sorted.filter(c => c.importance >= 4);
-  if (!candidates.length) candidates = sorted.filter(c => c.importance >= 3);
-  wizAEvents = candidates.slice(0,1).map(c => c.id);
   document.getElementById('ap-overlay').style.display = 'flex';
   wizRender();
 }
@@ -2310,30 +2246,32 @@ function wizClose(e) {
 function closeAutoPeriodizeModal(e) { wizClose(e); }
 
 function wizRender() {
-  // Progress dots
-  var steps = ['Calendar','Peaks','Durations','Preview','Apply'];
+  // Progress dots — 4 steps now (Match Calendar review step removed). wizStep values
+  // still run 2..5 to match the existing wiz-s2..wiz-s5 panel IDs; display index is
+  // wizStep-1 so dots show as steps 1-4 regardless of the underlying numbering.
+  var steps = ['Peaking Period','Durations','Preview','Apply'];
   document.getElementById('wiz-progress').innerHTML = steps.map((s,i) => {
     var n = i+1;
-    var cls = n < wizStep ? 'done' : n === wizStep ? 'active' : 'pending';
-    var line = i < steps.length-1 ? '<div class="wiz-step-line'+(n < wizStep?' done':'')+'"></div>' : '';
+    var dispStep = wizStep - 1;
+    var cls = n < dispStep ? 'done' : n === dispStep ? 'active' : 'pending';
+    var line = i < steps.length-1 ? '<div class="wiz-step-line'+(n < dispStep?' done':'')+'"></div>' : '';
     return '<div style="display:flex;flex-direction:column;align-items:center">'
-      +'<div class="wiz-step-dot '+cls+'">'+(n < wizStep ? '✓' : n)+'</div>'
+      +'<div class="wiz-step-dot '+cls+'">'+(n < dispStep ? '✓' : n)+'</div>'
       +'<div class="wiz-step-label">'+s+'</div></div>'
       + line;
   }).join('');
 
   // Show/hide panels
-  for (var i=1;i<=5;i++) {
+  for (var i=2;i<=5;i++) {
     var p = document.getElementById('wiz-s'+i);
     if (p) p.classList.toggle('active', i===wizStep);
   }
 
   // Back/Next labels
-  document.getElementById('wiz-btn-back').style.display = wizStep === 1 ? 'none' : '';
+  document.getElementById('wiz-btn-back').style.display = wizStep === 2 ? 'none' : '';
   var nextBtn = document.getElementById('wiz-btn-next');
   nextBtn.textContent = wizStep === 5 ? '✓ Apply to Season Plan' : 'Next →';
 
-  if (wizStep === 1) wizRenderS1();
   if (wizStep === 2) wizRenderS2();
   if (wizStep === 3) wizRenderS3();
   if (wizStep === 4) { wizComputePlan(); wizRenderPreview('wiz-preview-bar','wiz-a-markers','wiz-preview-blocks','wiz-preview-legend'); }
@@ -2341,87 +2279,74 @@ function wizRender() {
 }
 
 function wizNext() {
-  if (wizStep === 1 && !competitions.length) {
-    document.getElementById('wiz-s1-warn').style.display = 'block'; return;
+  if (wizStep === 2) {
+    var v = wizValidatePeakPeriods();
+    if (!v.valid) {
+      var warn = document.getElementById('wiz-s2-warn');
+      warn.textContent = v.message;
+      warn.classList.add('show');
+      warn.style.display = 'block';
+      return;
+    }
   }
   if (wizStep === 3 && !wizValidateDurs()) return;
   if (wizStep === 5) { wizApply(); return; }
   wizStep++;
   wizRender();
 }
-function wizBack() { if (wizStep > 1) { wizStep--; wizRender(); } }
+function wizBack() { if (wizStep > 2) { wizStep--; wizRender(); } }
 
-/* ── Step 1: Calendar ── */
-function wizRenderS1() {
-  var warn = document.getElementById('wiz-s1-warn');
-  if (warn) warn.style.display = competitions.length ? 'none' : 'block';
-  var el = document.getElementById('wiz-comp-list');
-  if (!competitions.length) { el.innerHTML = '<div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);padding:8px 0">No competitions yet — click Manage Competitions to add them.</div>'; return; }
-  var sorted = [...competitions].sort((a,b) => new Date(a.startDate)-new Date(b.startDate));
-  el.innerHTML = sorted.map(c => {
-    var imp = COMPETITION_IMPORTANCE[c.importance]||COMPETITION_IMPORTANCE[1];
-    var dl = c.startDate===c.endDate
-      ? parseLocalDate(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
-      : parseLocalDate(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+parseLocalDate(c.endDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-    return '<div class="wiz-comp-row" style="cursor:default">'
-      +'<div style="flex:1"><div style="font-size:0.82rem;font-weight:700">'+c.title+'</div>'
-      +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:2px">'+dl+(c.location?' · '+c.location:'')+'</div></div>'
-      +'<span style="font-family:var(--mono);font-size:0.6rem;font-weight:700;color:'+imp.color+';background:'+imp.color+'18;padding:3px 8px;border-radius:6px">'+imp.label+'</span>'
-      +'</div>';
-  }).join('');
-}
-
-/* ── Step 2: Peaks ── */
+/* ── Step 1: Peaking Periods ── */
 function wizSetPeaks(n) {
   wizPeaks = n;
   [1,2,3].forEach(i => document.getElementById('wiz-peak-'+i).classList.toggle('on', i===n));
-  // Re-select A-events to match peak count
-  var sorted = [...competitions].sort((a,b) => new Date(a.startDate)-new Date(b.startDate));
-  var cands = sorted.filter(c => c.importance >= 4);
-  if (cands.length < n) cands = sorted.filter(c => c.importance >= 3);
-  if (cands.length < n) cands = sorted;
-  wizAEvents = cands.slice(0,n).map(c => c.id);
+  // Resize wizPeakPeriods to match the new peak count, preserving any dates
+  // already entered rather than discarding them.
+  while (wizPeakPeriods.length < n) wizPeakPeriods.push({start:'', end:''});
+  while (wizPeakPeriods.length > n) wizPeakPeriods.pop();
   wizRenderS2();
 }
 
 function wizRenderS2() {
-  var el = document.getElementById('wiz-a-event-select');
-  var sorted = [...competitions].sort((a,b) => new Date(a.startDate)-new Date(b.startDate));
-  if (!sorted.length) { el.innerHTML = ''; return; }
-  el.innerHTML = '<div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;">'
-    +'Select '+wizPeaks+' A-Event'+(wizPeaks>1?'s':'')+' — tap to toggle</div>'
-    + sorted.map(c => {
-        var imp = COMPETITION_IMPORTANCE[c.importance]||COMPETITION_IMPORTANCE[1];
-        var sel = wizAEvents.includes(c.id);
-        var dl = c.startDate===c.endDate
-          ? parseLocalDate(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
-          : parseLocalDate(c.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+parseLocalDate(c.endDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-        return '<div class="wiz-comp-row'+(sel?' a-event':'')+'" onclick="wizToggleAEvent(\x27'+c.id+'\x27)">'+
-          '<div style="width:20px;height:20px;border-radius:50%;border:2px solid '+(sel?'var(--kgreen)':'var(--border)')+';background:'+(sel?'var(--kgreen)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
-          +(sel?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
-          +'</div>'
-          +'<div style="flex:1"><div style="font-size:0.82rem;font-weight:700">'+c.title+(sel?' <span style="font-family:var(--mono);font-size:0.6rem;color:var(--kgreen);">A-EVENT</span>':'')+'</div>'
-          +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:2px">'+dl+'</div></div>'
-          +'<span style="font-family:var(--mono);font-size:0.6rem;font-weight:700;color:'+imp.color+';background:'+imp.color+'18;padding:3px 8px;border-radius:6px">'+imp.label+'</span>'
-          +'</div>';
-      }).join('');
+  var el = document.getElementById('wiz-peak-periods');
+  el.innerHTML = wizPeakPeriods.map(function(p, i) {
+    return '<div style="margin-bottom:14px;">'
+      +'<div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px;">Peak '+(i+1)+'</div>'
+      +'<div class="grid-2">'
+      +'<div class="modal-field" style="margin-bottom:0;"><label>Start date</label>'
+      +'<input class="modal-input" type="date" value="'+(p.start||'')+'" onchange="wizSetPeakPeriodDate('+i+',\x27start\x27,this.value)"></div>'
+      +'<div class="modal-field" style="margin-bottom:0;"><label>End date</label>'
+      +'<input class="modal-input" type="date" value="'+(p.end||'')+'" onchange="wizSetPeakPeriodDate('+i+',\x27end\x27,this.value)"></div>'
+      +'</div></div>';
+  }).join('');
+  var warn = document.getElementById('wiz-s2-warn');
+  if (warn) { warn.style.display = 'none'; warn.classList.remove('show'); }
 }
 
-function wizToggleAEvent(id) {
-  if (wizAEvents.includes(id)) {
-    if (wizAEvents.length <= 1) return; // must keep at least 1
-    wizAEvents = wizAEvents.filter(x => x!==id);
-  } else {
-    if (wizAEvents.length >= wizPeaks) wizAEvents.shift(); // replace oldest
-    wizAEvents.push(id);
-    // Sort by date
-    var sorted = [...competitions].sort((a,b) => new Date(a.startDate)-new Date(b.startDate));
-    wizAEvents.sort((a,b) => sorted.findIndex(c=>c.id===a) - sorted.findIndex(c=>c.id===b));
+function wizSetPeakPeriodDate(idx, field, value) {
+  if (!wizPeakPeriods[idx]) return;
+  wizPeakPeriods[idx][field] = value;
+  var warn = document.getElementById('wiz-s2-warn');
+  if (warn) { warn.style.display = 'none'; warn.classList.remove('show'); }
+}
+
+// Guardrail: each period needs both dates, start <= end, and periods must run in
+// chronological order without overlapping — Peak 2 can't start before Peak 1 ends.
+function wizValidatePeakPeriods() {
+  for (var i=0; i<wizPeakPeriods.length; i++) {
+    var p = wizPeakPeriods[i];
+    if (!p.start || !p.end) return { valid:false, message:'Enter both a start and end date for Peak '+(i+1)+'.' };
+    if (new Date(p.end) < new Date(p.start)) return { valid:false, message:'Peak '+(i+1)+'\u2019s end date is before its start date.' };
   }
-  wizRenderS2();
+  for (var i=1; i<wizPeakPeriods.length; i++) {
+    if (new Date(wizPeakPeriods[i].start) < new Date(wizPeakPeriods[i-1].end)) {
+      return { valid:false, message:'Peak '+(i+1)+' starts before Peak '+i+' ends. Peaking periods must run in order.' };
+    }
+  }
+  return { valid:true, message:'' };
 }
 
-/* ── Step 3: Durations ── */
+/* ── Step 2: Durations ── */
 function wizRenderS3() {
   var totalWeeks = Math.round((seasonEndDate - seasonStartDate) / (7*24*3600*1000));
   var el = document.getElementById('wiz-dur-blocks');
@@ -2496,18 +2421,21 @@ function wizComputePlan() {
     return Math.max(0, Math.min(totalWeeks-1, Math.floor((parseLocalDate(iso)-mondayAnchor)/(7*24*3600*1000))));
   }
 
-  var aWeeks = wizAEvents.map(function(id) {
-    var c = competitions.find(function(x) { return x.id===id; });
-    return c ? dateToWeek(c.startDate) : -1;
-  }).filter(function(w) { return w >= 0; }).sort(function(a,b) { return a-b; });
+  var periods = wizPeakPeriods
+    .filter(function(p){ return p.start && p.end; })
+    .map(function(p){ return { startWeek: dateToWeek(p.start), endWeek: dateToWeek(p.end) }; })
+    .sort(function(a,b){ return a.startWeek - b.startWeek; });
 
-  if (!aWeeks.length) aWeeks = [Math.floor(totalWeeks*0.7)];
+  if (!periods.length) {
+    var fallbackWeek = Math.floor(totalWeeks*0.7);
+    periods = [{ startWeek: fallbackWeek, endWeek: fallbackWeek }];
+  }
 
   var d = wizDurs;
   var precomp = d.precomp||3, trans = d.trans||2, phys = d.phys||4;
   var offEnd = d.offEnd||2, offStart = d.offStart||2, prep = d.prep||8;
 
-  // Forward fill: Off-start → General Prep → [per block: Spec Prep → Pre-Comp → Competitive → Transition] → Off-end
+  // Forward fill: Off-start → General Prep → [per block: Spec Prep → Taper → Peaking Period → Transition] → Off-end
   var w = 0;
 
   // Off-start
@@ -2515,61 +2443,72 @@ function wizComputePlan() {
   // General Prep (first block only — base already built in subsequent blocks)
   for (var i=0; i<prep && w<totalWeeks; i++,w++) plan[w]='prep';
 
-  for (var bi=0; bi<aWeeks.length; bi++) {
-    var aw = aWeeks[bi];
+  for (var bi=0; bi<periods.length; bi++) {
+    var period = periods[bi];
     var phDur = bi===0 ? phys : (d['phys_b'+(bi+1)]||phys);
     var pcDur = bi===0 ? precomp : (d['precomp_b'+(bi+1)]||precomp);
 
-    // Specific Preparation — capped so phys+precomp cannot push past A-event
-    var physEnd = Math.min(w + phDur, aw - pcDur);
+    // Specific Preparation — capped so phys+precomp leaves room for the taper
+    // to end exactly as the peaking period begins
+    var physEnd = Math.min(w + phDur, period.startWeek - pcDur);
     for (; w < physEnd && w < totalWeeks; w++) plan[w]='phys';
-    // Pre-Competitive — capped so precomp ends exactly at A-event week
-    var precompEnd = Math.min(w + pcDur, aw);
+    // Taper (Pre-Competitive) — leads INTO the period; ends right as the period
+    // starts, rather than extending into it. The period itself is sustained
+    // Competitive-phase load (playoff/cup-run congestion), not suppressed volume.
+    var precompEnd = Math.min(w + pcDur, period.startWeek);
     for (; w < precompEnd && w < totalWeeks; w++) plan[w]='precomp';
-    // Competitive — A-event week itself plus any gap left by shortened phases
-    while (w <= aw && w < totalWeeks) { plan[w]='comp'; w++; }
+    // Competitive — fallback (fires only if duration constraints prevented taper
+    // from reaching the period start above) plus the entire peaking period itself
+    while (w < period.startWeek && w < totalWeeks) { plan[w]='comp'; w++; }
+    while (w <= period.endWeek && w < totalWeeks) { plan[w]='comp'; w++; }
 
-    // Transition after A-event (except after last peak)
-    if (bi < aWeeks.length-1) {
+    // Transition after this peaking period (except after the last one)
+    if (bi < periods.length-1) {
       var trDur = d['trans_b'+(bi+2)]||trans;
       for (var i=0; i<trDur && w<totalWeeks; i++,w++) plan[w]='trans';
     }
   }
 
-  // Find the last competition of any kind in the calendar
-  var lastCompWeek = aWeeks[aWeeks.length-1];
-  competitions.forEach(function(c) {
-    var cw = dateToWeek(c.startDate);
-    if (cw > lastCompWeek) lastCompWeek = cw;
+  // Find the last scheduled match of any kind in Match Calendar — Competitive
+  // should cover routine matches after the last peaking period too, not just
+  // the period itself.
+  var lastMatchWeek = periods[periods.length-1].endWeek;
+  matchCalendar.forEach(function(m) {
+    if (!m.date) return;
+    var mw = dateToWeek(m.date);
+    if (mw > lastMatchWeek) lastMatchWeek = mw;
   });
 
-  // Fill Competitive up to and including last competition week
-  while (w <= lastCompWeek && w < totalWeeks) { plan[w]='comp'; w++; }
+  // Fill Competitive up to and including the last match week
+  while (w <= lastMatchWeek && w < totalWeeks) { plan[w]='comp'; w++; }
 
-  // Transition immediately after last competition → Off-end
+  // Transition immediately after the last match → Off-end
   for (var i=0; i<trans && w<totalWeeks; i++,w++) plan[w]='trans';
   for (var i=0; i<offEnd && w<totalWeeks; i++,w++) plan[w]='off';
 
   _wizPlan = plan;
-  _wizAWeeks = aWeeks;
+  _wizPeakWeekRanges = periods;
 }
-var _wizAWeeks = [];
+var _wizPeakWeekRanges = [];
 
 /* ── Preview renderer ── */
 function wizRenderPreview(barId, markId, blocksId, legendId) {
-  var plan = _wizPlan, aWeeks = _wizAWeeks;
+  var plan = _wizPlan, periods = _wizPeakWeekRanges;
   var bar = document.getElementById(barId);
   if (bar) bar.innerHTML = plan.map((p,i) =>
     '<div style="flex:1;background:'+(phaseConfig[p]||phaseConfig.comp).color+';opacity:0.85;" title="W'+(i+1)+': '+(phaseConfig[p]||phaseConfig.comp).label+'"></div>'
   ).join('');
 
-  // A-event markers
+  // Peaking period markers — a shaded band spanning each period's weeks, rather
+  // than a single point marker (there's no longer a single "event day").
   var mk = document.getElementById(markId);
   if (mk) {
     var totalW = plan.length;
-    mk.innerHTML = aWeeks.map(w =>
-      '<div style="position:absolute;left:'+(w/totalW*100).toFixed(1)+'%;top:-4px;width:2px;height:28px;background:var(--red);z-index:2;" title="A-Event W'+(w+1)+'"></div>'
-    ).join('');
+    mk.innerHTML = periods.map(function(p) {
+      var leftPct  = (p.startWeek/totalW*100).toFixed(1);
+      var widthPct = Math.max(((p.endWeek-p.startWeek+1)/totalW*100), (1/totalW*100)).toFixed(1);
+      return '<div style="position:absolute;left:'+leftPct+'%;top:-4px;width:'+widthPct+'%;height:28px;background:var(--red);opacity:0.35;border-left:2px solid var(--red);border-right:2px solid var(--red);z-index:2;" title="Peaking Period W'+(p.startWeek+1)+'\u2013W'+(p.endWeek+1)+'"></div>';
+    }).join('');
     mk.style.position='relative'; mk.style.height='0';
   }
 
@@ -2597,8 +2536,8 @@ function wizRenderPreview(barId, markId, blocksId, legendId) {
       rows += '<tr><td style="padding:5px 8px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:2px;background:'+pc.color+'"></div><span style="font-size:0.8rem;font-weight:600">'+pc.label+'</span></div></td>'
         +'<td style="padding:5px 8px;font-family:var(--mono);font-size:0.78rem;text-align:right;color:var(--muted);">'+cnt+' weeks</td></tr>';
     });
-    if (aWeeks.length) rows += '<tr><td style="padding:5px 8px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:2px;background:var(--red)"></div><span style="font-size:0.8rem;font-weight:600">A-Events</span></div></td>'
-      +'<td style="padding:5px 8px;font-family:var(--mono);font-size:0.78rem;text-align:right;color:var(--muted);">Weeks '+aWeeks.map(w=>w+1).join(', ')+'</td></tr>';
+    if (periods.length) rows += '<tr><td style="padding:5px 8px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:2px;background:var(--red)"></div><span style="font-size:0.8rem;font-weight:600">Peaking Periods</span></div></td>'
+      +'<td style="padding:5px 8px;font-family:var(--mono);font-size:0.78rem;text-align:right;color:var(--muted);">'+periods.map(p=>'W'+(p.startWeek+1)+'\u2013W'+(p.endWeek+1)).join(', ')+'</td></tr>';
     el.innerHTML = '<table style="width:100%;border-collapse:collapse;background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden">'+rows+'</table>';
   }
 }
@@ -2606,12 +2545,17 @@ function wizRenderPreview(barId, markId, blocksId, legendId) {
 function wizRenderSummary() {
   var el = document.getElementById('wiz-summary');
   if (!el) return;
-  var aNames = wizAEvents.map(id => { var c=competitions.find(x=>x.id===id); return c?c.title:'—'; });
+  var periodLabels = wizPeakPeriods.map(function(p) {
+    if (!p.start || !p.end) return '—';
+    var s = parseLocalDate(p.start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    var e = parseLocalDate(p.end).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return s+' \u2013 '+e;
+  });
   el.innerHTML = '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Plan Summary</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">'
     +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex:1"><div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Season Peaks</div><div style="font-size:1rem;font-weight:700;margin-top:2px">'+wizPeaks+'</div></div>'
     +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex:1"><div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Total Weeks</div><div style="font-size:1rem;font-weight:700;margin-top:2px">'+_wizPlan.length+'</div></div>'
-    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex:2"><div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">A-Events</div><div style="font-size:0.82rem;font-weight:700;margin-top:2px">'+aNames.join(' · ')+'</div></div>'
+    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex:2"><div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Peaking Periods</div><div style="font-size:0.82rem;font-weight:700;margin-top:2px">'+periodLabels.join(' · ')+'</div></div>'
     +'</div>';
   wizRenderPreview(null, null, 'wiz-summary', null);
   // append table after summary cards
@@ -2779,11 +2723,12 @@ function setSeasonAutoSaveStatus(state) {
 ════════════════════════════════════════════════ */
 const sessionTypes = [
   {id:'technical',    icon:'🎯', svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`, name:'Technical',   color:'#3b82f6', rpe:6, dur:75},
-  {id:'sparring',     icon:'⚔️', svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`, name:'Sparring',    color:'#f59e0b', rpe:8, dur:75},
+  {id:'sparring',     icon:'⚔️', svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`, name:'Shock training',    color:'#f59e0b', rpe:8, dur:75},
   {id:'tactical',     icon:'♟',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`, name:'Tactical',    color:'#8b5cf6', rpe:7, dur:60},
   {id:'strength',     icon:'🏋',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`, name:'Strength',    color:'#ef4444', rpe:8, dur:60},
   {id:'conditioning', icon:'🏃',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`, name:'Conditioning', color:'#22c55e', rpe:6, dur:45},
   {id:'competition',  icon:'🏆',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Game',  color:'#FF6F61', rpe:10, dur:120},
+  {id:'friendly',     icon:'🤝',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`, name:'Friendly game', color:'#06b6d4', rpe:7, dur:90},
   {id:'recovery',     icon:'🧘',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`, name:'Recovery',    color:'#94a3b8', rpe:2, dur:40},
   {id:'rest',         icon:'—',   svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, name:'Rest Day',    color:'#cbd5e1', rpe:0, dur:0},
 ];
@@ -2926,23 +2871,26 @@ function generateRecommendedPlan(weekIdx) {
   });
 
   // Overlay real scheduled matches onto their actual day (Milišić: a match already
-  // provides the "peak" stimulus). If 2+ matches fall in the same week, downgrade the
-  // *other* template peak-day slot to recovery instead of stacking manufactured peak
-  // training on top of an already-congested week.
+  // provides the "peak" stimulus). The day immediately before each match gets
+  // downgraded from a template peak-day slot to a light technical session (short,
+  // low RPE — sharpness and rhythm, not physical loading) — applies whether
+  // there's one match that week or several, since even a single Saturday game
+  // means Friday shouldn't also be a full peak session.
   const weekMatches = getMatchesInWeek(weekIdx);
   if (weekMatches.length > 0) {
     weekMatches.forEach(function(wm) {
       plan[wm.day] = [{id:'match_'+wm.match.id, type:'competition', duration:90, rpe:9, label:'vs '+(wm.match.opponent||'Match'), recommended:true}];
     });
-    if (weekMatches.length >= 2) {
-      const matchDays = weekMatches.map(function(wm){ return wm.day; });
-      DAYS.forEach(function(d) {
-        if (matchDays.indexOf(d) === -1 && template[d] && template[d][0] && template[d][0].peakDay) {
-          const rec = getSessionType('recovery');
-          plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'recovery', duration:rec.dur, rpe:rec.rpe, label:'', recommended:true}];
-        }
-      });
-    }
+    const matchDayIdxs = weekMatches.map(function(wm){ return DAYS.indexOf(wm.day); });
+    matchDayIdxs.forEach(function(mi) {
+      const beforeIdx = mi - 1;
+      if (beforeIdx < 0) return; // match on Monday — day before falls in the prior week, out of scope here
+      if (matchDayIdxs.indexOf(beforeIdx) !== -1) return; // day before is itself also a match day
+      const beforeDay = DAYS[beforeIdx];
+      if (template[beforeDay] && template[beforeDay][0] && template[beforeDay][0].peakDay) {
+        plan[beforeDay] = [{id: Math.random().toString(36).substr(2,6), type:'technical', duration:35, rpe:4, label:'', recommended:true}];
+      }
+    });
   }
   return plan;
 }
@@ -2998,7 +2946,7 @@ function renderMicro() {
       <div class="comp-banner-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></div>
       <div class="comp-banner-body">
         <div class="comp-banner-title">${comp.title}</div>
-        <div class="comp-banner-meta">${dateLabel}${comp.location ? ' &nbsp;·&nbsp; ' + comp.location : ''} &nbsp;·&nbsp; <span style="color:${imp.color};font-weight:700;">${imp.label}</span>${comp.target ? ' &nbsp;·&nbsp; Target: ' + comp.target : ''}</div>
+        <div class="comp-banner-meta">${dateLabel}${comp.location ? ' &nbsp;·&nbsp; ' + comp.location : ''} &nbsp;·&nbsp; <span style="color:${imp.color};font-weight:700;">${imp.label}</span></div>
       </div>
     </div>`;
   }
@@ -3122,8 +3070,10 @@ function renderMicro() {
   const totalTL = dailyTL.reduce((s,v) => s+v, 0);
 
   document.getElementById('mc-tl-row').innerHTML = dailyTL.map((dayTL, i) => {
-    const tlC = dayTL > 700 ? 'var(--red)' : dayTL > 400 ? 'var(--amber)' : dayTL > 0 ? 'var(--coral)' : 'var(--muted)';
+    const tlC = dayTL > 700 ? 'var(--red)' : dayTL > 400 ? 'var(--amber)' : dayTL > 0 ? '#22c55e' : 'var(--muted)';
+    const barPct = Math.min(100, (dayTL/700)*100);
     return `<div class="mc-day-tl">
+      <div class="mc-vtl-bar-wrap"><div class="mc-vtl-bar" style="height:${barPct}%;background:${tlC};"></div></div>
       <div style="font-family:var(--mono);font-size:0.78rem;font-weight:700;color:${tlC};">${dayTL || '—'}</div>
       <div style="font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">${DAYS[i]}</div>
     </div>`;
@@ -3200,7 +3150,9 @@ async function renderReportedTL(weekIdx) {
     const avg  = count > 0 ? Math.round(sum/count) : null;
     const comp = count + '/' + totalAthletes;
     const avgC = !avg?'var(--muted)':avg>700?'var(--red)':avg>400?'var(--amber)':'#22c55e';
+    const barPct = Math.min(100, ((avg||0)/700)*100);
     return `<div class="mc-reported-cell">
+      <div class="mc-vtl-bar-wrap"><div class="mc-vtl-bar" style="height:${barPct}%;background:${avgC};"></div></div>
       <div style="font-family:var(--mono);font-size:0.78rem;font-weight:700;color:${avgC};">${avg??'—'}</div>
       <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);">${comp}</div>
     </div>`;
@@ -3455,10 +3407,8 @@ function updateSessTL() {
 }
 
 function saveSessEditor() {
-  const typeId = sessionTypes.find(st => {
-    const btn = document.getElementById('stp-'+st.id);
-    return btn && btn.style.borderColor && btn.style.borderColor !== 'var(--border)' && btn.style.borderColor !== '';
-  })?.id || 'technical';
+  const typeSel = document.getElementById('sess-type-select');
+  const typeId  = (typeSel && typeSel.value) || 'technical';
   const duration = +document.getElementById('sess-dur-slider').value;
   const rpe      = +document.getElementById('sess-rpe-slider').value;
   const label    = document.getElementById('sess-label-input').value.trim();
@@ -3915,7 +3865,7 @@ async function loadTimCheckinsForMicro(){
     // Load athlete user docs (needed for uid resolution and names)
     const chunks=[];
     for(let i=0;i<assigned.length;i+=30)chunks.push(assigned.slice(i,i+30));
-    const uResults=await Promise.all(chunks.map(ch=>window.db.collection('users').where('uid','in',ch).get()));
+    const uResults=await Promise.all(chunks.map(ch=>window.db.collection('users').where('uid','in',ch).where('orgId','==',window.ADA_USER.orgId).get()));
     const docs=uResults.flatMap(s=>s.docs);
     if(!docs.length){_timCheckinsLoading=false;return;}
     timAthletes=docs.map((d,i)=>({id:d.id,...d.data(),_idx:i}));
@@ -4010,7 +3960,7 @@ async function loadTimData(){
 
       // Always try users collection first (free tier)
       const uResults = await Promise.all(chunks.map(ch =>
-        window.db.collection('users').where('uid','in',ch).get()
+        window.db.collection('users').where('uid','in',ch).where('orgId','==',window.ADA_USER.orgId).get()
       ));
       docs = uResults.flatMap(s => s.docs);
       console.log('[ADA] users collection query returned:', docs.length, 'docs');
@@ -4018,7 +3968,7 @@ async function loadTimData(){
       // If nothing in users, try legacy athletes collection
       if (!docs.length) {
         const aResults = await Promise.all(chunks.map(ch =>
-          window.db.collection('athletes').where('uid','in',ch).get()
+          window.db.collection('athletes').where('uid','in',ch).where('orgId','==',window.ADA_USER.orgId).get()
         ));
         docs = aResults.flatMap(s => s.docs);
         console.log('[ADA] athletes collection fallback returned:', docs.length, 'docs');
@@ -4619,10 +4569,9 @@ function closeTimDetail(){}
 
 /* ── Welcome / Onboarding Modal ── */
 var _welcomeStep = 1;
-var _WELCOME_KEY = 'ada:onboarded_v1';
 
 function welcomeShow() {
-  if (localStorage.getItem(_WELCOME_KEY)) return;
+  if (window.ADA_USER && window.ADA_USER.onboarded) return;
   _welcomeStep = 1;
   welcomeRender();
   document.getElementById('welcome-overlay').classList.add('open');
@@ -4630,7 +4579,12 @@ function welcomeShow() {
 
 function welcomeClose() {
   document.getElementById('welcome-overlay').classList.remove('open');
-  localStorage.setItem(_WELCOME_KEY, '1');
+  if (window.ADA_USER && window.db && window.ADA_USER.uid) {
+    window.ADA_USER.onboarded = true; // don't re-show later this same session
+    window.db.collection('users').doc(window.ADA_USER.uid)
+      .set({ onboarded: true }, { merge: true })
+      .catch(function(e){ console.error('Failed to save onboarded flag:', e); });
+  }
 }
 
 function welcomeNext() {
@@ -4649,13 +4603,11 @@ function welcomeRender() {
   });
 }
 
-// Trigger: show after ada:ready if no season doc exists (new user)
+// Trigger: show after ada:ready if the account hasn't seen onboarding yet
 window.addEventListener('ada:ready', function() {
   // Defer until after season Firestore load has had time to resolve
   setTimeout(function() {
-    if (!localStorage.getItem(_WELCOME_KEY)) {
-      welcomeShow();
-    }
+    welcomeShow();
   }, 800);
 }, { once: true });
 

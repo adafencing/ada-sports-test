@@ -443,24 +443,13 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
       <div class="cr-sheet-inner">
         <div class="cr-sheet-title" id="cr-sheet-title">Competition Result</div>
         <div class="cr-sheet-sub" id="cr-sheet-sub"></div>
-        <label class="cr-lbl">Placement</label>
+        <label class="cr-lbl">Result</label>
         <select class="cr-select" id="cr-placement">
           <option value="">— Select result —</option>
-          <option>Gold</option>
-          <option>Silver</option>
-          <option>Bronze</option>
-          <option>4th place</option>
-          <option>5th-8th place</option>
-          <option>Did not place</option>
-          <option>Eliminated R1</option>
-          <option>Eliminated R2</option>
-          <option>Eliminated R3</option>
-          <option value="other">Other…</option>
+          <option value="W">W — Win</option>
+          <option value="D">D — Draw</option>
+          <option value="L">L — Loss</option>
         </select>
-        <div id="cr-other-wrap" style="display:none;margin-top:-8px;margin-bottom:12px">
-          <label class="cr-lbl">Custom result</label>
-          <input type="text" class="cr-select" id="cr-other" placeholder="e.g. Top 16">
-        </div>
         <label class="cr-lbl">Notes</label>
         <textarea class="cr-textarea" id="cr-notes" placeholder="Performance notes, observations…"></textarea>
         <div class="cr-actions">
@@ -574,11 +563,12 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
         <div class="sf-lbl">Session Type</div>
         <select class="cr-select" id="sess-type-select">
           <option value="technical">Technical</option>
-          <option value="sparring">Sparring</option>
+          <option value="sparring">Shock training</option>
           <option value="tactical">Tactical</option>
           <option value="strength">Strength</option>
           <option value="conditioning">Conditioning</option>
           <option value="competition">Game</option>
+          <option value="friendly">Friendly game</option>
           <option value="recovery">Recovery</option>
         </select>
       </div>
@@ -637,7 +627,6 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
           <div id="comp-imp-pills-add" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px"></div>
           <input type="hidden" id="comp-importance" value="1">
         </div>
-        <div class="sf-row"><div class="sf-lbl">Targeted result</div><input class="sf-input" id="comp-target" type="text" placeholder="e.g. Top 3, Gold, Qualify for finals"></div>
         <div class="action-row" style="margin-top:8px">
           <button class="btn btn-secondary" onclick="toggleCompAddForm()">Cancel</button>
           <button class="btn btn-primary" onclick="addCompetition()">Add Competition</button>
@@ -800,9 +789,19 @@ const TYPE_ICONS = {
   sparring:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>',
   recovery:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
   competition: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+  friendly:    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
   rest:        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
 };
-const TYPE_COLORS = {technical:'var(--blue)',tactical:'var(--purple)',sparring:'var(--amber)',strength:'var(--red)',conditioning:'var(--green)',recovery:'var(--purple)',competition:'var(--coral)',rest:'var(--s3)'};
+const TYPE_COLORS = {technical:'var(--blue)',tactical:'var(--purple)',sparring:'var(--amber)',strength:'var(--red)',conditioning:'var(--green)',recovery:'var(--purple)',competition:'var(--coral)',friendly:'#ec4899',rest:'var(--s3)'};
+
+// Session type display labels — mirrors coach-desktop's `name` field. Only entries
+// that differ from a simple capitalized id are listed; everything else falls back
+// to capitalizing the raw type string (preserves existing display for all other types).
+const SESS_TYPE_LABELS = { sparring: 'Shock training', friendly: 'Friendly game' };
+function sessTypeLabel(type){
+  if (SESS_TYPE_LABELS[type]) return SESS_TYPE_LABELS[type];
+  return type ? type.charAt(0).toUpperCase() + type.slice(1) : '';
+}
 
 // ── Prevent back gesture from leaving the app ────────────────────
 history.pushState(null, '', window.location.href);
@@ -861,7 +860,7 @@ function loadAthletesFromFirestore(u) {
   var pending = chunks.length;
 
   chunks.forEach(function(chunk) {
-    db.collection('athletes').where('uid','in',chunk).get().then(function(snap) {
+    db.collection('athletes').where('uid','in',chunk).where('orgId','==',u.orgId).get().then(function(snap) {
       if (!snap.empty) {
         snap.forEach(function(doc) {
           allAthletes.push({ id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() });
@@ -870,7 +869,7 @@ function loadAthletesFromFirestore(u) {
         if (pending === 0) { athletes = allAthletes; loadCheckins(u); }
       } else {
         // Free-tier fallback: athletes live in users collection, not athletes collection
-        db.collection('users').where('uid','in',chunk).get().then(function(uSnap) {
+        db.collection('users').where('uid','in',chunk).where('orgId','==',u.orgId).get().then(function(uSnap) {
           uSnap.forEach(function(doc) {
             allAthletes.push({ id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() });
           });
@@ -1130,13 +1129,16 @@ function getWeekIdxForDate(isoDate) {
 }
 
 // Convert mobile session type to desktop day plan format and save to Firestore
-function saveSessionToFirestore(iso, sessData, isNew) {
+function saveSessionToFirestore(iso, sessData, isNew, editIdx) {
   var db = window.db;
   if (!db || !coach.orgId) {
     console.error('[ADA] saveSessionToFirestore aborted — missing db or coach.orgId', { hasDb: !!db, orgId: coach.orgId });
     showSaveError('Save failed: not connected (orgId missing). Please sign out and back in.');
     return;
   }
+  // Default to 0 when no index is given (e.g. bulk status callers like quickPublish/
+  // markCompleted, which apply to the whole day rather than one specific session).
+  var idx = typeof editIdx === 'number' ? editIdx : 0;
   var weekIdx = sessData !== null && sessData.weekIdx !== undefined ? sessData.weekIdx : getWeekIdxForDate(iso);
   var DAY_FALLBACK = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][parseLocalDate(iso).getDay() === 0 ? 6 : parseLocalDate(iso).getDay() - 1];
   var dayKey  = (sessData && sessData.dayKey) ? sessData.dayKey : DAY_FALLBACK;
@@ -1147,8 +1149,11 @@ function saveSessionToFirestore(iso, sessData, isNew) {
   docRef.get().then(function(snap) {
     var plan = snap.exists ? (snap.data().plan || {}) : {};
     if (sessData === null) {
-      // Delete — restore to rest
-      plan[dayKey] = [{ id:'rest', type:'rest', duration:0, rpe:0, label:'', recommended:true }];
+      // Delete — remove only the session at idx, keep the rest; only fall back
+      // to a rest placeholder if that was the last real session for the day.
+      var remaining = (plan[dayKey]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
+      remaining.splice(idx, 1);
+      plan[dayKey] = remaining.length ? remaining : [{ id:'rest', type:'rest', duration:0, rpe:0, label:'', recommended:true }];
     } else if (isNew) {
       // Append new session to existing non-rest sessions
       var existing = (plan[dayKey]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
@@ -1162,17 +1167,22 @@ function saveSessionToFirestore(iso, sessData, isNew) {
       });
       plan[dayKey] = existing;
     } else {
-      // Edit — replace first session only, preserve others
-      var others = (plan[dayKey]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; }).slice(1);
-      var updated = [{
+      // Edit — replace only the session at idx, preserve every other session in place
+      var current = (plan[dayKey]||[]).filter(function(s){ return s.id!=='rest'&&s.type!=='rest'; });
+      var updatedSess = {
         id:       sessData.type + '_' + Date.now(),
         type:     sessData.type,
         label:    sessData.name,
         duration: sessData.dur,
         rpe:      sessData.rpe,
         note:     sessData.note || '',
-      }];
-      plan[dayKey] = updated.concat(others);
+      };
+      if (idx >= 0 && idx < current.length) {
+        current[idx] = updatedSess;
+      } else {
+        current.push(updatedSess); // index out of range — shouldn't normally happen, but don't silently drop the edit
+      }
+      plan[dayKey] = current;
     }
     docRef.set({ weekIdx: weekIdx, plan: plan, updatedAt: new Date().toISOString() }, { merge: true })
       .then(function(){ console.log('[ADA][date-diag] saveSessionToFirestore SUCCESS', { docPath: 'seasons/'+coach.orgId+'/microcycles/week_'+weekIdx }); })
@@ -1237,7 +1247,7 @@ function enterApp(){
     tsEl.innerHTML = '<div class="sess-card">'
       +'<div class="sess-label">Today\'s session</div>'
       +'<div class="sess-name">'+(todaySess.name||'Training')+'</div>'
-      +'<div class="sess-meta"><span>'+(TYPE_ICONS[todaySess.type]||'')+' '+todaySess.type+'</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+todaySess.dur+' min</span><span>RPE '+todaySess.rpe+'</span></div>'
+      +'<div class="sess-meta"><span>'+(TYPE_ICONS[todaySess.type]||'')+' '+sessTypeLabel(todaySess.type)+'</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+todaySess.dur+' min</span><span>RPE '+todaySess.rpe+'</span></div>'
       +'</div>';
   } else {
     tsEl.innerHTML = '<div class="br-empty">No session scheduled for today</div>';
@@ -1495,20 +1505,7 @@ function openCompResultSheet() {
   document.getElementById('cr-sheet-sub').textContent = imp.label +
     (comp.location ? ' · ' + comp.location : '');
 
-  var sel = document.getElementById('cr-placement');
-  var otherWrap = document.getElementById('cr-other-wrap');
-  var otherInput = document.getElementById('cr-other');
-  var CR_OPTIONS = ['Gold','Silver','Bronze','4th place','5th-8th place','Did not place','Eliminated R1','Eliminated R2','Eliminated R3'];
-  var result = comp.result || '';
-  if (result && !CR_OPTIONS.includes(result)) {
-    sel.value = 'other';
-    otherWrap.style.display = 'block';
-    otherInput.value = result;
-  } else {
-    sel.value = result;
-    otherWrap.style.display = 'none';
-    otherInput.value = '';
-  }
+  document.getElementById('cr-placement').value = comp.result || '';
   document.getElementById('cr-notes').value = comp.notes || '';
   document.getElementById('cr-sheet').classList.add('open');
 }
@@ -1517,20 +1514,12 @@ function closeCompResultSheet() {
   document.getElementById('cr-sheet').classList.remove('open');
 }
 
-document.getElementById('cr-placement').addEventListener('change', function() {
-  document.getElementById('cr-other-wrap').style.display =
-    this.value === 'other' ? 'block' : 'none';
-});
-
 function saveCompResultMobile() {
   if (!crActiveCompId) { closeCompResultSheet(); return; }
   var comp = competitions.find(function(x){ return x.id === crActiveCompId; });
   if (!comp) { closeCompResultSheet(); return; }
 
-  var sel = document.getElementById('cr-placement').value;
-  var result = sel === 'other'
-    ? document.getElementById('cr-other').value.trim()
-    : sel;
+  var result = document.getElementById('cr-placement').value;
 
   if (result) comp.result = result; else delete comp.result;
   var notes = document.getElementById('cr-notes').value.trim();
@@ -1637,12 +1626,12 @@ function renderSessDetail(){
     var sessionCards = sessArr.map(function(sess, idx){
       var tl = sess.rpe * sess.dur;
       var divider = idx > 0 ? '<div style="height:1px;background:var(--bdr);margin:6px 0"></div>' : '';
-      return divider + `<div style="display:flex;align-items:flex-start;gap:10px">
+      return divider + `<div style="display:flex;align-items:flex-start;gap:10px;cursor:pointer" onclick="openSessEditor(${idx}, '${iso}')">
         <div style="width:3px;border-radius:2px;background:${TYPE_COLORS[sess.type]||'var(--teal)'};align-self:stretch;flex-shrink:0;margin-top:2px"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:0.95rem;font-weight:800;margin-bottom:2px">${sess.name||'Training'}</div>
           <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:0.7rem;color:${TYPE_COLORS[sess.type]||'var(--teal)'};margin-bottom:6px">
-            ${TYPE_ICONS[sess.type]||''}<span style="text-transform:capitalize">${sess.type}</span>
+            ${TYPE_ICONS[sess.type]||''}<span>${sessTypeLabel(sess.type)}</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
             <div style="background:var(--s1);border-radius:7px;padding:7px 4px;text-align:center">
@@ -1681,7 +1670,7 @@ function renderSessDetail(){
         ${sessionCards}
         ${totalRow}
         <div class="action-row" style="margin-top:12px">
-          <button class="btn btn-secondary" onclick="openSessEditor('${iso}', '${iso}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
+          <button class="btn btn-secondary" onclick="openSessEditor(0, '${iso}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
           ${primarySess.status === 'draft' ? `<button class="btn btn-primary" onclick="quickPublish('${iso}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Publish</button>` : ''}
           ${primarySess.status !== 'completed' ? `<button class="btn btn-secondary" onclick="markCompleted('${iso}')">&#x2713; Complete</button>` : ''}
         </div>
@@ -1694,19 +1683,21 @@ function renderSessDetail(){
 
 
 let editingISO = null;
+let editingIdx = null; // which session in sessions[editingISO] is being edited; null = new session
 let isNewSess = true;
 
-function openSessEditor(editISO, dateISO){
+function openSessEditor(editIdx, dateISO){
   editingISO = dateISO;
-  isNewSess = !editISO || !sessions[editISO] || !sessions[editISO].length || editISO !== dateISO;
+  editingIdx = (editIdx === null || editIdx === undefined) ? null : editIdx;
+  isNewSess = editingIdx === null || !sessions[dateISO] || !sessions[dateISO].length || !sessions[dateISO][editingIdx];
   const d = parseLocalDate(dateISO);
   const LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const dayIdx = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(d.toLocaleString('en',{weekday:'short'}));
   document.getElementById('ov-sess-title').textContent = isNewSess ? 'New Session' : 'Edit Session';
   document.getElementById('ov-sess-date').textContent = `${LABELS[selectedDay]}, ${fmtDate(d)}`;
 
-  if(!isNewSess && sessions[dateISO] && sessions[dateISO].length){
-    const s = sessions[dateISO][0]; // edit always applies to first session on mobile
+  if(!isNewSess){
+    const s = sessions[dateISO][editingIdx];
     document.getElementById('sess-name-input').value = s.name||'';
     document.getElementById('dur-slider').value = s.dur||60;
     document.getElementById('dur-val').textContent = s.dur||60;
@@ -1785,9 +1776,9 @@ function publishSession(){
     if(!sessions[editingISO]) sessions[editingISO] = [];
     sessions[editingISO] = sessions[editingISO].concat([sess]);
   } else {
-    sessions[editingISO] = sessions[editingISO] && sessions[editingISO].length ? [sess].concat(sessions[editingISO].slice(1)) : [sess];
+    sessions[editingISO] = sessions[editingISO].map(function(s, i){ return i === editingIdx ? sess : s; });
   }
-  saveSessionToFirestore(editingISO, sess, isNewSess);
+  saveSessionToFirestore(editingISO, sess, isNewSess, editingIdx);
   closeOverlay('sess-overlay');
   renderNedeljni();
   renderPregled();
@@ -1802,9 +1793,9 @@ function saveDraft(){
     if(!sessions[editingISO]) sessions[editingISO] = [];
     sessions[editingISO] = sessions[editingISO].concat([sess]);
   } else {
-    sessions[editingISO] = sessions[editingISO] && sessions[editingISO].length ? [sess].concat(sessions[editingISO].slice(1)) : [sess];
+    sessions[editingISO] = sessions[editingISO].map(function(s, i){ return i === editingIdx ? sess : s; });
   }
-  saveSessionToFirestore(editingISO, sess, isNewSess);
+  saveSessionToFirestore(editingISO, sess, isNewSess, editingIdx);
   closeOverlay('sess-overlay');
   renderNedeljni();
   renderPregled();
@@ -1828,8 +1819,12 @@ function markCompleted(iso){
 
 function deleteSession(){
   if(!editingISO) return;
-  saveSessionToFirestore(editingISO, null);
-  delete sessions[editingISO];
+  saveSessionToFirestore(editingISO, null, false, editingIdx);
+  if (sessions[editingISO] && sessions[editingISO].length > 1) {
+    sessions[editingISO] = sessions[editingISO].filter(function(s, i){ return i !== editingIdx; });
+  } else {
+    delete sessions[editingISO];
+  }
   closeOverlay('sess-overlay');
   renderNedeljni();
   renderPregled();
@@ -1945,7 +1940,7 @@ function openAthlete(id){
       return dates.length ? a.sessionLogs[dates[0]] : null;
     })();
     var plannedSess = sessions ? sessions[today()] : null;
-    var SESS_TYPE_COLORS={'technical':'#3b82f6','tactical':'#8b5cf6','strength':'#ef4444','conditioning':'#22c55e','sparring':'#f59e0b','competition':'#FF6F61','recovery':'#06b6d4','rest':'#cbd5e1'};
+    var SESS_TYPE_COLORS={'technical':'#3b82f6','tactical':'#8b5cf6','strength':'#ef4444','conditioning':'#22c55e','sparring':'#f59e0b','competition':'#FF6F61','friendly':'#ec4899','recovery':'#06b6d4','rest':'#cbd5e1'};
     var sessHTML = allSessEntries.length
       ? allSessEntries.map(function(s, idx){
           var rpeDiff = plannedSess ? (s.actualRpe - (plannedSess.rpe||0)) : null;
@@ -2329,7 +2324,7 @@ var seasonStartDate = new Date(new Date().getFullYear(), 5, 1);
 var seasonEndDate   = new Date(new Date(new Date().getFullYear(), 5, 1).getTime() + 52*7*24*3600*1000);
 var weekPhases   = Array(NUM_WEEKS).fill('none'); // index → 'off'|'prep'|'phys'|'precomp'|'comp'|'trans'|'none'
 var weekEvents   = {};   // weekIdx → { type, label, competitionId? | campId? }
-var competitions = [];   // { id, title, location, startDate, endDate, importance, target, result?, notes? }
+var competitions = [];   // { id, title, location, startDate, endDate, importance, result?, notes? }
 var camps        = [];   // { id, title, location, startDate, endDate }
 var SEASON_CURRENT_WEEK = 0;
 
@@ -2661,7 +2656,7 @@ function renderCompetitionsList() {
       return '<div style="border:1px solid var(--bdr);border-radius:9px;margin-bottom:6px;overflow:hidden">'
         +'<div onclick="toggleCompEditMob(\x27'+c.id+'\x27)" style="display:flex;align-items:center;gap:8px;padding:9px 11px;cursor:pointer">'
         +'<div style="flex:1"><div style="font-size:0.78rem;font-weight:700">'+c.title+'</div>'
-        +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:2px">'+dateLabel+(c.location?' · '+c.location:'')+(c.target?' · '+c.target:'')+'</div></div>'
+        +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-top:2px">'+dateLabel+(c.location?' · '+c.location:'')+'</div></div>'
         +'<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:'+imp.color+';background:'+imp.color+'18;padding:3px 7px;border-radius:20px;white-space:nowrap">'+imp.label+'</span>'
         +'<button id="comp-del-'+c.id+'" onclick="event.stopPropagation();confirmDeleteCompMob(this,\x27'+c.id+'\x27)" style="background:none;border:none;color:var(--tl);cursor:pointer;font-size:0.8rem;padding:3px 6px;border-radius:4px;flex-shrink:0">✕</button>'
         +'</div>'
@@ -2674,7 +2669,6 @@ function renderCompetitionsList() {
         +'</div>'
         +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:5px">IMPORTANCE</div>'
         +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">'+editPills+'</div>'
-        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">TARGET</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" value="'+(c.target||'')+'" placeholder="e.g. Gold, Top 3" oninput="editCompFieldMob(\x27'+c.id+'\x27,\x27target\x27,this.value)"></div>'
         +'</div></div>';
     }).join('');
   }
@@ -2762,10 +2756,9 @@ function addCompetition() {
   var start    = document.getElementById('comp-start').value;
   var end      = document.getElementById('comp-end').value || start;
   var importance = parseInt(document.getElementById('comp-importance').value, 10);
-  var target   = document.getElementById('comp-target').value.trim();
   if (!title||!start) { alert('Please enter at least a title and start date.'); return; }
   if (new Date(end) < new Date(start)) { alert('End date cannot be before start date.'); return; }
-  competitions.push({ id:'comp_'+Date.now(), title:title, location:location, startDate:start, endDate:end, importance:importance, target:target });
+  competitions.push({ id:'comp_'+Date.now(), title:title, location:location, startDate:start, endDate:end, importance:importance });
   syncCompetitionEvents();
   saveSeasonToFirestore();
   renderSeason();
@@ -2773,7 +2766,6 @@ function addCompetition() {
   document.getElementById('comp-location').value = '';
   document.getElementById('comp-start').value = '';
   document.getElementById('comp-end').value = '';
-  document.getElementById('comp-target').value = '';
   document.getElementById('comp-date-warn').style.display = 'none';
   document.getElementById('comp-add-form').style.display = 'none';
   document.getElementById('comp-add-toggle').textContent = '+ Add Competition';

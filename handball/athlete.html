@@ -415,6 +415,28 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
 .plan-rpe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0 10px;}
 .plan-rpe-btn{height:32px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--s2);font-family:var(--mono);font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.13s;}
 .plan-rpe-btn.on{color:#fff;border-color:transparent;}
+/* ── Welcome / Onboarding Modal ── */
+.welcome-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:1000;}
+.welcome-overlay.open{display:flex;}
+.welcome-box{background:var(--s1);border:1px solid var(--bdr);border-radius:16px;padding:28px 24px 20px;width:400px;max-width:calc(100vw - 32px);box-shadow:0 16px 48px rgba(28,28,26,0.18);display:flex;flex-direction:column;}
+.welcome-step{display:none;flex-direction:column;align-items:center;text-align:center;}
+.welcome-step.active{display:flex;}
+.welcome-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 16px rgba(21,128,61,0.3);color:#fff;}
+.welcome-title{font-size:1.3rem;font-weight:800;color:var(--tx);margin-bottom:8px;line-height:1.25;}
+.welcome-sub{font-size:0.9rem;color:var(--tm);line-height:1.6;max-width:320px;}
+.welcome-flow{display:flex;align-items:flex-start;gap:0;margin:18px 0 2px;width:100%;}
+.welcome-flow-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.welcome-flow-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--s2);border:1.5px solid var(--bdr);color:var(--teal);}
+.welcome-flow-label{font-family:var(--mono);font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--tm);text-align:center;line-height:1.35;}
+.welcome-flow-arrow{padding-top:11px;color:var(--tl);font-size:1.1rem;flex-shrink:0;}
+.welcome-dots{display:flex;gap:6px;justify-content:center;margin:18px 0 16px;}
+.welcome-dot{width:6px;height:6px;border-radius:50%;background:var(--s3);transition:background 0.2s;}
+.welcome-dot.active{background:var(--green);}
+.welcome-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;}
+.welcome-cta{padding:10px 20px;border-radius:9px;border:none;background:var(--green);color:#fff;font-family:'Epilogue',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:opacity 0.15s;}
+.welcome-cta:hover{opacity:0.88;}
+.welcome-skip{font-family:var(--mono);font-size:0.78rem;color:var(--tl);cursor:pointer;background:none;border:none;padding:4px 0;}
+.welcome-skip:hover{color:var(--tm);}
 </style>
 </head>
 <body>
@@ -447,6 +469,48 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
     <div class="del-modal-actions">
       <button class="del-modal-cancel" onclick="document.getElementById('del-modal-overlay').classList.remove('open')">Cancel</button>
       <button class="del-modal-confirm" id="del-modal-confirm" onclick="confirmDeleteAccount()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Welcome / Onboarding Modal -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-box">
+    <div class="welcome-step active" id="welcome-step-1">
+      <div class="welcome-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <div class="welcome-title">Welcome to ADA Sports</div>
+      <div class="welcome-sub">Your training plan, wellness check-ins, and season — all in one place.</div>
+    </div>
+    <div class="welcome-step" id="welcome-step-2">
+      <div class="welcome-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="welcome-title">Your daily loop</div>
+      <div class="welcome-sub">Three simple steps, every training day.</div>
+      <div class="welcome-flow">
+        <div class="welcome-flow-step">
+          <div class="welcome-flow-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="welcome-flow-label">See your<br>plan</div>
+        </div>
+        <div class="welcome-flow-arrow">→</div>
+        <div class="welcome-flow-step">
+          <div class="welcome-flow-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="welcome-flow-label">Log how<br>it felt</div>
+        </div>
+        <div class="welcome-flow-arrow">→</div>
+        <div class="welcome-flow-step">
+          <div class="welcome-flow-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="welcome-flow-label">Track your<br>season</div>
+        </div>
+      </div>
+    </div>
+    <div class="welcome-step" id="welcome-step-3">
+      <div class="welcome-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+      <div class="welcome-title">Link to your coach</div>
+      <div class="welcome-sub">Enter the invite code your coach shared with you to connect your account and start seeing your training plan.</div>
+    </div>
+    <div class="welcome-dots" id="welcome-dots"></div>
+    <div class="welcome-footer">
+      <button class="welcome-skip" id="welcome-skip-btn" onclick="welcomeClose()">Skip</button>
+      <button class="welcome-cta" id="welcome-cta-btn" onclick="welcomeNext()">Next →</button>
     </div>
   </div>
 </div>
@@ -1136,11 +1200,12 @@ const rpeData=[{n:1,c:'#4ade80',d:'Very easy'},{n:2,c:'#86efac',d:'Easy'},{n:3,c
 // Session type → icon + color (mirrors coach-desktop sessionTypes)
 const SESS_TYPES={
   technical:   {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,name:'Technical',  col:'#3b82f6'},
-  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`,name:'Sparring',   col:'#f59e0b'},
+  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`,name:'Shock training',   col:'#f59e0b'},
   tactical:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`,name:'Tactical',   col:'#8b5cf6'},
   strength:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Strength',   col:'#ef4444'},
   conditioning:{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,name:'Conditioning',col:'#22c55e'},
   competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Game', col:'#FF6F61'},
+  friendly:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,name:'Friendly game', col:'#06b6d4'},
   recovery:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',   col:'#94a3b8'},
   rest:        {icon:'—',     name:'Rest day', col:'#cbd5e1'},
 };
@@ -2094,6 +2159,71 @@ window.addEventListener('popstate', function(){
 });
 
 
+/* ── Welcome / Onboarding Modal ── */
+var _welcomeStep = 1;
+var _welcomeMaxStep = 3;
+
+function welcomeShow() {
+  if (window.ADA_USER && window.ADA_USER.onboarded) return;
+  _welcomeStep = 1;
+  _welcomeMaxStep = (window.ADA_USER && window.ADA_USER.coachId) ? 2 : 3; // skip "link to coach" step if already linked
+  welcomeRender();
+  document.getElementById('welcome-overlay').classList.add('open');
+}
+
+function welcomeRender() {
+  [1, 2, 3].forEach(function(n) {
+    var el = document.getElementById('welcome-step-' + n);
+    if (el) el.classList.toggle('active', n === _welcomeStep);
+  });
+  document.getElementById('welcome-dots').innerHTML = Array.from({length: _welcomeMaxStep}, function(_, i) {
+    return '<div class="welcome-dot' + (i + 1 === _welcomeStep ? ' active' : '') + '"></div>';
+  }).join('');
+
+  var isLast = _welcomeStep === _welcomeMaxStep;
+  var ctaBtn  = document.getElementById('welcome-cta-btn');
+  var skipBtn = document.getElementById('welcome-skip-btn');
+  if (isLast && _welcomeMaxStep === 3) {
+    // Final step is the "link to coach" step
+    ctaBtn.textContent = 'Link to Coach →';
+    ctaBtn.setAttribute('onclick', 'welcomeCloseAndLink()');
+    skipBtn.textContent = "I'll do this later";
+  } else if (isLast) {
+    ctaBtn.textContent = 'Get Started ✓';
+    ctaBtn.setAttribute('onclick', 'welcomeClose()');
+    skipBtn.textContent = 'Skip';
+  } else {
+    ctaBtn.textContent = 'Next →';
+    ctaBtn.setAttribute('onclick', 'welcomeNext()');
+    skipBtn.textContent = 'Skip';
+  }
+}
+
+function welcomeNext() {
+  if (_welcomeStep < _welcomeMaxStep) { _welcomeStep++; welcomeRender(); }
+  else welcomeClose();
+}
+
+function welcomeMarkOnboarded() {
+  if (window.ADA_USER && window.db && window.ADA_USER.uid) {
+    window.ADA_USER.onboarded = true; // don't re-show later this same session
+    window.db.collection('users').doc(window.ADA_USER.uid)
+      .set({ onboarded: true }, { merge: true })
+      .catch(function(e){ console.error('Failed to save onboarded flag:', e); });
+  }
+}
+
+function welcomeClose() {
+  document.getElementById('welcome-overlay').classList.remove('open');
+  welcomeMarkOnboarded();
+}
+
+function welcomeCloseAndLink() {
+  document.getElementById('welcome-overlay').classList.remove('open');
+  welcomeMarkOnboarded();
+  openCoachLinkModal();
+}
+
 window.addEventListener('ada:ready', function(e){
   var u=window.ADA_USER;
   if(u&&!u.error){
@@ -2110,6 +2240,7 @@ window.addEventListener('ada:ready', function(e){
     if(!u.coachId){
       document.getElementById('coach-link-banner').classList.add('visible');
     }
+    setTimeout(function(){ welcomeShow(); }, 800);
   } else {
     init();
   }

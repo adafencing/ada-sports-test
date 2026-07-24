@@ -435,15 +435,15 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
         <label class="cr-lbl">Placement</label>
         <select class="cr-select" id="cr-placement">
           <option value="">— Select result —</option>
-          <option>Gold</option>
-          <option>Silver</option>
-          <option>Bronze</option>
-          <option>4th place</option>
-          <option>5th-8th place</option>
-          <option>Did not place</option>
-          <option>Eliminated R1</option>
-          <option>Eliminated R2</option>
-          <option>Eliminated R3</option>
+          <option>Final</option>
+          <option>Top 4</option>
+          <option>Top 8</option>
+          <option>Round 16</option>
+          <option>Round 32</option>
+          <option>Round 64</option>
+          <option>Round 96</option>
+          <option>Round 128</option>
+          <option>Round 256</option>
           <option value="other">Other…</option>
         </select>
         <div id="cr-other-wrap" style="display:none;margin-top:-8px;margin-bottom:12px">
@@ -579,7 +579,18 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
           <div id="comp-imp-pills-add" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px"></div>
           <input type="hidden" id="comp-importance" value="1">
         </div>
-        <div class="sf-row"><div class="sf-lbl">Targeted result</div><input class="sf-input" id="comp-target" type="text" placeholder="e.g. Top 3, Gold, Qualify for finals"></div>
+        <div class="sf-row"><div class="sf-lbl">Targeted result</div><select class="sf-input" id="comp-target">
+          <option value="">— Select —</option>
+          <option value="Final">F – Final</option>
+          <option value="Top 4">T4 – Top 4</option>
+          <option value="Top 8">T8 – Top 8</option>
+          <option value="Round 16">R16 – Round 16</option>
+          <option value="Round 32">R32 – Round 32</option>
+          <option value="Round 64">R64 – Round 64</option>
+          <option value="Round 96">R96 – Round 96</option>
+          <option value="Round 128">R128 – Round 128</option>
+          <option value="Round 256">R256 – Round 256</option>
+        </select></div>
         <div class="action-row" style="margin-top:8px">
           <button class="btn btn-secondary" onclick="toggleCompAddForm()">Cancel</button>
           <button class="btn btn-primary" onclick="addCompetition()">Add Competition</button>
@@ -1314,6 +1325,21 @@ function selectDay(i){
 
 var crActiveCompId = null;
 
+// [value, display label] pairs for the Targeted Result dropdown, mirroring desktop's
+// TARGET_RESULT_OPTIONS (round-based, distinct from the medal/elimination Reported Result list).
+var TARGET_RESULT_OPTIONS = [
+  ['Final','F – Final'], ['Top 4','T4 – Top 4'], ['Top 8','T8 – Top 8'],
+  ['Round 16','R16 – Round 16'], ['Round 32','R32 – Round 32'], ['Round 64','R64 – Round 64'],
+  ['Round 96','R96 – Round 96'], ['Round 128','R128 – Round 128'], ['Round 256','R256 – Round 256']
+];
+function targetOptionsHtml(selected) {
+  var html = '<option value="">— Select —</option>';
+  TARGET_RESULT_OPTIONS.forEach(function(pair) {
+    html += '<option value="'+pair[0]+'"'+(selected===pair[0]?' selected':'')+'>'+pair[1]+'</option>';
+  });
+  return html;
+}
+
 function getWeekIdxFromOffset(offset) {
   // Get the Monday of the displayed week, then find which season week it falls in
   var mon = new Date();
@@ -1383,7 +1409,7 @@ function openCompResultSheet() {
   var sel = document.getElementById('cr-placement');
   var otherWrap = document.getElementById('cr-other-wrap');
   var otherInput = document.getElementById('cr-other');
-  var CR_OPTIONS = ['Gold','Silver','Bronze','4th place','5th-8th place','Did not place','Eliminated R1','Eliminated R2','Eliminated R3'];
+  var CR_OPTIONS = ['Final','Top 4','Top 8','Round 16','Round 32','Round 64','Round 96','Round 128','Round 256'];
   var result = comp.result || '';
   if (result && !CR_OPTIONS.includes(result)) {
     sel.value = 'other';
@@ -2545,7 +2571,7 @@ function renderCompetitionsList() {
         +'</div>'
         +'<div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:5px">IMPORTANCE</div>'
         +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">'+editPills+'</div>'
-        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">TARGET</div><input class="sf-input" style="padding:7px 9px;font-size:0.8rem" value="'+(c.target||'')+'" placeholder="e.g. Gold, Top 3" oninput="editCompFieldMob(\x27'+c.id+'\x27,\x27target\x27,this.value)"></div>'
+        +'<div><div style="font-family:var(--mono);font-size:0.65rem;color:var(--tl);margin-bottom:3px">TARGET</div><select class="sf-input" style="padding:7px 9px;font-size:0.8rem" onchange="editCompFieldMob(\x27'+c.id+'\x27,\x27target\x27,this.value)">'+targetOptionsHtml(c.target||'')+'</select></div>'
         +'</div></div>';
     }).join('');
   }

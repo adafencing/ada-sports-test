@@ -153,8 +153,12 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 .s-imp-cell{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.75rem;font-weight:800;letter-spacing:0.04em;border:1.5px solid currentColor;opacity:1;}
 .s-result-cell{height:34px;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:filter 0.12s;font-family:var(--mono);font-size:0.72rem;font-weight:700;letter-spacing:0.02em;text-align:center;padding:0 2px;overflow:hidden;white-space:nowrap;}
 .s-result-cell:hover{filter:brightness(1.1);}
-.s-result-cell.has-result{background:rgba(34,197,94,0.15);color:#15803d;border:1px solid rgba(34,197,94,0.3);}
+.s-result-cell.achieved{background:rgba(34,197,94,0.15);color:#15803d;border:1px solid rgba(34,197,94,0.3);}
+.s-result-cell.missed{background:rgba(239,68,68,0.15);color:#b91c1c;border:1px solid rgba(239,68,68,0.3);}
+.s-result-cell.unrated{background:rgba(100,116,139,0.15);color:#475569;border:1px solid rgba(100,116,139,0.3);}
 .s-result-cell.empty{background:var(--surface2);border:1px dashed var(--border);color:var(--muted);font-size:0.72rem;}
+.s-target-cell{height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.62rem;font-weight:700;letter-spacing:0.02em;background:var(--surface2);border:1px solid var(--border);color:var(--muted);overflow:hidden;white-space:nowrap;padding:0 2px;}
+.s-target-cell.has-target{background:rgba(59,130,246,0.12);color:#2563eb;border:1px solid rgba(59,130,246,0.3);}
 
 /* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(3px);}
@@ -301,6 +305,8 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 .mc-exercise-chip:hover{background:var(--surface3);color:var(--text);}
 .mc-tl-bar-wrap{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:4px;}
 .mc-tl-bar{height:100%;border-radius:3px;transition:width 0.4s ease;}
+.mc-vtl-bar-wrap{height:40px;display:flex;align-items:flex-end;justify-content:center;margin:4px 0;}
+.mc-vtl-bar{width:60%;border-radius:2px 2px 0 0;transition:height 0.3s ease;min-height:2px;}
 
 /* ── SESSION EDITOR ── */
 .sess-editor{width:620px;max-height:90vh;overflow-y:auto;}
@@ -659,15 +665,15 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
               <label>Result / Placement</label>
               <select class="modal-input" id="cr-placement" onchange="onCrPlacementChange()">
                 <option value="">— Select —</option>
-                <option value="Gold">Gold</option>
-                <option value="Silver">Silver</option>
-                <option value="Bronze">Bronze</option>
-                <option value="4th place">4th place</option>
-                <option value="5th-8th place">5th–8th place</option>
-                <option value="Did not place">Did not place</option>
-                <option value="Eliminated R1">Eliminated — Round 1</option>
-                <option value="Eliminated R2">Eliminated — Round 2</option>
-                <option value="Eliminated R3">Eliminated — Round 3</option>
+                <option value="Final">F – Final</option>
+                <option value="Top 4">T4 – Top 4</option>
+                <option value="Top 8">T8 – Top 8</option>
+                <option value="Round 16">R16 – Round 16</option>
+                <option value="Round 32">R32 – Round 32</option>
+                <option value="Round 64">R64 – Round 64</option>
+                <option value="Round 96">R96 – Round 96</option>
+                <option value="Round 128">R128 – Round 128</option>
+                <option value="Round 256">R256 – Round 256</option>
                 <option value="other">Other&#8230;</option>
               </select>
             </div>
@@ -711,7 +717,7 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             <!-- Step 2: Number of peaks -->
             <div class="wiz-panel" id="wiz-s2">
               <div class="wiz-section-title">Step 2 — Season Peaks</div>
-              <div class="wiz-section-sub">How many A-level competition peaks does your season have? Each peak gets its own full taper (Pre-Competitive phase). Equal priority between all peaks.</div>
+              <div class="wiz-section-sub">How many A-level competition peaks does your season have? Each peak gets its own full Taper phase. Equal priority between all peaks.</div>
               <div style="display:flex;gap:10px;margin-bottom:16px;">
                 <button class="wiz-peak-btn on" id="wiz-peak-1" onclick="wizSetPeaks(1)"><div class="wiz-peak-num">1</div><div class="wiz-peak-lbl">Single peak</div></button>
                 <button class="wiz-peak-btn" id="wiz-peak-2" onclick="wizSetPeaks(2)"><div class="wiz-peak-num">2</div><div class="wiz-peak-lbl">Double peak</div></button>
@@ -764,7 +770,9 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 
             <div id="comp-list"></div>
 
+            <button class="comp-add-toggle" id="comp-export-btn" style="display:none;color:var(--kgreen);border-color:var(--kgreen);" onclick="exportCompetitionsCSV()">&#8681; Export CSV</button>
             <button class="comp-add-toggle" id="comp-add-toggle" onclick="toggleCompAddForm()">+ Add Competition</button>
+            <button class="modal-btn-save" id="comp-confirm-btn" style="display:none;width:100%;margin-top:10px;" onclick="closeCompetitionsModalForce()">Confirm List</button>
             <div class="comp-add-form" id="comp-add-form">
               <div class="period-divider" style="margin:12px 0 14px;"></div>
               <div class="modal-field">
@@ -793,7 +801,18 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
               </div>
               <div class="modal-field">
                 <label>Targeted result</label>
-                <input class="modal-input" id="comp-target" type="text" placeholder="e.g. Top 3, Gold, Qualify for finals">
+                <select class="modal-input" id="comp-target">
+                  <option value="">— Select —</option>
+                  <option value="Final">F – Final</option>
+                  <option value="Top 4">T4 – Top 4</option>
+                  <option value="Top 8">T8 – Top 8</option>
+                  <option value="Round 16">R16 – Round 16</option>
+                  <option value="Round 32">R32 – Round 32</option>
+                  <option value="Round 64">R64 – Round 64</option>
+                  <option value="Round 96">R96 – Round 96</option>
+                  <option value="Round 128">R128 – Round 128</option>
+                  <option value="Round 256">R256 – Round 256</option>
+                </select>
               </div>
               <div class="modal-btns">
                 <button class="modal-btn-save" onclick="addCompetition()">Add Competition</button>
@@ -1193,7 +1212,7 @@ const phaseConfig = {
   off:     { label:'Off-season',             color:'#64748b' },
   prep:    { label:'General Prep',    color:'#3b82f6' },
   phys:    { label:'Specific Prep', color:'#8b5cf6' },
-  precomp: { label:'Pre-Competitive',   color:'#f59e0b' },
+  precomp: { label:'Taper',   color:'#f59e0b' },
   comp:    { label:'Competitive',       color:'#FF6F61' },
   trans:   { label:'Transition',          color:'#10b981' },
 };
@@ -1252,8 +1271,8 @@ const PHASE_GUIDANCE = {
     ], warning:'High overtraining risk! Monitor ACWR daily. Acute:chronic load ratio >1.5 requires immediate reduction.'
   },
   precomp: {
-    label:'Pre-Competitive Phase', color:'#f59e0b',
-    duration:'2–4 weeks',
+    label:'Taper Phase', color:'#f59e0b',
+    duration:'1–2 weeks',
     durationNote:'Tapering phase. Volume decreases, intensity stays high. Preparation for peak form.',
     objective:'Achieving competitive form. Reducing fatigue while maintaining fitness. Integration of tactics and system variants.',
     pillars:[
@@ -1313,6 +1332,37 @@ const COMPETITION_IMPORTANCE = {
 };
 
 const CAMP_COLOR = '#22c55e'; // green — distinct from competition coral
+
+// ── Generic CSV export utilities — reusable for any future export, not just competitions ──
+function rowsToCSV(headers, rows) {
+  const esc = v => {
+    const s = (v === null || v === undefined) ? '' : String(v);
+    return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const lines = [headers.map(esc).join(',')];
+  rows.forEach(row => lines.push(row.map(esc).join(',')));
+  return lines.join('\r\n');
+}
+function downloadCSV(filename, csvString) {
+  // Leading BOM so Excel reliably detects UTF-8 (accented location names, etc.)
+  const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportCompetitionsCSV() {
+  if (!competitions.length) return;
+  const headers = ['Title','Start Date','End Date','Location','Importance','Target','Result','Notes'];
+  const sorted = [...competitions].sort((a,b) => parseLocalDate(a.startDate) - parseLocalDate(b.startDate));
+  const rows = sorted.map(c => {
+    const imp = COMPETITION_IMPORTANCE[c.importance] || COMPETITION_IMPORTANCE[1];
+    return [c.title, c.startDate, c.endDate, c.location||'', imp.label, c.target||'', c.result||'', c.notes||''];
+  });
+  downloadCSV('competition-report.csv', rowsToCSV(headers, rows));
+}
 
 function computeCurrentWeek() {
   const diff = Date.now() - seasonStartDate.getTime();
@@ -1573,13 +1623,28 @@ function openCompetitionsModal() {
 function closeCompetitionsModal(e) {
   if (e && e.target.id !== 'comp-overlay') return;
   document.getElementById('comp-overlay').style.display = 'none';
+  if (document.getElementById('ap-overlay').style.display === 'flex') wizRender();
 }
 function closeCompetitionsModalForce() {
   document.getElementById('comp-overlay').style.display = 'none';
+  if (document.getElementById('ap-overlay').style.display === 'flex') wizRender();
+}
+
+// Confirm List should only show once there's something to confirm, and should hide while
+// the add-form is open, since submitting via "Add Competition" already closes that form.
+function updateCompConfirmBtnVisibility() {
+  const btn = document.getElementById('comp-confirm-btn');
+  const form = document.getElementById('comp-add-form');
+  if (!btn) return;
+  const formOpen = form && form.classList.contains('open');
+  btn.style.display = (competitions.length && !formOpen) ? 'block' : 'none';
 }
 
 function renderCompetitionsList() {
   const list = document.getElementById('comp-list');
+  updateCompConfirmBtnVisibility();
+  const exportBtn = document.getElementById('comp-export-btn');
+  if (exportBtn) exportBtn.style.display = competitions.length ? 'block' : 'none';
   if (!competitions.length) {
     list.innerHTML = `<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);padding:8px 2px;">No competitions added yet.</div>`;
   } else {
@@ -1617,7 +1682,10 @@ function renderCompetitionsList() {
           <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:5px">IMPORTANCE</div>
           <div class="comp-imp-pills">${pillsHtml}</div>
           <div style="margin-top:8px"><div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:4px">TARGET</div>
-            <input class="modal-input" style="font-size:0.82rem;padding:6px 9px" value="${c.target||''}" placeholder="e.g. Gold, Top 3" oninput="editCompField('${c.id}','target',this.value)">
+            <select class="modal-input" style="font-size:0.82rem;padding:6px 9px" onchange="editCompField('${c.id}','target',this.value)">
+              <option value="">— Select —</option>
+              ${TARGET_RESULT_OPTIONS.map(([v,l]) => `<option value="${v}" ${c.target===v?'selected':''}>${l}</option>`).join('')}
+            </select>
           </div>
         </div>
       </div>`;
@@ -1644,6 +1712,7 @@ function toggleCompAddForm() {
   const open = form.classList.toggle('open');
   btn.textContent = open ? '— Cancel' : '+ Add Competition';
   if (open) renderCompetitionsList();
+  updateCompConfirmBtnVisibility();
 }
 
 function selectCompImp(val) {
@@ -1854,25 +1923,43 @@ function renderSeason() {
   }
   html += `</div>`;
 
-  // ── Row 6: Result row (only for competition weeks) — click opens Competition Result modal ──
+  // ── Row 6: Target row (only for competition weeks) — shows the targeted result, if set ──
   html += `<div style="display:flex;margin-bottom:3px;">`;
   for (let w=0;w<NUM_WEEKS;w++) {
     const comp = getCompetitionForWeek(w);
     if (comp) {
-      const hasResult = !!comp.result;
-      const cls = hasResult ? 'has-result' : 'empty';
-      const txt = hasResult ? comp.result : '+ Result';
-      html += `<div class="s-result-cell ${cls}"
+      const hasTarget = !!comp.target;
+      const cls = hasTarget ? 'has-target' : '';
+      html += `<div class="s-target-cell ${cls}"
+        style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;"
+        title="${hasTarget ? 'Target: ' + comp.target : 'No target set'}">${hasTarget ? comp.target : ''}</div>`;
+    } else {
+      html += `<div style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;height:22px;"></div>`;
+    }
+  }
+  html += `</div>`;
+
+  // ── Row 7: Result row (only for competition weeks) — click opens Competition Result modal ──
+  html += `<div style="display:flex;margin-bottom:3px;">`;
+  for (let w=0;w<NUM_WEEKS;w++) {
+    const comp = getCompetitionForWeek(w);
+    if (comp) {
+      const outcome = getCompResultOutcome(comp);
+      const txt = comp.result || '+ Result';
+      const tip = comp.result
+        ? comp.result + (comp.target ? ' (target: ' + comp.target + ')' : '') + (comp.notes ? ' — ' + comp.notes : '')
+        : 'Add result';
+      html += `<div class="s-result-cell ${outcome}"
         style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;"
         onclick="openCompResultModal('${comp.id}')"
-        title="${hasResult ? comp.result + (comp.notes ? ' — ' + comp.notes : '') : 'Add result'}">${txt}</div>`;
+        title="${tip}">${txt}</div>`;
     } else {
       html += `<div style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;height:34px;"></div>`;
     }
   }
   html += `</div>`;
 
-  // ── Row 6: Microcycle navigation ──
+  // ── Row 8: Microcycle navigation ──
   html += `<div style="display:flex;">`;
   for (let w=0;w<NUM_WEEKS;w++) {
     html += `<div style="width:${CARD_W}px;flex-shrink:0;margin-right:${CARD_GAP}px;height:18px;display:flex;align-items:center;justify-content:center;">
@@ -1974,7 +2061,7 @@ function togglePeriodDropdown(e) {
     // Build phase list
     const phaseDurations = {
       off:'2-4 sed.', prep:'6-10 sed.', phys:'3-5 sed.',
-      precomp:'2-4 sed.', comp:'varijabilno', trans:'2-3 sed.'
+      precomp:'1-2 sed.', comp:'varijabilno', trans:'2-3 sed.'
     };
     document.getElementById('period-phase-list').innerHTML =
       Object.entries(phaseConfig).filter(([k]) => k !== 'none').map(([k, v]) =>
@@ -2105,7 +2192,28 @@ function openAddEventHint() {
 ════════════════════════════════════════════════ */
 let crActiveCompId = null;
 
-const CR_PLACEMENT_OPTIONS = ['Gold','Silver','Bronze','4th place','5th-8th place','Did not place','Eliminated R1','Eliminated R2','Eliminated R3'];
+const CR_PLACEMENT_OPTIONS = ['Final','Top 4','Top 8','Round 16','Round 32','Round 64','Round 96','Round 128','Round 256'];
+
+// [value, display label] pairs for the Targeted Result dropdown — Reported Result
+// (CR_PLACEMENT_OPTIONS) now uses the same round-based values so the two are comparable.
+const TARGET_RESULT_OPTIONS = [
+  ['Final','F – Final'], ['Top 4','T4 – Top 4'], ['Top 8','T8 – Top 8'],
+  ['Round 16','R16 – Round 16'], ['Round 32','R32 – Round 32'], ['Round 64','R64 – Round 64'],
+  ['Round 96','R96 – Round 96'], ['Round 128','R128 – Round 128'], ['Round 256','R256 – Round 256']
+];
+
+// Ranked best→worst (same order as TARGET_RESULT_OPTIONS) — compares a reported result
+// against its target. Custom "Other" values aren't in this list and can't be ranked, so
+// they render as 'unrated' rather than achieved/missed, same as when no target is set.
+const RESULT_RANK = TARGET_RESULT_OPTIONS.map(pair => pair[0]);
+function getCompResultOutcome(comp) {
+  if (!comp.result) return 'empty';
+  if (!comp.target) return 'unrated';
+  const ri = RESULT_RANK.indexOf(comp.result);
+  const ti = RESULT_RANK.indexOf(comp.target);
+  if (ri === -1 || ti === -1) return 'unrated';
+  return ri <= ti ? 'achieved' : 'missed';
+}
 
 function openCompResultModal(compId) {
   const c = competitions.find(x => x.id === compId);
@@ -2184,12 +2292,12 @@ var wizAEvents = [];   // array of competition IDs selected as A-events (in date
 var wizDurs = {};      // {offStart, prep, phys, precomp, trans, offEnd} for block 1; blocks 2+ omit prep
 var _wizPlan = [];     // computed phase array, length = actual season weeks
 
-var WIZ_DUR_DEFAULTS = { offStart:2, prep:8, phys:4, precomp:3, trans:2, offEnd:2 };
+var WIZ_DUR_DEFAULTS = { offStart:2, prep:8, phys:4, precomp:2, trans:2, offEnd:2 };
 var WIZ_DUR_RANGES   = {
   offStart:  { min:1, max:6,  rec:[2,4],   label:'Off-season (start)',    hint:'2–4 weeks recommended' },
   prep:      { min:4, max:16, rec:[6,10],  label:'General Preparation',   hint:'6–10 weeks recommended' },
   phys:      { min:2, max:8,  rec:[3,5],   label:'Specific Preparation',  hint:'3–5 weeks recommended' },
-  precomp:   { min:2, max:5,  rec:[2,4],   label:'Pre-Competitive (taper)',hint:'2–4 weeks recommended' },
+  precomp:   { min:1, max:2,  rec:[1,2],   label:'Taper',hint:'1–2 weeks recommended' },
   trans:     { min:1, max:4,  rec:[2,3],   label:'Transition',             hint:'2–3 weeks recommended' },
   offEnd:    { min:1, max:8,  rec:[2,4],   label:'Off-season (end)',       hint:'2–4 weeks recommended' },
 };
@@ -2374,7 +2482,14 @@ function wizRenderS3() {
 }
 
 function wizDurChange(key, val) {
-  wizDurs[key] = parseInt(val)||0;
+  var v = parseInt(val)||0;
+  // Taper duration is hard-capped, not just recommended — typing past it gets clamped back.
+  if (key === 'precomp' || key.indexOf('precomp_b') === 0) {
+    v = Math.max(1, Math.min(2, v));
+    var el = document.getElementById('wiz-dur-'+key);
+    if (el) el.value = v;
+  }
+  wizDurs[key] = v;
   wizValidateDurs();
 }
 
@@ -2426,34 +2541,43 @@ function wizComputePlan() {
     var phDur = bi===0 ? phys : (d['phys_b'+(bi+1)]||phys);
     var pcDur = bi===0 ? precomp : (d['precomp_b'+(bi+1)]||precomp);
 
-    // Specific Preparation — capped so phys+precomp cannot push past A-event
-    var physEnd = Math.min(w + phDur, aw - pcDur);
+    // Specific Preparation — the ramp toward this peak. For the first peak this follows
+    // General Prep; for later peaks it follows the previous peak's Transition (re-ramp).
+    // Capped so it never pushes past where this peak's own Taper window needs to start —
+    // the Taper window now ends WITH the A-event week itself (see below), so the reserved
+    // room is pcDur weeks counting backward from and including aw.
+    var physEnd = Math.min(w + phDur, aw - pcDur + 1);
     for (; w < physEnd && w < totalWeeks; w++) plan[w]='phys';
-    // Pre-Competitive — capped so precomp ends exactly at A-event week
-    var precompEnd = Math.min(w + pcDur, aw);
-    for (; w < precompEnd && w < totalWeeks; w++) plan[w]='precomp';
-    // Competitive — A-event week itself plus any gap left by shortened phases
-    while (w <= aw && w < totalWeeks) { plan[w]='comp'; w++; }
 
-    // Transition after A-event (except after last peak)
-    if (bi < aWeeks.length-1) {
-      var trDur = d['trans_b'+(bi+2)]||trans;
-      for (var i=0; i<trDur && w<totalWeeks; i++,w++) plan[w]='trans';
+    // Competitive gap between the ramp and this peak's Taper — only exists if the season
+    // calendar leaves room before the Taper window needs to start. Secondary/control
+    // competitions land here and are handled week-by-week (as deload weeks) by
+    // generateRecommendedPlan, not as a macro phase change.
+    var taperStart = Math.max(w, aw - pcDur + 1);
+    for (; w < taperStart && w < totalWeeks; w++) plan[w]='comp';
+
+    // Pre-Competitive/Taper — anchored to and INCLUDING this A-event's own week, so the
+    // week with the actual match is part of Taper (and gets Taper's reduced-load template)
+    // rather than reverting to a regular full-load Competitive week.
+    for (; w <= aw && w < totalWeeks; w++) plan[w]='precomp';
+
+    // Trailing competitions after this peak, before its Transition — only relevant for the
+    // last peak's block, since intermediate blocks re-ramp straight into the next peak.
+    if (bi === aWeeks.length-1) {
+      var lastCompWeek = aw;
+      competitions.forEach(function(c) {
+        var cw = dateToWeek(c.startDate);
+        if (cw > lastCompWeek) lastCompWeek = cw;
+      });
+      while (w <= lastCompWeek && w < totalWeeks) { plan[w]='comp'; w++; }
     }
+
+    // Transition after every peak, including the last — base `trans` duration for the
+    // final peak (no further block to size it), per-block trans_b for intermediate ones.
+    var trDur = (bi < aWeeks.length-1) ? (d['trans_b'+(bi+2)]||trans) : trans;
+    for (var i=0; i<trDur && w<totalWeeks; i++,w++) plan[w]='trans';
   }
 
-  // Find the last competition of any kind in the calendar
-  var lastCompWeek = aWeeks[aWeeks.length-1];
-  competitions.forEach(function(c) {
-    var cw = dateToWeek(c.startDate);
-    if (cw > lastCompWeek) lastCompWeek = cw;
-  });
-
-  // Fill Competitive up to and including last competition week
-  while (w <= lastCompWeek && w < totalWeeks) { plan[w]='comp'; w++; }
-
-  // Transition immediately after last competition → Off-end
-  for (var i=0; i<trans && w<totalWeeks; i++,w++) plan[w]='trans';
   for (var i=0; i<offEnd && w<totalWeeks; i++,w++) plan[w]='off';
 
   _wizPlan = plan;
@@ -2613,7 +2737,7 @@ function closeGuidancePanel() { document.getElementById('guidance-panel').classL
 ════════════════════════════════════════════════ */
 function confirmResetSeason() {
   if (!confirm('Start a new season? This will clear all phases, events, the match calendar and all weekly training plans.')) return;
-  weekPhases  = {};
+  weekPhases  = Array(NUM_WEEKS).fill('none');
   weekEvents  = {};
   competitions = [];
   camps = [];
@@ -2708,29 +2832,42 @@ const PHASE_LOAD_TARGETS = {
 const PHASE_WEEKLY_TEMPLATES = {
   // Off-season: passive rest, no structured training
   off:     {Mon:[{type:'rest'}],Tue:[{type:'rest'}],Wed:[{type:'rest'}],Thu:[{type:'rest'}],Fri:[{type:'rest'}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
-  // General Preparation: aerobic base + general strength; light technical to maintain skill
-  // Bompa & Buzzichelli (2019): high volume, moderate intensity; 5–6 sessions
-  prep:    {Mon:[{type:'conditioning',dur:50,rpe:6}],Tue:[{type:'strength',dur:60,rpe:7}],Wed:[{type:'technical',dur:75,rpe:5}],Thu:[{type:'conditioning',dur:50,rpe:6}],Fri:[{type:'strength',dur:60,rpe:7}],Sat:[{type:'technical',dur:75,rpe:6}],Sun:[{type:'rest'}]},
-  // Specific Preparation: sport-specific conditioning + technical volume + sparring training introduced
-  // Turner (2011): shift from general to specific; ACWR target 1.0–1.3
-  phys:    {Mon:[{type:'strength',dur:60,rpe:8}],Tue:[{type:'technical',dur:75,rpe:7}],Wed:[{type:'sparring',dur:75,rpe:8}],Thu:[{type:'conditioning',dur:45,rpe:7}],Fri:[{type:'technical',dur:75,rpe:7}],Sat:[{type:'sparring',dur:75,rpe:8}],Sun:[{type:'recovery',dur:40,rpe:2}]},
-  // Pre-Competitive (taper): sharp volume reduction, maintain intensity; technical sharpening
-  // Mujika et al. (2004): exponential taper; reduce volume 40–60%, keep intensity
-  precomp: {Mon:[{type:'technical',dur:60,rpe:7}],Tue:[{type:'sparring',dur:60,rpe:8}],Wed:[{type:'tactical',dur:60,rpe:6}],Thu:[{type:'recovery',dur:40,rpe:2}],Fri:[{type:'technical',dur:45,rpe:7}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
-  // Competitive: competition day Saturday; activation Friday, recovery Sunday; minimal load
-  // Franchini et al. (2011): preserve peak form; limit fatigue accumulation
-  comp:    {Mon:[{type:'recovery',dur:40,rpe:2}],Tue:[{type:'technical',dur:60,rpe:6}],Wed:[{type:'sparring',dur:60,rpe:7}],Thu:[{type:'tactical',dur:45,rpe:5}],Fri:[{type:'technical',dur:30,rpe:5}],Sat:[{type:'competition',dur:120,rpe:10}],Sun:[{type:'recovery',dur:40,rpe:2}]},
+  // General Preparation: Milišić weekly microcycle — Mon efficiency/technique (fresh, non-
+  // fatiguing), Tue+Fri "shock"/peak loading 3 days apart for supercompensation (GPP's peak
+  // driver is general strength), Wed+Sat aerobic, Thu active rest, Sun full rest.
+  prep:    {Mon:[{type:'technical',dur:45,rpe:5}],Tue:[{type:'strength',dur:60,rpe:8}],Wed:[{type:'conditioning',dur:50,rpe:5}],Thu:[{type:'recovery',dur:35,rpe:2}],Fri:[{type:'strength',dur:60,rpe:8}],Sat:[{type:'conditioning',dur:50,rpe:5}],Sun:[{type:'rest'}]},
+  // Specific Preparation: same Milišić skeleton — peak load shifts from general strength to
+  // sparring, introducing sport-specific confrontation intensity.
+  phys:    {Mon:[{type:'technical',dur:50,rpe:5}],Tue:[{type:'sparring',dur:75,rpe:8}],Wed:[{type:'conditioning',dur:45,rpe:5}],Thu:[{type:'recovery',dur:35,rpe:2}],Fri:[{type:'sparring',dur:75,rpe:8}],Sat:[{type:'conditioning',dur:45,rpe:5}],Sun:[{type:'rest'}]},
+  // Taper: Milišić skeleton with only one peak (Tue) — Fri's second peak stays dropped for
+  // the whole phase, since Taper only exists in the run-up to an A-event and now extends
+  // through and including the A-event's own week (see wizComputePlan), unlike Competitive's
+  // bye weeks. Volume is scaled down by the progressive taper factor below.
+  precomp: {Mon:[{type:'technical',dur:40,rpe:6}],Tue:[{type:'sparring',dur:60,rpe:8}],Wed:[{type:'conditioning',dur:35,rpe:5}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'technical',dur:40,rpe:6}],Sat:[{type:'conditioning',dur:35,rpe:5}],Sun:[{type:'rest'}]},
+  // Competitive: Milišić skeleton with Fri's second peak restored (sparring) — Competitive
+  // never contains the A-event itself (that week is Taper, see wizComputePlan), only bye
+  // weeks and minor/control competitions, so it isn't capped at one peak. A minor competition
+  // week drops to the deload template instead (see generateRecommendedPlan) rather than
+  // losing just Friday. Sat defaults to the regular conditioning slot (bye weeks just run the
+  // two-peak pattern) — a real match on Sat still overrides this via the tournamentDays check
+  // above, regardless of what the template says here. Sunday stays active recovery rather than
+  // full rest, given a match's fatigue load when one occurred — Franchini et al. (2011).
+  comp:    {Mon:[{type:'technical',dur:45,rpe:5}],Tue:[{type:'sparring',dur:75,rpe:8}],Wed:[{type:'conditioning',dur:40,rpe:5}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'sparring',dur:75,rpe:8}],Sat:[{type:'conditioning',dur:40,rpe:5}],Sun:[{type:'recovery',dur:40,rpe:2}]},
   // Transition: active recovery; cross-training; no high-intensity sparring work; restore motivation
   // Bompa (2019): 2–3 weeks; prevent detraining without accumulated fatigue
   trans:   {Mon:[{type:'conditioning',dur:35,rpe:4}],Tue:[{type:'recovery',dur:40,rpe:2}],Wed:[{type:'technical',dur:50,rpe:4}],Thu:[{type:'rest'}],Fri:[{type:'conditioning',dur:35,rpe:4}],Sat:[{type:'recovery',dur:40,rpe:2}],Sun:[{type:'rest'}]},
 };
 
-// Reduced-volume variants for the 3-load:1-deload cadence — only Prep and Specific Prep
-// carry sustained enough weekly load to need a scheduled deload week (see
-// countConsecutivePhaseWeeks / generateRecommendedPlan).
+// Reduced-volume variants for the 3-load:1-deload cadence — Prep and Specific Prep use this
+// on their 4th consecutive week (see countConsecutivePhaseWeeks / generateRecommendedPlan).
+// Competitive uses this instead whenever a week carries a registered competition that is NOT
+// the phase-defining A-event — a minor/control competition still deserves an unloaded week,
+// just not a multi-week Taper. Per Milišić, a deload week keeps only ONE peak (Tue) — Fri's
+// second peak is dropped in favor of light technical work.
 const PHASE_WEEKLY_TEMPLATES_DELOAD = {
-  prep: {Mon:[{type:'conditioning',dur:35,rpe:4}],Tue:[{type:'strength',dur:40,rpe:5}],Wed:[{type:'technical',dur:45,rpe:4}],Thu:[{type:'recovery',dur:35,rpe:2}],Fri:[{type:'strength',dur:40,rpe:5}],Sat:[{type:'technical',dur:45,rpe:4}],Sun:[{type:'rest'}]},
-  phys: {Mon:[{type:'strength',dur:40,rpe:5}],Tue:[{type:'technical',dur:45,rpe:5}],Wed:[{type:'recovery',dur:35,rpe:2}],Thu:[{type:'conditioning',dur:30,rpe:5}],Fri:[{type:'technical',dur:45,rpe:5}],Sat:[{type:'sparring',dur:40,rpe:5}],Sun:[{type:'recovery',dur:35,rpe:2}]},
+  prep: {Mon:[{type:'technical',dur:30,rpe:4}],Tue:[{type:'strength',dur:40,rpe:5}],Wed:[{type:'conditioning',dur:30,rpe:4}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'technical',dur:30,rpe:4}],Sat:[{type:'conditioning',dur:30,rpe:4}],Sun:[{type:'rest'}]},
+  phys: {Mon:[{type:'technical',dur:35,rpe:4}],Tue:[{type:'sparring',dur:40,rpe:5}],Wed:[{type:'conditioning',dur:30,rpe:4}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'technical',dur:35,rpe:4}],Sat:[{type:'conditioning',dur:30,rpe:4}],Sun:[{type:'rest'}]},
+  comp: {Mon:[{type:'technical',dur:30,rpe:4}],Tue:[{type:'sparring',dur:40,rpe:5}],Wed:[{type:'conditioning',dur:30,rpe:4}],Thu:[{type:'recovery',dur:30,rpe:2}],Fri:[{type:'technical',dur:30,rpe:4}],Sat:[{type:'conditioning',dur:30,rpe:4}],Sun:[{type:'recovery',dur:40,rpe:2}]},
 };
 
 const EXERCISE_REC = {
@@ -2783,17 +2920,62 @@ function countConsecutivePhaseWeeks(weekIdx) {
   return count;
 }
 
+// How many consecutive weeks remain (including this one) before the phase changes —
+// used to position a week within the Pre-Competitive taper relative to the upcoming
+// A-event, so volume can decay progressively as competition approaches.
+function countPhaseWeeksRemaining(weekIdx) {
+  const phase = weekPhases[weekIdx];
+  let count = 1, w = weekIdx + 1;
+  while (w < weekPhases.length && weekPhases[w] === phase) { count++; w++; }
+  return count;
+}
+
+// Whether any registered competition falls on any day of the given week.
+function weekHasCompetition(weekIdx) {
+  const weekStart = getWeekStartDate(weekIdx);
+  return DAYS.some((d, i) => {
+    const dayDate = new Date(weekStart); dayDate.setDate(dayDate.getDate() + i);
+    return !!getCompetitionForDate(dayDate);
+  });
+}
+
+// How many consecutive Competitive-phase weeks with NO registered competition (including
+// this one) have passed — used to trigger a deload week every 4th such "bye" week, the same
+// 3-load:1-deload cadence Prep/Specific Prep use, counted only over weeks with nothing to
+// prepare for. Resets at any competition (minor or major) or phase boundary.
+function countConsecutiveByeWeeks(weekIdx) {
+  let count = 1, w = weekIdx - 1;
+  while (w >= 0 && weekPhases[w] === 'comp' && !weekHasCompetition(w)) { count++; w--; }
+  return count;
+}
+
+// Deload/Taper indicator — small badge shown beside the phase label so coaches can see at a
+// glance when a week carries reduced load, using the same phase-position logic that drives
+// generateRecommendedPlan (deload cadence, taper week count).
+function getMicroPhaseBadge(weekIdx) {
+  const phase = weekPhases[weekIdx];
+  if ((phase === 'prep' || phase === 'phys') && countConsecutivePhaseWeeks(weekIdx) % 4 === 0) {
+    return ' <span class="gp-phase-badge" style="background:#94a3b822;color:#64748b;border:1px solid #94a3b844;">Deload</span>';
+  }
+  if (phase === 'precomp') {
+    const pos = countConsecutivePhaseWeeks(weekIdx);
+    const total = pos + countPhaseWeeksRemaining(weekIdx) - 1;
+    return ` <span class="gp-phase-badge" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44;">Taper ${pos}/${total}</span>`;
+  }
+  if (phase === 'comp') {
+    const hasCompetition = weekHasCompetition(weekIdx);
+    if (hasCompetition || countConsecutiveByeWeeks(weekIdx) % 4 === 0) {
+      return ' <span class="gp-phase-badge" style="background:#94a3b822;color:#64748b;border:1px solid #94a3b844;">Deload</span>';
+    }
+  }
+  return '';
+}
+
 function generateRecommendedPlan(weekIdx) {
   const phase = weekPhases[weekIdx];
   if (!phase || phase === 'none') {
     const empty = {}; DAYS.forEach(d => { empty[d] = [{id:'rest',type:'rest',duration:0,rpe:0,label:'',recommended:false}]; }); return empty;
   }
-  // Deload cadence: every 4th consecutive week in Prep/Specific Prep drops to the
-  // reduced-volume template — the two phases with sustained enough weekly load to need it.
-  const consecutiveWeeks = countConsecutivePhaseWeeks(weekIdx);
-  const isDeload = (phase === 'prep' || phase === 'phys') && consecutiveWeeks % 4 === 0;
-  const template = (isDeload && PHASE_WEEKLY_TEMPLATES_DELOAD[phase]) || PHASE_WEEKLY_TEMPLATES[phase] || PHASE_WEEKLY_TEMPLATES['prep'];
-
   // Multi-day tournament handling: detect every day this week that falls inside a
   // registered Competition's date range and treat each one as a match/competition day,
   // not just the template's single default Saturday slot.
@@ -2805,6 +2987,28 @@ function generateRecommendedPlan(weekIdx) {
     if (comp) tournamentDays[d] = comp;
   });
   const tournamentDayCount = Object.keys(tournamentDays).length;
+
+  // Deload cadence: every 4th consecutive week in Prep/Specific Prep drops to the
+  // reduced-volume template. In Competitive, a week carrying a registered minor competition
+  // also drops to the reduced-volume template — a minor/control competition still deserves
+  // an unloaded week, just not a multi-week Taper (the A-event itself is never tagged
+  // Competitive — see wizComputePlan — so this only ever catches minor competitions). A
+  // Competitive week with NO competition at all follows the same 4th-week cadence as
+  // Prep/Specific Prep, counted over consecutive bye weeks.
+  const consecutiveWeeks = countConsecutivePhaseWeeks(weekIdx);
+  const isDeload = ((phase === 'prep' || phase === 'phys') && consecutiveWeeks % 4 === 0)
+    || (phase === 'comp' && tournamentDayCount > 0)
+    || (phase === 'comp' && tournamentDayCount === 0 && countConsecutiveByeWeeks(weekIdx) % 4 === 0);
+  const template = (isDeload && PHASE_WEEKLY_TEMPLATES_DELOAD[phase]) || PHASE_WEEKLY_TEMPLATES[phase] || PHASE_WEEKLY_TEMPLATES['prep'];
+
+  // Progressive taper: Mujika-style exponential decay — volume shrinks the closer a
+  // Pre-Competitive week sits to the upcoming A-event, while intensity (rpe) is kept
+  // as prescribed. Only applies to load-bearing session types, not rest/recovery.
+  const taperWeeksRemaining = phase === 'precomp' ? countPhaseWeeksRemaining(weekIdx) : null;
+  const taperFactor = taperWeeksRemaining === 1 ? 0.55
+    : taperWeeksRemaining === 2 ? 0.70
+    : taperWeeksRemaining === 3 ? 0.85
+    : 1.0;
 
   const plan = {};
   DAYS.forEach((d, i) => {
@@ -2823,7 +3027,11 @@ function generateRecommendedPlan(weekIdx) {
     const tpl = template[d] || [{type:'rest'}];
     plan[d] = tpl.map(t => {
       const st = getSessionType(t.type);
-      return {id: Math.random().toString(36).substr(2,6), type:t.type, duration:t.dur||st.dur, rpe:t.rpe||st.rpe, label:'', recommended:true};
+      let duration = t.dur||st.dur;
+      if (phase === 'precomp' && t.type !== 'rest' && t.type !== 'recovery') {
+        duration = Math.round((duration * taperFactor) / 5) * 5;
+      }
+      return {id: Math.random().toString(36).substr(2,6), type:t.type, duration:duration, rpe:t.rpe||st.rpe, label:'', recommended:true};
     });
   });
 
@@ -2869,7 +3077,7 @@ function renderMicro() {
   if(!timDataLoaded && !_timCheckinsLoading) loadTimCheckinsForMicro();
   document.getElementById('micro-week-label').textContent = `W${w+1}`;
   document.getElementById('micro-phase-subtitle').innerHTML =
-    `${getWeekDateLabel(w)} &nbsp;·&nbsp; <span style="color:${pc.color};font-weight:700;">${pc.label}</span>${weekEvents[w] ? ' &nbsp;·&nbsp; ' + weekEvents[w].label : ''}`;
+    `${getWeekDateLabel(w)} &nbsp;·&nbsp; <span style="color:${pc.color};font-weight:700;">${pc.label}</span>${getMicroPhaseBadge(w)}${weekEvents[w] ? ' &nbsp;·&nbsp; ' + weekEvents[w].label : ''}`;
 
   // Competition / Camp banners — shows if this week is part of a registered event
   const comp = getCompetitionForWeek(w);
@@ -3009,9 +3217,11 @@ function renderMicro() {
   const totalTL = dailyTL.reduce((s,v) => s+v, 0);
 
   document.getElementById('mc-tl-row').innerHTML = dailyTL.map((dayTL, i) => {
-    const tlC = dayTL > 700 ? 'var(--red)' : dayTL > 400 ? 'var(--amber)' : dayTL > 0 ? 'var(--coral)' : 'var(--muted)';
+    const tlC = dayTL > 700 ? 'var(--red)' : dayTL > 400 ? 'var(--amber)' : dayTL > 0 ? 'var(--green)' : 'var(--muted)';
+    const barPct = dayTL > 0 ? Math.max(4, Math.min(100, (dayTL/700)*100)) : 0;
     return `<div class="mc-day-tl">
       <div style="font-family:var(--mono);font-size:0.78rem;font-weight:700;color:${tlC};">${dayTL || '—'}</div>
+      <div class="mc-vtl-bar-wrap"><div class="mc-vtl-bar" style="height:${barPct}%;background:${tlC};"></div></div>
       <div style="font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">${DAYS[i]}</div>
     </div>`;
   }).join('');
@@ -3105,8 +3315,10 @@ async function renderReportedTL(weekIdx) {
     const avg  = count > 0 ? Math.round(sum/count) : null;
     const comp = count + '/' + totalAthletes;
     const avgC = !avg?'var(--muted)':avg>700?'var(--red)':avg>400?'var(--amber)':'#22c55e';
+    const barPct = avg ? Math.max(4, Math.min(100, (avg/700)*100)) : 0;
     return `<div class="mc-reported-cell">
       <div style="font-family:var(--mono);font-size:0.78rem;font-weight:700;color:${avgC};">${avg??'—'}</div>
+      <div class="mc-vtl-bar-wrap"><div class="mc-vtl-bar" style="height:${barPct}%;background:${avgC};"></div></div>
       <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);">${comp}</div>
     </div>`;
   }).join('');
@@ -4333,10 +4545,9 @@ function closeTimDetail(){}
 
 /* ── Welcome / Onboarding Modal ── */
 var _welcomeStep = 1;
-var _WELCOME_KEY = 'ada:onboarded_v1';
 
 function welcomeShow() {
-  if (localStorage.getItem(_WELCOME_KEY)) return;
+  if (window.ADA_USER && window.ADA_USER.onboarded) return;
   _welcomeStep = 1;
   welcomeRender();
   document.getElementById('welcome-overlay').classList.add('open');
@@ -4344,7 +4555,12 @@ function welcomeShow() {
 
 function welcomeClose() {
   document.getElementById('welcome-overlay').classList.remove('open');
-  localStorage.setItem(_WELCOME_KEY, '1');
+  if (window.ADA_USER && window.db && window.ADA_USER.uid) {
+    window.ADA_USER.onboarded = true; // don't re-show later this same session
+    window.db.collection('users').doc(window.ADA_USER.uid)
+      .set({ onboarded: true }, { merge: true })
+      .catch(function(e){ console.error('Failed to save onboarded flag:', e); });
+  }
 }
 
 function welcomeNext() {
@@ -4363,13 +4579,11 @@ function welcomeRender() {
   });
 }
 
-// Trigger: show after ada:ready if no season doc exists (new user)
+// Trigger: show after ada:ready if the account hasn't seen onboarding yet
 window.addEventListener('ada:ready', function() {
   // Defer until after season Firestore load has had time to resolve
   setTimeout(function() {
-    if (!localStorage.getItem(_WELCOME_KEY)) {
-      welcomeShow();
-    }
+    welcomeShow();
   }, 800);
 }, { once: true });
 

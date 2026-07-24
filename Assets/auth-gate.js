@@ -93,7 +93,11 @@
         discipline: ud.discipline || null,
         coachRole:  ud.coachRole  || null,
         inviteCode: ud.inviteCode  || null,
-        coachId:    ud.coachId     || null
+        coachId:    ud.coachId     || null,
+        // Per-account onboarding flag (Firestore-backed, NOT localStorage —
+        // a browser-local flag would incorrectly apply to every account that
+        // ever signs in on that browser, not just the one that dismissed it)
+        onboarded:  ud.onboarded === true
       };
 
       // Expose db globally (coach-desktop.html uses window.db)
