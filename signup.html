@@ -391,6 +391,9 @@ function togglePw(id, btn){
           discipline: athleteDisc,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
+        if (coachLink) {
+          athleteDoc.inviteCode = codeVal;
+        }
 
         await db.collection('users').doc(uid).set(athleteDoc);
 
