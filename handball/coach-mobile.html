@@ -232,6 +232,23 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 .pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:1px}
 .pri-a{background:#F59E0B}.pri-b{background:#3B82F6}.pri-c{background:var(--s3)}
 .add-match-btn{width:100%;padding:11px;border-radius:10px;border:1.5px dashed var(--bdr2);background:transparent;font-family:var(--mono);font-size:0.72rem;color:var(--tl);cursor:pointer;transition:all 0.12s;text-align:center}
+.stat-btn{font-family:var(--sans);font-size:0.72rem;font-weight:800;padding:6px 12px;border-radius:8px;border:1.5px solid var(--teal);background:var(--teal);color:#fff;white-space:nowrap}
+.stats-subtab-bar-m{display:flex;gap:6px;margin-bottom:2px}
+.stats-subtab-m{flex:1;text-align:center;padding:9px 0;border-radius:9px;border:1.5px solid var(--bdr2);font-family:var(--sans);font-size:0.82rem;font-weight:700;color:var(--tl);background:#fff;cursor:pointer}
+.stats-subtab-m.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.stat-card{background:#fff;border:1px solid var(--bdr2);border-radius:11px;padding:10px 12px}
+.stat-card-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.stat-card-name{flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid var(--bdr2);font-family:var(--sans);font-size:0.86rem;background:#fff;outline:none}
+.stat-card-del{width:28px;height:28px;border-radius:7px;border:1px solid var(--bdr2);background:var(--s1);color:var(--tl);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-field{display:flex;flex-direction:column;gap:4px;align-items:center}
+.stat-field-lbl{font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.02em;color:var(--tl);text-align:center}
+.stat-mini-wrap{display:flex;align-items:center;justify-content:center;gap:2px}
+.stat-mini-input{width:34px;text-align:center;padding:6px 0;border-radius:7px;border:1.5px solid var(--bdr2);font-family:var(--mono);font-size:1rem;font-weight:800;background:var(--bg);color:var(--tx);outline:none}
+.stat-mini-slash{color:var(--tl);font-size:0.82rem;font-weight:700}
+.stats-total-card{background:var(--s1);border:1px solid var(--bdr2);border-radius:11px;padding:10px 12px;font-family:var(--mono);font-size:0.76rem;color:var(--tm);cursor:pointer}
+.stats-total-card:active{background:var(--s2)}
+.stats-total-card b{color:var(--tx)}
 .add-match-btn:hover{border-color:rgba(22,101,52,0.3);color:var(--teal)}
 .add-match-btn:active{transform:scale(0.98)}
 /* ── SEASON TIMELINE ── */
@@ -605,6 +622,41 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
     </div>
   </div>
 
+  <!-- MATCH STATS OVERLAY -->
+  <div class="overlay" id="stats-overlay">
+    <div class="ov-topbar">
+      <div class="ov-back" onclick="closeOverlay('stats-overlay')">←</div>
+      <div style="flex:1">
+        <div style="font-size:0.88rem;font-weight:800" id="ov-stats-title">Match Stats</div>
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--tl);margin-top:1px" id="ov-stats-date"></div>
+      </div>
+    </div>
+    <div class="ov-scroll">
+      <div class="stats-subtab-bar-m">
+        <div class="stats-subtab-m on" id="stats-subtab-field-m" onclick="switchStatsSubtab('field')">Field players</div>
+        <div class="stats-subtab-m" id="stats-subtab-gk-m" onclick="switchStatsSubtab('gk')">Goalkeepers</div>
+      </div>
+      <div id="stats-cards"></div>
+      <div class="sf-row" style="margin-top:2px">
+        <select class="sf-input" id="stats-roster-picker-m" onchange="addStatsRosterPlayer(this.value)">
+          <option value="">+ Add from roster…</option>
+        </select>
+      </div>
+      <button class="add-match-btn" onclick="addStatsRow()">+ Add manually</button>
+      <div id="stats-total-card" class="stats-total-card" style="margin-top:4px" onclick="openStatsTotalModal()"></div>
+      <div style="height:4px"></div>
+      <button class="btn-full" onclick="saveMatchStats()">Save Stats</button>
+    </div>
+  </div>
+
+  <!-- MATCH TOTALS BREAKDOWN MODAL -->
+  <div class="modal-bg" id="stats-total-modal" onclick="if(event.target===this)closeModal('stats-total-modal')">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" style="margin-bottom:14px">Match totals</div>
+      <div id="stats-total-modal-body"></div>
+    </div>
+  </div>
 
   <!-- COMPETITION MODAL -->
   <div class="modal-bg" id="comp-overlay" onclick="if(event.target===this)closeCampsModal()">
@@ -739,6 +791,9 @@ var seasonConfigured = false; // true only once a real season doc with startDate
 var athletes = [];
 var sessions = {};  // keyed by ISO date — local weekly plan cache
 var matches  = [];  // matchCalendar — synced with Firestore seasons/{orgId}.matchCalendar
+var matchStats = {}; // matchId → { field: [...], gk: [...] } — synced with seasons/{orgId}.matchStats
+var statsCurrentMatchId = null;
+var statsActiveTab = 'field';
 var editingMatchId = null;
 
 /* ═══════════════════════════════════════
@@ -2447,6 +2502,7 @@ function loadSeasonFromSnap(d) {
   if (d.competitions)   competitions    = d.competitions || [];
   if (d.camps)          camps           = d.camps        || [];
   if (d.matchCalendar)  matches         = d.matchCalendar || [];
+  if (d.matchStats)     matchStats      = d.matchStats    || {};
   syncCompetitionEvents();
   syncCampEvents();
   syncMatchEvents();
@@ -3020,6 +3076,236 @@ function saveMatches() {
   });
 }
 
+/* ════════════════════════════════════════
+   MATCH STATS — Firestore-backed (seasons/{orgId}.matchStats)
+════════════════════════════════════════ */
+function statsFieldNewRow(athleteId, name) {
+  return { athleteId: athleteId||null, name: name||'', m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0}, techErr:0, blocks:0, oneVOne:0, assist:0, twoMin:0, penDrawn:0 };
+}
+function statsGkNewRow(athleteId, name) {
+  return { athleteId: athleteId||null, name: name||'', m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0}, thrown:0, intercepted:0 };
+}
+
+function openMatchStats(matchId) {
+  var m = matches.find(function(x){ return x.id === matchId; });
+  if (!m) return;
+  statsCurrentMatchId = matchId;
+  statsActiveTab = 'field';
+  document.getElementById('ov-stats-title').textContent = 'vs. ' + (m.opponent || 'Opponent');
+  document.getElementById('ov-stats-date').textContent = m.date;
+  document.getElementById('stats-subtab-field-m').classList.add('on');
+  document.getElementById('stats-subtab-gk-m').classList.remove('on');
+  ensureStatsMatchEntry(matchId);
+  renderStatsOverlay();
+  document.getElementById('stats-overlay').classList.add('open');
+}
+
+function ensureStatsMatchEntry(matchId) {
+  if (!matchStats[matchId]) matchStats[matchId] = { field: [], gk: [] };
+  if (!matchStats[matchId].field) matchStats[matchId].field = [];
+  if (!matchStats[matchId].gk) matchStats[matchId].gk = [];
+  // First time this match is opened, seed rows from the roster (field vs. goalkeeper
+  // split by a best-effort match on the athlete's position text). Coach can still
+  // add/remove/rename rows manually afterward.
+  if (matchStats[matchId].field.length === 0 && matchStats[matchId].gk.length === 0 && athletes.length) {
+    matchStats[matchId].field = athletes
+      .filter(function(a){ return !/keeper|golman|\bgk\b/i.test(a.position||''); })
+      .map(function(a){ return statsFieldNewRow(a.id, a.name||a.displayName||''); });
+    matchStats[matchId].gk = athletes
+      .filter(function(a){ return /keeper|golman|\bgk\b/i.test(a.position||''); })
+      .map(function(a){ return statsGkNewRow(a.id, a.name||a.displayName||''); });
+  }
+}
+
+function switchStatsSubtab(tab) {
+  statsActiveTab = tab;
+  document.getElementById('stats-subtab-field-m').classList.toggle('on', tab==='field');
+  document.getElementById('stats-subtab-gk-m').classList.toggle('on', tab==='gk');
+  renderStatsOverlay();
+}
+
+function statsMiniInput(idx, field, val, label) {
+  return '<div class="stat-field"><div class="stat-field-lbl">'+label+'</div>'
+    + '<div class="stat-mini-wrap">'
+    + '<input class="stat-mini-input" type="number" min="0" value="'+val.m+'" onchange="updateStatsMA('+idx+',\''+field+'\',\'m\',this.value)">'
+    + '<span class="stat-mini-slash">/</span>'
+    + '<input class="stat-mini-input" type="number" min="0" value="'+val.a+'" onchange="updateStatsMA('+idx+',\''+field+'\',\'a\',this.value)">'
+    + '</div></div>';
+}
+
+function statsNumField(idx, field, val, label) {
+  return '<div class="stat-field"><div class="stat-field-lbl">'+label+'</div>'
+    + '<input class="stat-mini-input" type="number" min="0" value="'+val+'" onchange="updateStatsNum('+idx+',\''+field+'\',this.value)">'
+    + '</div>';
+}
+
+function renderStatsOverlay() {
+  var matchId = statsCurrentMatchId;
+  if (!matchId || !matchStats[matchId]) return;
+  var rows = matchStats[matchId][statsActiveTab] || [];
+  var isGk = statsActiveTab === 'gk';
+  var cardsEl = document.getElementById('stats-cards');
+  if (!cardsEl) return;
+  cardsEl.innerHTML = rows.map(function(r, i) {
+    var conceded = (Number(r.m9.m)||0)+(Number(r.m7.m)||0)+(Number(r.m6.m)||0)+(Number(r.kn.m)||0);
+    var fields = statsMiniInput(i,'m9',r.m9,'9m')
+      + statsMiniInput(i,'m7',r.m7,'7m')
+      + statsMiniInput(i,'m6',r.m6,'6m')
+      + statsMiniInput(i,'kn',r.kn,'Counter')
+      + (isGk
+          ? statsNumField(i,'thrown',r.thrown,'CA pass')
+            + statsNumField(i,'intercepted',r.intercepted,'Intercept')
+            + '<div class="stat-field"><div class="stat-field-lbl">Conceded</div><div class="stat-mini-input" style="color:var(--tl);border-style:dashed">'+conceded+'</div></div>'
+          : statsNumField(i,'techErr',r.techErr,'Tech err')
+            + statsNumField(i,'blocks',r.blocks,'Blocks')
+            + statsNumField(i,'oneVOne',r.oneVOne,'1v1')
+            + statsNumField(i,'assist',r.assist,'Assist')
+            + statsNumField(i,'twoMin',r.twoMin,'2 min')
+            + statsNumField(i,'penDrawn',r.penDrawn,'Pen. drawn'));
+    return '<div class="stat-card" style="margin-bottom:8px">'
+      + '<div class="stat-card-head">'
+      + '<input class="stat-card-name" type="text" value="'+(r.name||'')+'" placeholder="Player name" oninput="updateStatsName('+i+',this.value)">'
+      + '<div class="stat-card-del" onclick="removeStatsRow('+i+')">&#x2715;</div>'
+      + '</div>'
+      + '<div class="stat-grid">'+fields+'</div>'
+      + '</div>';
+  }).join('');
+  renderStatsTotalCard(rows, isGk);
+  renderStatsRosterPicker();
+}
+
+function renderStatsTotalCard(rows, isGk) {
+  var el = document.getElementById('stats-total-card');
+  if (!el) return;
+  var totals = computeStatsTotals(rows, isGk);
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+    + '<div>Total % — 9m <b>'+totals.m9+'</b> · 7m <b>'+totals.m7+'</b> · 6m <b>'+totals.m6+'</b> · Counter <b>'+totals.kn+'</b>'
+    + (isGk ? ' · Conceded <b>'+totals.conceded+'</b>' : '') + '</div>'
+    + '<div style="flex-shrink:0;color:var(--tl);font-size:1rem">›</div>'
+    + '</div>';
+}
+
+function statsPct(m, a) { return a > 0 ? Math.round((m/a)*100) + '%' : '—'; }
+
+function computeStatsTotals(rows, isGk) {
+  var sum = { m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0} };
+  var conceded = 0;
+  rows.forEach(function(r) {
+    ['m9','m7','m6','kn'].forEach(function(z){ sum[z].m += Number(r[z].m)||0; sum[z].a += Number(r[z].a)||0; });
+    if (isGk) conceded += (Number(r.m9.m)||0)+(Number(r.m7.m)||0)+(Number(r.m6.m)||0)+(Number(r.kn.m)||0);
+  });
+  return { m9: statsPct(sum.m9.m,sum.m9.a), m7: statsPct(sum.m7.m,sum.m7.a), m6: statsPct(sum.m6.m,sum.m6.a), kn: statsPct(sum.kn.m,sum.kn.a), conceded: conceded };
+}
+
+function openStatsTotalModal() {
+  var matchId = statsCurrentMatchId;
+  if (!matchId || !matchStats[matchId]) return;
+  var rows = matchStats[matchId][statsActiveTab] || [];
+  var isGk = statsActiveTab === 'gk';
+  document.getElementById('stats-total-modal-body').innerHTML = renderStatsTotalBreakdown(rows, isGk);
+  openModal('stats-total-modal');
+}
+
+function statsTotalRow(label, value) {
+  return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--bdr)">'
+    + '<div style="font-family:var(--sans);font-size:0.86rem;color:var(--tm)">'+label+'</div>'
+    + '<div style="font-family:var(--mono);font-size:0.94rem;font-weight:800;color:var(--tx)">'+value+'</div>'
+    + '</div>';
+}
+
+function renderStatsTotalBreakdown(rows, isGk) {
+  var sum = { m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0}, techErr:0, blocks:0, oneVOne:0, assist:0, twoMin:0, penDrawn:0, thrown:0, intercepted:0 };
+  rows.forEach(function(r) {
+    ['m9','m7','m6','kn'].forEach(function(z){ sum[z].m += Number(r[z].m)||0; sum[z].a += Number(r[z].a)||0; });
+    if (isGk) { sum.thrown += Number(r.thrown)||0; sum.intercepted += Number(r.intercepted)||0; }
+    else { ['techErr','blocks','oneVOne','assist','twoMin','penDrawn'].forEach(function(f){ sum[f] += Number(r[f])||0; }); }
+  });
+  var conceded = sum.m9.m + sum.m7.m + sum.m6.m + sum.kn.m;
+  var html = statsTotalRow('9m', sum.m9.m+' / '+sum.m9.a+' ('+statsPct(sum.m9.m,sum.m9.a)+')')
+    + statsTotalRow('7m', sum.m7.m+' / '+sum.m7.a+' ('+statsPct(sum.m7.m,sum.m7.a)+')')
+    + statsTotalRow('6m', sum.m6.m+' / '+sum.m6.a+' ('+statsPct(sum.m6.m,sum.m6.a)+')')
+    + statsTotalRow('Counter attack', sum.kn.m+' / '+sum.kn.a+' ('+statsPct(sum.kn.m,sum.kn.a)+')');
+  html += isGk
+    ? statsTotalRow('Counter attack pass', sum.thrown)
+      + statsTotalRow('Intercepted counter attack', sum.intercepted)
+      + statsTotalRow('Conceded goal', conceded)
+    : statsTotalRow('Technical errors', sum.techErr)
+      + statsTotalRow('Blocks', sum.blocks)
+      + statsTotalRow('1v1 won', sum.oneVOne)
+      + statsTotalRow('Assists', sum.assist)
+      + statsTotalRow('2-min suspensions', sum.twoMin)
+      + statsTotalRow('Penalties drawn', sum.penDrawn);
+  return html;
+}
+
+function updateStatsMA(idx, field, sub, value) {
+  var row = matchStats[statsCurrentMatchId][statsActiveTab][idx];
+  if (!row) return;
+  row[field][sub] = Math.max(0, parseInt(value,10) || 0);
+  renderStatsOverlay();
+}
+
+function updateStatsNum(idx, field, value) {
+  var row = matchStats[statsCurrentMatchId][statsActiveTab][idx];
+  if (!row) return;
+  row[field] = Math.max(0, parseInt(value,10) || 0);
+  renderStatsOverlay();
+}
+
+function updateStatsName(idx, value) {
+  var row = matchStats[statsCurrentMatchId][statsActiveTab][idx];
+  if (!row) return;
+  row.name = value;
+}
+
+function removeStatsRow(idx) {
+  matchStats[statsCurrentMatchId][statsActiveTab].splice(idx, 1);
+  renderStatsOverlay();
+}
+
+function addStatsRow() {
+  var isGk = statsActiveTab === 'gk';
+  var row = isGk ? statsGkNewRow(null,'') : statsFieldNewRow(null,'');
+  matchStats[statsCurrentMatchId][statsActiveTab].push(row);
+  renderStatsOverlay();
+}
+
+function renderStatsRosterPicker() {
+  var picker = document.getElementById('stats-roster-picker-m');
+  if (!picker) return;
+  var matchId = statsCurrentMatchId;
+  var rows = (matchId && matchStats[matchId] && matchStats[matchId][statsActiveTab]) || [];
+  var usedIds = rows.map(function(r){ return r.athleteId; }).filter(Boolean);
+  var available = athletes.filter(function(a){ return usedIds.indexOf(a.id) === -1; });
+  picker.innerHTML = '<option value="">+ Add from roster…</option>' + available.map(function(a){
+    return '<option value="'+a.id+'">'+(a.name||a.displayName||'Unnamed')+(a.position?' · '+a.position:'')+'</option>';
+  }).join('');
+}
+
+function addStatsRosterPlayer(athleteId) {
+  if (!athleteId) return;
+  var ath = athletes.find(function(a){ return a.id === athleteId; });
+  if (!ath) return;
+  var isGk = statsActiveTab === 'gk';
+  var row = isGk ? statsGkNewRow(ath.id, ath.name||ath.displayName||'') : statsFieldNewRow(ath.id, ath.name||ath.displayName||'');
+  matchStats[statsCurrentMatchId][statsActiveTab].push(row);
+  renderStatsOverlay();
+}
+
+function saveMatchStats() {
+  var db = window.db;
+  if (!db || !coach.orgId) { showSaveError('Save failed: not connected (orgId missing).'); return; }
+  db.collection('seasons').doc(coach.orgId).set(
+    { matchStats: matchStats, updatedAt: new Date().toISOString(), updatedBy: (window.ADA_USER && window.ADA_USER.uid) || '' },
+    { merge: true }
+  ).then(function(){
+    closeOverlay('stats-overlay');
+  }).catch(function(e){
+    console.error('saveMatchStats failed:', e.code || e.message, e);
+    showSaveError('Stats save failed: ' + (e.code || e.message || 'unknown error'));
+  });
+}
+
 function renderMatches() {
   var el = document.getElementById('matches-content');
   if (!el) return;
@@ -3036,16 +3322,21 @@ function renderMatches() {
   function matchRow(m) {
     var d = parseLocalDate(m.date);
     var res = m.result || '';
+    var isPast = m.date < todayISO;
     var resBadge = res
       ? '<span class="badge" style="font-size:0.6rem;background:'+(RES_COLOR[res]||'var(--s3)')+'1a;color:'+(RES_COLOR[res]||'var(--tl)')+'">'+res+(m.score?' '+m.score:'')+'</span>'
       : '';
-    return '<div class="match-item'+(m.date<todayISO?' past':'')+'" onclick="openEditMatch(\''+m.id+'\')">'
+    var statsBtn = isPast
+      ? '<button class="stat-btn" onclick="event.stopPropagation();openMatchStats(\''+m.id+'\')">Stats</button>'
+      : '';
+    return '<div class="match-item'+(isPast?' past':'')+'" onclick="openEditMatch(\''+m.id+'\')">'
       +'<div class="match-date-col"><div class="match-day">'+p2(d.getDate())+'. '+MONTHS_SHORT[d.getMonth()]+'</div><div class="match-mon">'+d.getFullYear()+'</div></div>'
       +'<div class="match-info"><div class="match-opp">'+(m.opponent||'—')+'</div>'
       +'<div class="match-meta">'
       +'<span class="badge bc" style="font-size:0.6rem">'+(TYPE_LABELS[m.matchType]||m.matchType||'League')+'</span>'
       +'<span class="badge bc" style="font-size:0.6rem">'+(VENUE_LABEL[m.venue]||m.venue||'Home')+'</span>'
       +resBadge
+      +statsBtn
       +'</div></div></div>';
   }
 

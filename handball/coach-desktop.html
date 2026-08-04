@@ -548,6 +548,23 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
 .cal-del-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all 0.12s;display:inline-flex;align-items:center;justify-content:center;}
 .cal-del-btn:hover{border-color:var(--red);color:var(--red);background:rgba(239,68,68,0.06);}
 .cal-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:0.9rem;}
+.stats-subtab-bar{display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--border);}
+.stats-subtab{padding:8px 14px;font-size:0.85rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.12s;}
+.stats-subtab.active{color:var(--kgreen);border-bottom-color:var(--kgreen);}
+.stat-table{width:100%;border-collapse:collapse;font-size:0.78rem;}
+.stat-table th{padding:8px 4px;font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.02em;color:var(--muted);text-align:center;white-space:nowrap;}
+.stat-table th.stat-name-col{text-align:left;padding-left:12px;}
+.stat-table td{padding:4px;text-align:center;border-top:1px solid var(--border);white-space:nowrap;}
+.stat-table td.stat-name-cell{text-align:left;padding-left:8px;min-width:150px;}
+.stat-ma-wrap{display:inline-flex;align-items:center;gap:2px;}
+.stat-input{width:38px;background:transparent;border:none;border-bottom:1px solid var(--border);text-align:center;font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--text);outline:none;padding:4px 0;}
+.stat-input:focus{border-bottom-color:var(--kgreen);background:rgba(5,150,105,0.04);}
+.stat-input.wide{width:46px;}
+.stat-slash{color:var(--muted);font-size:1rem;font-weight:700;}
+.stat-row-del{width:22px;height:22px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.stat-row-del:hover{border-color:var(--red);color:var(--red);background:rgba(239,68,68,0.06);}
+.stats-total-row td{background:var(--surface2);font-weight:700;border-top:1.5px solid var(--border);font-family:var(--mono);font-size:1rem;}
+.stats-empty-note{text-align:center;padding:40px 20px;color:var(--muted);font-size:0.9rem;}
 .cal-score-input{width:90px;}
 </style>
 </head>
@@ -572,6 +589,10 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
     <div class="sb-item" id="nav-calendar" onclick="switchModule('calendar',this)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12a14.5 14.5 0 0 0 20 0"/><path d="m4.93 4.93 14.14 14.14"/></svg>
       <span class="tip">Match Calendar</span>
+    </div>
+    <div class="sb-item" id="nav-stats" onclick="switchModule('stats',this)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span class="tip">Match Stats</span>
     </div>
   </div>
   <div class="sb-footer">
@@ -1008,6 +1029,40 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
         </div>
       </div><!-- /mod-calendar -->
 
+      <!-- ══════════ MATCH STATS MODULE ══════════ -->
+      <div class="module" id="mod-stats">
+        <div class="row sb-row mb-12">
+          <div>
+            <h2>Statistical Analysis</h2>
+            <div style="font-size:0.78rem;color:var(--muted);margin-top:3px;">Post-match player stats</div>
+          </div>
+          <div class="row gap-8">
+            <select id="stats-match-select" class="cal-venue-select" style="width:220px;border:1px solid var(--border);border-radius:8px;padding:7px 10px;" onchange="statsSelectMatch(this.value)"></select>
+            <button class="nav-btn primary" id="stats-save-btn" onclick="saveMatchStats()">Save Stats</button>
+          </div>
+        </div>
+
+        <div id="stats-no-match" class="card stats-empty-note" style="display:none;">
+          No played matches yet. Add a match result in <strong>Match Calendar</strong> first.
+        </div>
+
+        <div id="stats-content" style="display:none;">
+          <div class="stats-subtab-bar">
+            <div class="stats-subtab active" id="stats-subtab-field" onclick="switchStatsSubtab('field')">Field players</div>
+            <div class="stats-subtab" id="stats-subtab-gk" onclick="switchStatsSubtab('gk')">Goalkeepers</div>
+          </div>
+          <div class="card" style="padding:0;overflow-x:auto;">
+            <table class="stat-table" id="stats-table"></table>
+          </div>
+          <div class="row gap-8 mb-12" style="margin-top:12px;align-items:center;">
+            <select id="stats-roster-picker" class="cal-venue-select" style="width:200px;border:1px solid var(--border);border-radius:8px;padding:7px 10px;" onchange="addStatsRosterPlayer(this.value)">
+              <option value="">+ Add from roster…</option>
+            </select>
+            <button class="nav-btn" onclick="addStatsRow()">+ Add manually</button>
+          </div>
+        </div>
+      </div><!-- /mod-stats -->
+
       <!-- ══════════ COMPETITION CALENDAR MODULE ══════════ -->
 
 
@@ -1367,6 +1422,9 @@ let weekEvents   = {};   // weekIdx → { type, label, competitionId? }
 let competitions = [];   // { id, title, location, startDate, endDate, importance, target }
 let matchCalendar = [];  // [ { id, date, opponent, venue, result, score } ]
 let matchResults  = {};  // weekIdx → { result, score, opponent, venue, fromCalendar }
+let matchStats = {};     // matchId → { field: [ {athleteId,name,m9:{m,a},m7:{m,a},m6:{m,a},kn:{m,a},techErr,blocks,oneVOne,assist,twoMin,penDrawn} ], gk: [ {athleteId,name,m9:{m,a},m7:{m,a},m6:{m,a},kn:{m,a},thrown,intercepted} ] }
+let statsCurrentMatchId = null;
+let statsActiveTab = 'field';
 let camps        = [];   // { id, title, location, startDate, endDate }
 let CURRENT_WEEK = 0;
 let seasonConfigured = false; // true only once a real season doc with startDate is loaded from Firestore
@@ -3458,14 +3516,15 @@ function switchModule(name, btn) {
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('mod-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
-  const labels = {season:'Season Plan', micro:'Weekly Plan', tim:'Athlete Roster', calendar:'Match Calendar', settings:'Settings'};
-  const mods   = {season:'SEASON',      micro:'WEEKLY',      tim:'ROSTER',        calendar:'CALENDAR',       settings:'SETTINGS'};
+  const labels = {season:'Season Plan', micro:'Weekly Plan', tim:'Athlete Roster', calendar:'Match Calendar', stats:'Statistical Analysis', settings:'Settings'};
+  const mods   = {season:'SEASON',      micro:'WEEKLY',      tim:'ROSTER',        calendar:'CALENDAR',       stats:'STATS',                settings:'SETTINGS'};
   document.getElementById('topbar-title').textContent  = labels[name] || name;
   document.getElementById('topbar-module').textContent = mods[name]  || name.toUpperCase();
   if (name === 'micro')    { renderMicro(); var mdb=document.getElementById('micro-delete-btn');if(mdb)mdb.style.display=''; }
   else { var mdb2=document.getElementById('micro-delete-btn');if(mdb2){mdb2.style.display='none';if(_deleteMode)toggleDeleteMode();} }
   if (name === 'tim')      loadTimData();
   if (name === 'calendar') renderCalendar();
+  if (name === 'stats')    { renderStatsModule(); if (!timDataLoaded) loadTimData(); }
 }
 
 /* ════════════════════════════════════════════════
@@ -3643,6 +3702,216 @@ function saveCalendar() {
 }
 
 /* ════════════════════════════════════════════════
+   MATCH STATS
+════════════════════════════════════════════════ */
+function statsFieldNewRow(athleteId, name) {
+  return { athleteId: athleteId||null, name: name||'', m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0}, techErr:0, blocks:0, oneVOne:0, assist:0, twoMin:0, penDrawn:0 };
+}
+function statsGkNewRow(athleteId, name) {
+  return { athleteId: athleteId||null, name: name||'', m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0}, thrown:0, intercepted:0 };
+}
+
+function renderStatsModule() {
+  var sel = document.getElementById('stats-match-select');
+  var noMatchEl = document.getElementById('stats-no-match');
+  var contentEl = document.getElementById('stats-content');
+  if (!sel || !noMatchEl || !contentEl) return;
+  var now = new Date();
+  var played = matchCalendar.filter(function(m){ return m.date && new Date(m.date) <= now; })
+    .slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+  if (played.length === 0) {
+    sel.innerHTML = '';
+    noMatchEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    return;
+  }
+  noMatchEl.style.display = 'none';
+  contentEl.style.display = 'block';
+  sel.innerHTML = played.map(function(m){
+    return '<option value="'+m.id+'">'+(m.opponent||'Opponent')+' \u00b7 '+m.date+'</option>';
+  }).join('');
+  if (!statsCurrentMatchId || !played.some(function(m){ return m.id === statsCurrentMatchId; })) {
+    statsCurrentMatchId = played[0].id;
+  }
+  sel.value = statsCurrentMatchId;
+  ensureStatsMatchEntry(statsCurrentMatchId);
+  renderStatsTable();
+}
+
+function ensureStatsMatchEntry(matchId) {
+  if (!matchStats[matchId]) matchStats[matchId] = { field: [], gk: [] };
+  if (!matchStats[matchId].field) matchStats[matchId].field = [];
+  if (!matchStats[matchId].gk) matchStats[matchId].gk = [];
+  // First time this match is opened, seed rows from the roster (field vs. goalkeeper
+  // split by a best-effort match on the athlete's position text). Coach can still
+  // add/remove/rename rows manually afterward.
+  if (matchStats[matchId].field.length === 0 && matchStats[matchId].gk.length === 0 && timAthletes.length) {
+    matchStats[matchId].field = timAthletes
+      .filter(function(a){ return !/keeper|golman|\bgk\b/i.test(a.position||''); })
+      .map(function(a){ return statsFieldNewRow(a.id, a.name||a.displayName||''); });
+    matchStats[matchId].gk = timAthletes
+      .filter(function(a){ return /keeper|golman|\bgk\b/i.test(a.position||''); })
+      .map(function(a){ return statsGkNewRow(a.id, a.name||a.displayName||''); });
+  }
+}
+
+function statsSelectMatch(matchId) {
+  statsCurrentMatchId = matchId;
+  ensureStatsMatchEntry(matchId);
+  renderStatsTable();
+}
+
+function switchStatsSubtab(tab) {
+  statsActiveTab = tab;
+  document.getElementById('stats-subtab-field').classList.toggle('active', tab==='field');
+  document.getElementById('stats-subtab-gk').classList.toggle('active', tab==='gk');
+  renderStatsTable();
+}
+
+function statsMaInput(idx, field, val) {
+  return '<span class="stat-ma-wrap"><input class="stat-input" type="number" min="0" value="'+val.m+'" onchange="updateStatsMA('+idx+',\''+field+'\',\'m\',this.value)">'
+    + '<span class="stat-slash">/</span>'
+    + '<input class="stat-input" type="number" min="0" value="'+val.a+'" onchange="updateStatsMA('+idx+',\''+field+'\',\'a\',this.value)"></span>';
+}
+
+function statsNumInput(idx, field, val) {
+  return '<input class="stat-input wide" type="number" min="0" value="'+val+'" onchange="updateStatsNum('+idx+',\''+field+'\',this.value)">';
+}
+
+function renderStatsTable() {
+  var matchId = statsCurrentMatchId;
+  if (!matchId || !matchStats[matchId]) return;
+  var rows = matchStats[matchId][statsActiveTab] || [];
+  var table = document.getElementById('stats-table');
+  if (!table) return;
+  var isGk = statsActiveTab === 'gk';
+  var head = '<thead><tr>'
+    + '<th class="stat-name-col">Player</th>'
+    + '<th>9m</th><th>7m</th><th>6m</th><th>Counter attack</th>'
+    + (isGk ? '<th>Counter attack pass</th><th>Intercepted counter attack</th><th>Conceded goal</th>'
+            : '<th>Tech err</th><th>Blocks</th><th>1v1</th><th>Assist</th><th>2 min</th><th>Pen. drawn</th>')
+    + '<th></th></tr></thead>';
+  var body = '<tbody>' + rows.map(function(r, i) {
+    var conceded = (Number(r.m9.m)||0) + (Number(r.m7.m)||0) + (Number(r.m6.m)||0) + (Number(r.kn.m)||0);
+    return '<tr>'
+      + '<td class="stat-name-cell"><input class="cal-input" type="text" value="'+(r.name||'')+'" placeholder="Player name" oninput="updateStatsName('+i+',this.value)"></td>'
+      + '<td>'+statsMaInput(i,'m9',r.m9)+'</td>'
+      + '<td>'+statsMaInput(i,'m7',r.m7)+'</td>'
+      + '<td>'+statsMaInput(i,'m6',r.m6)+'</td>'
+      + '<td>'+statsMaInput(i,'kn',r.kn)+'</td>'
+      + (isGk
+          ? '<td>'+statsNumInput(i,'thrown',r.thrown)+'</td>'
+            + '<td>'+statsNumInput(i,'intercepted',r.intercepted)+'</td>'
+            + '<td style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--muted);">'+conceded+'</td>'
+          : '<td>'+statsNumInput(i,'techErr',r.techErr)+'</td>'
+            + '<td>'+statsNumInput(i,'blocks',r.blocks)+'</td>'
+            + '<td>'+statsNumInput(i,'oneVOne',r.oneVOne)+'</td>'
+            + '<td>'+statsNumInput(i,'assist',r.assist)+'</td>'
+            + '<td>'+statsNumInput(i,'twoMin',r.twoMin)+'</td>'
+            + '<td>'+statsNumInput(i,'penDrawn',r.penDrawn)+'</td>')
+      + '<td><button class="stat-row-del" onclick="removeStatsRow('+i+')" title="Remove">&#x2715;</button></td>'
+      + '</tr>';
+  }).join('') + '</tbody>';
+  var totals = computeStatsTotals(rows, isGk);
+  var totalRow = '<tfoot><tr class="stats-total-row">'
+    + '<td style="text-align:left;padding-left:8px;">Total %</td>'
+    + '<td>'+totals.m9+'</td><td>'+totals.m7+'</td><td>'+totals.m6+'</td><td>'+totals.kn+'</td>'
+    + (isGk ? '<td></td><td></td><td>'+totals.conceded+'</td>' : '<td></td><td></td><td></td><td></td><td></td><td></td>')
+    + '<td></td></tr></tfoot>';
+  table.innerHTML = head + body + totalRow;
+  renderStatsRosterPicker();
+}
+
+function renderStatsRosterPicker() {
+  var picker = document.getElementById('stats-roster-picker');
+  if (!picker) return;
+  var matchId = statsCurrentMatchId;
+  var rows = (matchId && matchStats[matchId] && matchStats[matchId][statsActiveTab]) || [];
+  var usedIds = rows.map(function(r){ return r.athleteId; }).filter(Boolean);
+  var available = timAthletes.filter(function(a){ return usedIds.indexOf(a.id) === -1; });
+  picker.innerHTML = '<option value="">+ Add from roster…</option>' + available.map(function(a){
+    return '<option value="'+a.id+'">'+(a.name||a.displayName||'Unnamed')+(a.position?' \u00b7 '+a.position:'')+'</option>';
+  }).join('');
+}
+
+function addStatsRosterPlayer(athleteId) {
+  if (!athleteId) return;
+  var ath = timAthletes.find(function(a){ return a.id === athleteId; });
+  if (!ath) return;
+  var isGk = statsActiveTab === 'gk';
+  var row = isGk ? statsGkNewRow(ath.id, ath.name||ath.displayName||'') : statsFieldNewRow(ath.id, ath.name||ath.displayName||'');
+  matchStats[statsCurrentMatchId][statsActiveTab].push(row);
+  renderStatsTable();
+}
+
+function statsPct(m, a) { return a > 0 ? Math.round((m/a)*100) + '%' : '\u2014'; }
+
+function computeStatsTotals(rows, isGk) {
+  var sum = { m9:{m:0,a:0}, m7:{m:0,a:0}, m6:{m:0,a:0}, kn:{m:0,a:0} };
+  var conceded = 0;
+  rows.forEach(function(r) {
+    ['m9','m7','m6','kn'].forEach(function(z){ sum[z].m += Number(r[z].m)||0; sum[z].a += Number(r[z].a)||0; });
+    if (isGk) conceded += (Number(r.m9.m)||0)+(Number(r.m7.m)||0)+(Number(r.m6.m)||0)+(Number(r.kn.m)||0);
+  });
+  return { m9: statsPct(sum.m9.m,sum.m9.a), m7: statsPct(sum.m7.m,sum.m7.a), m6: statsPct(sum.m6.m,sum.m6.a), kn: statsPct(sum.kn.m,sum.kn.a), conceded: conceded };
+}
+
+function updateStatsMA(idx, field, sub, value) {
+  var row = matchStats[statsCurrentMatchId][statsActiveTab][idx];
+  if (!row) return;
+  row[field][sub] = Math.max(0, parseInt(value,10) || 0);
+  renderStatsTable();
+}
+
+function updateStatsNum(idx, field, value) {
+  var row = matchStats[statsCurrentMatchId][statsActiveTab][idx];
+  if (!row) return;
+  row[field] = Math.max(0, parseInt(value,10) || 0);
+  renderStatsTable();
+}
+
+function updateStatsName(idx, value) {
+  var row = matchStats[statsCurrentMatchId][statsActiveTab][idx];
+  if (!row) return;
+  row.name = value;
+}
+
+function removeStatsRow(idx) {
+  matchStats[statsCurrentMatchId][statsActiveTab].splice(idx, 1);
+  renderStatsTable();
+}
+
+function addStatsRow() {
+  var isGk = statsActiveTab === 'gk';
+  var row = isGk ? statsGkNewRow(null,'') : statsFieldNewRow(null,'');
+  matchStats[statsCurrentMatchId][statsActiveTab].push(row);
+  renderStatsTable();
+  setTimeout(function(){
+    var table = document.getElementById('stats-table');
+    var cells = table ? table.querySelectorAll('.stat-name-cell') : [];
+    if (cells.length) cells[cells.length-1].scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 60);
+}
+
+function saveMatchStats() {
+  if (!window.ADA_USER || !window.db) { showSaveError('No connection — stats not saved.'); return; }
+  var btn = document.getElementById('stats-save-btn');
+  if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+  window.db.collection('seasons').doc(window.ADA_USER.orgId).set({
+    matchStats: matchStats,
+    updatedAt: new Date().toISOString(),
+    updatedBy: window.ADA_USER.uid
+  }, { merge: true })
+    .then(function() {
+      if (btn) { btn.textContent = 'Saved ✓'; btn.style.background = 'var(--kgreen)'; setTimeout(function(){ btn.textContent = 'Save Stats'; btn.style.background = ''; btn.disabled = false; }, 2000); }
+    })
+    .catch(function(err) {
+      if (btn) { btn.textContent = 'Save Stats'; btn.disabled = false; }
+      showSaveError('Stats save failed: ' + (err.code || err.message || err));
+    });
+}
+
+/* ════════════════════════════════════════════════
    INIT — fired by auth-gate.js via ada:ready
 ════════════════════════════════════════════════ */
 let appInitialized = false;
@@ -3702,10 +3971,13 @@ window.addEventListener('ada:ready', (e) => {
           if (d.camps)        camps           = d.camps        || [];
           if (d.matchCalendar) matchCalendar  = d.matchCalendar || [];
           if (d.matchResults)  matchResults   = d.matchResults  || {};
+          if (d.matchStats)    matchStats     = d.matchStats    || {};
           // Recompute weekEvents from matchCalendar (source of truth) rather than trusting
           // the stored weekEvents blindly — self-heals matches that were mis-mapped to the
           // wrong week by the old (pre-fix) date logic in syncCalendarToSeason.
           syncCalendarToSeason();
+          var statsModEl0 = document.getElementById('mod-stats');
+          if (statsModEl0 && statsModEl0.classList.contains('active')) renderStatsModule();
           console.log('[ADA] Season doc loaded. competitions:', competitions.length, 'camps:', camps.length);
           // Partial season doc (e.g. bootstrapped by coach-mobile's fallback, which only
           // writes startDate) — complete it with a proper endDate + full shape so every
@@ -4024,6 +4296,8 @@ async function loadTimData(){
       document.getElementById('topbar-sub').textContent = athleteNames;
     }
     timDataLoaded=true; renderTim();
+    var statsModEl1 = document.getElementById('mod-stats');
+    if (statsModEl1 && statsModEl1.classList.contains('active')) renderStatsModule();
   }catch(e){console.error('[ADA] loadTimData error:',e);showTimEmpty('Error: '+(e.message||e));}
 }
 
