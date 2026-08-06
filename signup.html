@@ -105,6 +105,14 @@ body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--tx);max-
       <div class="field-error" id="pw-match-error">Passwords do not match.</div>
     </div>
 
+    <div class="field" id="coach-role-field">
+      <label>Role</label>
+      <select class="sport-select" id="coach-role-select">
+        <option value="head">Head Coach</option>
+        <option value="assistant">Assistant Coach</option>
+      </select>
+    </div>
+
     <div class="field" id="discipline-field">
       <label>Choose your Sport</label>
       <select class="sport-select" id="sport-select" onchange="window._selectedDiscipline=this.value||null">
@@ -121,9 +129,9 @@ body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--tx);max-
     </div>
 
     <div class="field" id="code-field" style="display:none">
-      <label>Coach Invite Code<span class="optional-tag">Optional</span></label>
+      <label><span id="code-field-label-text">Coach Invite Code</span><span class="optional-tag" id="code-optional-tag">Optional</span></label>
       <input type="text" id="f-code" maxlength="6" style="text-transform:uppercase;letter-spacing:0.1em">
-      <div class="field-hint">Have a code from your coach? Enter it now to link instantly — or skip and link later from your app.</div>
+      <div class="field-hint" id="code-field-hint">Have a code from your coach? Enter it now to link instantly — or skip and link later from your app.</div>
       <div class="code-status" id="code-status"></div>
     </div>
 
@@ -163,17 +171,27 @@ function togglePw(id, btn){
   var db   = firebase.firestore();
 
   var role = 'coach'; // 'coach' | 'athlete'
+  var coachRole = 'head'; // 'head' | 'assistant' — only meaningful when role === 'coach'
   window._selectedDiscipline = null;
   var tabCoach   = document.getElementById('tab-coach');
   var tabAthlete = document.getElementById('tab-athlete');
+  var coachRoleField  = document.getElementById('coach-role-field');
+  var coachRoleSelect = document.getElementById('coach-role-select');
   var codeField  = document.getElementById('code-field');
   var codeInput  = document.getElementById('f-code');
   var codeStatus = document.getElementById('code-status');
+  var codeLabelText = document.getElementById('code-field-label-text');
+  var codeOptionalTag = document.getElementById('code-optional-tag');
+  var codeHint = document.getElementById('code-field-hint');
   var formError  = document.getElementById('form-error');
   var submitBtn  = document.getElementById('submit-btn');
   var form       = document.getElementById('signup-form');
 
   var resolvedCoach = null; // {uid, orgId, discipline} once a valid code is confirmed
+
+  // True only for "Coach" tab + "Assistant Coach" role — the one combination
+  // that needs a required head-coach code instead of the sport selector.
+  function isAssistantMode(){ return role === 'coach' && coachRole === 'assistant'; }
 
   // Invite-code lookups go through a Cloud Function, not a direct Firestore
   // query — the visitor isn't signed in yet at this point in the flow, and
@@ -181,6 +199,8 @@ function togglePw(id, btn){
   // Region must match where lookupCoachByInviteCode is deployed.
   var lookupCoachFn = firebase.app().functions('asia-southeast1')
     .httpsCallable('lookupCoachByInviteCode');
+  var lookupAssistantFn = firebase.app().functions('asia-southeast1')
+    .httpsCallable('lookupAssistantCoachByInviteCode');
   var checkCodesFn = firebase.app().functions('asia-southeast1')
     .httpsCallable('checkInviteCodesAvailable');
 
@@ -194,11 +214,21 @@ function togglePw(id, btn){
     }
   }
 
+  async function lookupHeadCoachForAssistant(code){
+    try {
+      var res = await lookupAssistantFn({ code: code });
+      return res.data; // { found: true, uid, orgId, name, discipline } or { found: false }
+    } catch(e){
+      console.error('lookupAssistantCoachByInviteCode failed:', e);
+      return { found: false, error: true };
+    }
+  }
+
   function buildDest(role, discipline) {
     if (role === 'admin')      return '/admin/';
     if (role === 'superadmin') return '/superadmin/';
     if (role === 'athlete')    return '/' + (discipline||'other') + '/athlete.html';
-    if (role === 'coach') {
+    if (role === 'coach' || role === 'assistantCoach') {
       var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
       return '/' + (discipline||'other') + '/' + app;
     }
@@ -214,16 +244,53 @@ function togglePw(id, btn){
     document.getElementById('sport-inherited').style.display = 'none';
   }
 
+  function updateFormVisibility(){
+    coachRoleField.style.display = (role === 'coach') ? 'block' : 'none';
+
+    var assistant = isAssistantMode();
+    document.getElementById('discipline-field').style.display = assistant ? 'none' : 'block';
+    codeField.style.display = (role === 'athlete' || assistant) ? 'block' : 'none';
+
+    if (assistant) {
+      codeLabelText.textContent = 'Head Coach Invite Code';
+      codeOptionalTag.style.display = 'none';
+      codeHint.textContent = 'Enter the invite code your head coach gave you — this links your account to their team and gives you access to their plans and stats.';
+      codeInput.required = true;
+    } else {
+      codeLabelText.textContent = 'Coach Invite Code';
+      codeOptionalTag.style.display = '';
+      codeHint.textContent = 'Have a code from your coach? Enter it now to link instantly — or skip and link later from your app.';
+      codeInput.required = false;
+    }
+  }
+
   function setRole(r){
     role = r;
+    coachRole = 'head';
+    coachRoleSelect.value = 'head';
     tabCoach.classList.toggle('active', r === 'coach');
     tabAthlete.classList.toggle('active', r === 'athlete');
-    codeField.style.display = (r === 'athlete') ? 'block' : 'none';
+    codeInput.value = '';
+    codeStatus.className = 'code-status';
+    codeStatus.style.display = 'none';
     resetDisciplineUI();
+    updateFormVisibility();
     hideError();
   }
   tabCoach.addEventListener('click', function(){ setRole('coach'); });
   tabAthlete.addEventListener('click', function(){ setRole('athlete'); });
+
+  coachRoleSelect.addEventListener('change', function(){
+    coachRole = coachRoleSelect.value;
+    codeInput.value = '';
+    codeStatus.className = 'code-status';
+    codeStatus.style.display = 'none';
+    resetDisciplineUI();
+    updateFormVisibility();
+    hideError();
+  });
+
+  updateFormVisibility(); // initial state: Coach tab, Head Coach role
 
   function showError(msg){ formError.textContent = msg; formError.style.display = 'block'; }
   function hideError(){ formError.style.display = 'none'; }
@@ -277,31 +344,37 @@ function togglePw(id, btn){
     codeStatus.style.display = 'block';
 
     codeCheckTimer = setTimeout(async function(){
-      var result = await lookupCoach(val);
+      var result = isAssistantMode() ? await lookupHeadCoachForAssistant(val) : await lookupCoach(val);
 
       if (result.error){
         codeStatus.className = 'code-status err';
-        codeStatus.textContent = 'Could not verify code. You can still create your account and link later.';
+        codeStatus.textContent = isAssistantMode()
+          ? 'Could not verify code. Please try again.'
+          : 'Could not verify code. You can still create your account and link later.';
         return;
       }
       if (!result.found){
         codeStatus.className = 'code-status err';
-        codeStatus.textContent = 'No coach found with that code.';
+        codeStatus.textContent = isAssistantMode()
+          ? 'No head coach found with that code.'
+          : 'No coach found with that code.';
         return;
       }
 
       resolvedCoach = { uid: result.uid, orgId: result.orgId, name: result.name || '', discipline: result.discipline || '' };
       codeStatus.className = 'code-status ok';
-      codeStatus.textContent = 'Linked to coach: ' + (result.name || result.uid);
+      codeStatus.textContent = (isAssistantMode() ? 'Linked to head coach: ' : 'Linked to coach: ') + (result.name || result.uid);
       // Auto-select discipline from coach
       if (result.discipline) {
         window._selectedDiscipline = result.discipline;
-        var sel = document.getElementById('sport-select');
-        sel.value = result.discipline;
-        sel.disabled = true;
-        var inherited = document.getElementById('sport-inherited');
-        inherited.textContent = '✓ Sport: ' + result.discipline.replace('-',' ') + ' (from coach)';
-        inherited.style.display = 'block';
+        if (!isAssistantMode()) {
+          var sel = document.getElementById('sport-select');
+          sel.value = result.discipline;
+          sel.disabled = true;
+          var inherited = document.getElementById('sport-inherited');
+          inherited.textContent = '✓ Sport: ' + result.discipline.replace('-',' ') + ' (from coach)';
+          inherited.style.display = 'block';
+        }
       }
     }, 500);
   });
@@ -332,7 +405,12 @@ function togglePw(id, btn){
       return;
     }
     document.getElementById('pw-match-error').style.display = 'none';
-    if (!window._selectedDiscipline) {
+    if (isAssistantMode()) {
+      if (!codeInput.value.trim()) {
+        showError('Please enter your head coach\u2019s invite code.');
+        return;
+      }
+    } else if (!window._selectedDiscipline) {
       showError('Please select your sport.');
       return;
     }
@@ -353,7 +431,7 @@ function togglePw(id, btn){
     var uid = cred.user.uid;
 
     try {
-      if (role === 'coach'){
+      if (role === 'coach' && coachRole === 'head'){
         var inviteCode = await uniqueInviteCode();
         await db.collection('users').doc(uid).set({
           role: 'coach',
@@ -368,6 +446,44 @@ function togglePw(id, btn){
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showSuccess('coach', inviteCode, false, window._selectedDiscipline);
+      } else if (role === 'coach' && coachRole === 'assistant') {
+        var assistCodeVal = codeInput.value.trim();
+        var headCoach = resolvedCoach;
+
+        // If they typed a code but it wasn't resolved yet (e.g. submitted fast), try once more.
+        if (assistCodeVal && !headCoach){
+          var assistResult = await lookupHeadCoachForAssistant(assistCodeVal);
+          if (assistResult.found){
+            headCoach = { uid: assistResult.uid, orgId: assistResult.orgId, name: assistResult.name || '', discipline: assistResult.discipline || '' };
+          }
+        }
+
+        // Unlike athletes, an assistant coach cannot sign up unlinked — there is
+        // no "link later" path for them, since their whole account is scoped to
+        // a head coach's orgId rather than a self-org.
+        if (!headCoach) {
+          var codeErr = new Error('Invalid or unresolved head coach invite code.');
+          codeErr.code = 'invalid-assistant-code';
+          throw codeErr;
+        }
+
+        await db.collection('users').doc(uid).set({
+          role: 'assistantCoach',
+          uid: uid,
+          name: name,
+          email: email,
+          orgId: headCoach.orgId,
+          coachId: headCoach.uid,
+          discipline: headCoach.discipline || null,
+          inviteCode: assistCodeVal,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await db.collection('users').doc(headCoach.uid).update({
+          assistants: firebase.firestore.FieldValue.arrayUnion(uid)
+        });
+
+        showSuccess('assistant', null, true, headCoach.discipline);
       } else {
         var codeVal = codeInput.value.trim();
         var coachLink = resolvedCoach;
@@ -419,6 +535,8 @@ function togglePw(id, btn){
 
       if (isCapError && role === 'athlete') {
         showError('This coach\u2019s roster is currently full, or their account isn\u2019t fully set up yet. Please contact your coach, or try again in a few minutes.');
+      } else if (err && err.code === 'invalid-assistant-code') {
+        showError('That invite code is invalid. Please check it with your head coach and try again.');
       } else {
         showError('Something went wrong creating your account. Please try again.');
       }
@@ -438,6 +556,10 @@ function togglePw(id, btn){
       inv.textContent = inviteCode;
       inv.style.display = 'block';
       setTimeout(function(){ window.location.href = buildDest('coach', discipline); }, 3500);
+    } else if (r === 'assistant') {
+      document.getElementById('success-title').textContent = 'Welcome, assistant coach!';
+      document.getElementById('success-sub').textContent = 'You\'re linked to your head coach\'s team. Redirecting…';
+      setTimeout(function(){ window.location.href = buildDest('assistantCoach', discipline); }, 1800);
     } else {
       document.getElementById('success-title').textContent = 'Welcome!';
       document.getElementById('success-sub').textContent = linked

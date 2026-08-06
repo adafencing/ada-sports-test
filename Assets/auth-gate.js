@@ -34,7 +34,7 @@
     if (role === 'superadmin') return '/superadmin/';
     if (role === 'admin')      return '/admin/';
     if (role === 'athlete')    return '/' + (discipline||'other') + '/athlete.html';
-    if (role === 'coach') {
+    if (role === 'coach' || role === 'assistantCoach') {
       var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
       return '/' + (discipline||'other') + '/' + app;
     }
@@ -46,9 +46,9 @@
     var path = window.location.pathname;
     if (role === 'superadmin') return path.indexOf('/superadmin/') === 0;
     if (role === 'admin')      return path.indexOf('/admin/')      === 0;
-    // Coaches and athletes must be inside their sport folder
+    // Coaches (head + assistant) and athletes must be inside their sport folder
     var sportFolder = '/' + (discipline||'other') + '/';
-    if (role === 'coach')   return path.indexOf(sportFolder) === 0;
+    if (role === 'coach' || role === 'assistantCoach') return path.indexOf(sportFolder) === 0;
     if (role === 'athlete') return path.indexOf(sportFolder) === 0;
     return false;
   }
@@ -94,6 +94,13 @@
         coachRole:  ud.coachRole  || null,
         inviteCode: ud.inviteCode  || null,
         coachId:    ud.coachId     || null,
+        // Assistant-coach feature: assistantInviteCode + assistantInviteCodeCreatedAt
+        // live on the HEAD coach's own doc (set by generateAssistantInviteCode in
+        // functions/index.js); `assistants` is that same doc's array of linked
+        // assistant uids. Both are null/empty for athletes, assistants themselves,
+        // and any head coach who hasn't generated a code yet.
+        assistantInviteCode: ud.assistantInviteCode || null,
+        assistants: Array.isArray(ud.assistants) ? ud.assistants : [],
         // Per-account onboarding flag (Firestore-backed, NOT localStorage —
         // a browser-local flag would incorrectly apply to every account that
         // ever signs in on that browser, not just the one that dismissed it)

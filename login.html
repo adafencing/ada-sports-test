@@ -99,7 +99,7 @@ function buildDest(role, discipline) {
   if (role === 'admin')      return '/admin/';
   if (role === 'superadmin') return '/superadmin/';
   if (role === 'athlete')    return '/' + (discipline||'handball') + '/athlete.html';
-  if (role === 'coach') {
+  if (role === 'coach' || role === 'assistantCoach') {
     var app = window.innerWidth <= 768 ? 'coach-mobile.html' : 'coach-desktop.html';
     return '/' + (discipline||'handball') + '/' + app;
   }
@@ -194,7 +194,7 @@ async function doLogin() {
     }
 
     const sportLabel = d.discipline ? ' · ' + d.discipline.replace('-',' ') : '';
-    const roleMsg = { admin:'Admin panel', coach:'Coach app', athlete:'Athlete app', superadmin:'Super Admin' };
+    const roleMsg = { admin:'Admin panel', coach:'Coach app', assistantCoach:'Coach app', athlete:'Athlete app', superadmin:'Super Admin' };
     showLoading(`Loading ${roleMsg[role]||''}${sportLabel}…`);
     window.location.href = dest;
 
