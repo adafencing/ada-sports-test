@@ -412,10 +412,31 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
 .plan-type-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
 .plan-type-pill{padding:4px 10px;border-radius:20px;border:1.5px solid var(--bdr);background:var(--s2);font-family:var(--mono);font-size:0.7rem;font-weight:600;cursor:pointer;color:var(--tl);transition:all 0.13s;}
 .plan-type-pill.on{color:#fff;}
-.plan-type-select{-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C5C54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") !important;background-repeat:no-repeat !important;background-position:right 11px center !important;background-size:13px !important;padding-right:32px !important;}
 .plan-rpe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0 10px;}
 .plan-rpe-btn{height:32px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--s2);font-family:var(--mono);font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.13s;}
 .plan-rpe-btn.on{color:#fff;border-color:transparent;}
+/* ── Welcome / Onboarding Modal ── */
+.welcome-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:1000;}
+.welcome-overlay.open{display:flex;}
+.welcome-box{background:var(--s1);border:1px solid var(--bdr);border-radius:16px;padding:28px 24px 20px;width:400px;max-width:calc(100vw - 32px);box-shadow:0 16px 48px rgba(28,28,26,0.18);display:flex;flex-direction:column;}
+.welcome-step{display:none;flex-direction:column;align-items:center;text-align:center;}
+.welcome-step.active{display:flex;}
+.welcome-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 16px rgba(21,128,61,0.3);color:#fff;}
+.welcome-title{font-size:1.3rem;font-weight:800;color:var(--tx);margin-bottom:8px;line-height:1.25;}
+.welcome-sub{font-size:0.9rem;color:var(--tm);line-height:1.6;max-width:320px;}
+.welcome-flow{display:flex;align-items:flex-start;gap:0;margin:18px 0 2px;width:100%;}
+.welcome-flow-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.welcome-flow-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--s2);border:1.5px solid var(--bdr);color:var(--teal);}
+.welcome-flow-label{font-family:var(--mono);font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--tm);text-align:center;line-height:1.35;}
+.welcome-flow-arrow{padding-top:11px;color:var(--tl);font-size:1.1rem;flex-shrink:0;}
+.welcome-dots{display:flex;gap:6px;justify-content:center;margin:18px 0 16px;}
+.welcome-dot{width:6px;height:6px;border-radius:50%;background:var(--s3);transition:background 0.2s;}
+.welcome-dot.active{background:var(--green);}
+.welcome-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;}
+.welcome-cta{padding:10px 20px;border-radius:9px;border:none;background:var(--green);color:#fff;font-family:'Epilogue',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:opacity 0.15s;}
+.welcome-cta:hover{opacity:0.88;}
+.welcome-skip{font-family:var(--mono);font-size:0.78rem;color:var(--tl);cursor:pointer;background:none;border:none;padding:4px 0;}
+.welcome-skip:hover{color:var(--tm);}
 </style>
 </head>
 <body>
@@ -448,6 +469,48 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
     <div class="del-modal-actions">
       <button class="del-modal-cancel" onclick="document.getElementById('del-modal-overlay').classList.remove('open')">Cancel</button>
       <button class="del-modal-confirm" id="del-modal-confirm" onclick="confirmDeleteAccount()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Welcome / Onboarding Modal -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-box">
+    <div class="welcome-step active" id="welcome-step-1">
+      <div class="welcome-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <div class="welcome-title">Welcome to ADA Sports</div>
+      <div class="welcome-sub">Your training plan, wellness check-ins, and season — all in one place.</div>
+    </div>
+    <div class="welcome-step" id="welcome-step-2">
+      <div class="welcome-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="welcome-title">Your daily loop</div>
+      <div class="welcome-sub">Three simple steps, every training day.</div>
+      <div class="welcome-flow">
+        <div class="welcome-flow-step">
+          <div class="welcome-flow-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="welcome-flow-label">See your<br>plan</div>
+        </div>
+        <div class="welcome-flow-arrow">→</div>
+        <div class="welcome-flow-step">
+          <div class="welcome-flow-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="welcome-flow-label">Log how<br>it felt</div>
+        </div>
+        <div class="welcome-flow-arrow">→</div>
+        <div class="welcome-flow-step">
+          <div class="welcome-flow-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="welcome-flow-label">Track your<br>season</div>
+        </div>
+      </div>
+    </div>
+    <div class="welcome-step" id="welcome-step-3">
+      <div class="welcome-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+      <div class="welcome-title">Link to your coach</div>
+      <div class="welcome-sub">Enter the invite code your coach shared with you to connect your account and start seeing your training plan.</div>
+    </div>
+    <div class="welcome-dots" id="welcome-dots"></div>
+    <div class="welcome-footer">
+      <button class="welcome-skip" id="welcome-skip-btn" onclick="welcomeClose()">Skip</button>
+      <button class="welcome-cta" id="welcome-cta-btn" onclick="welcomeNext()">Next →</button>
     </div>
   </div>
 </div>
@@ -486,18 +549,6 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
     </div>
 
     <!-- Coach link modal sheet -->
-    <div class="clb-modal" id="clb-modal">
-      <div class="clb-sheet">
-        <h3>Enter Invite Code</h3>
-        <p>Ask your coach for their 6-character invite code.</p>
-        <input type="text" class="clb-input" id="clb-code-input" maxlength="6" placeholder="ABC123">
-        <div class="clb-status" id="clb-status"></div>
-        <div class="clb-actions">
-          <button class="clb-btn clb-btn-cancel" onclick="closeCoachLinkModal()">Cancel</button>
-          <button class="clb-btn clb-btn-link" id="clb-link-btn" onclick="submitCoachLink()" disabled>Link</button>
-        </div>
-      </div>
-    </div>
     <!-- Readiness + metrics -->
     <div class="card" style="text-align:center;padding:12px 14px 14px">
       <div class="row sb mb-8">
@@ -647,6 +698,22 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2)}
     </div>
   </div>
 
+</div>
+
+<!-- Coach link modal sheet — body-level, not nested in any .scr screen, so
+     it's reachable and correctly positioned (position:fixed to the real
+     viewport) no matter which tab triggered it. -->
+<div class="clb-modal" id="clb-modal">
+  <div class="clb-sheet">
+    <h3>Enter Invite Code</h3>
+    <p>Ask your coach for their 6-character invite code.</p>
+    <input type="text" class="clb-input" id="clb-code-input" maxlength="6" placeholder="ABC123">
+    <div class="clb-status" id="clb-status"></div>
+    <div class="clb-actions">
+      <button class="clb-btn clb-btn-cancel" onclick="closeCoachLinkModal()">Cancel</button>
+      <button class="clb-btn clb-btn-link" id="clb-link-btn" onclick="submitCoachLink()" disabled>Link</button>
+    </div>
+  </div>
 </div>
 
 <!-- SETTINGS -->
@@ -1137,12 +1204,12 @@ const rpeData=[{n:1,c:'#4ade80',d:'Very easy'},{n:2,c:'#86efac',d:'Easy'},{n:3,c
 // Session type → icon + color (mirrors coach-desktop sessionTypes)
 const SESS_TYPES={
   technical:   {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,name:'Technical',  col:'#3b82f6'},
+  sparring:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 2l20 20"/></svg>`,name:'Shock training',   col:'#f59e0b'},
   tactical:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`,name:'Tactical',   col:'#8b5cf6'},
   strength:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Strength',   col:'#ef4444'},
   conditioning:{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,name:'Conditioning',col:'#22c55e'},
-  match:       {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Friendly Match', col:'#FF6F61'},
-  pressure:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,name:'Pressure',    col:'#ec4899'},
-  competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Competition', col:'#FF6F61'},
+  competition: {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`,name:'Game', col:'#FF6F61'},
+  friendly:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,name:'Friendly game', col:'#06b6d4'},
   recovery:    {icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',   col:'#94a3b8'},
   rest:        {icon:'—',     name:'Rest day', col:'#cbd5e1'},
 };
@@ -1156,10 +1223,6 @@ var seasonMinOffset=null; // earliest allowed weekOffset (set when season loads)
 var seasonMaxOffset=null; // latest allowed weekOffset
 var _seasonMonAnchor=null; // Monday of the season's first week (Date), set once season loads
 var _seasonBaseWeekIdx=0;  // weekIdx of "today" relative to _seasonMonAnchor (clamped >=0)
-var _allMicrocycles={};    // weekIdx -> plan object; whole season preloaded once so week nav is instant (no per-click Firestore read)
-var _allCheckins={};       // ISO date -> checkin doc data; whole season preloaded once alongside microcycles
-var _seasonWeekEvents={};  // cached weekEvents map from season doc (competitions/camps overlay)
-var _seasonPhaseMap={};    // cached weekPhases map from season doc
 var restHRVal=null; // resting HR entered in checkin
 var pastSessions=[];// last 7 days from checkins
 
@@ -1222,20 +1285,19 @@ function sessTypeInfo(type){
   return SESS_TYPES[type]||{icon:'',svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:type||'Training',col:'#9C9C92'};
 }
 
-// Bulk-load the whole season once (season doc + ALL microcycles + ALL checkins) and cache
-// in memory, mirroring coach-mobile/coach-desktop's "load once, render from memory" pattern.
-// Week navigation (shiftWeek → renderWeek) then does zero Firestore reads.
+// Load current week plan from coach microcycle
 async function loadWeekPlan(orgId,offset){
   if(!orgId||!window.db)return;
   if(offset===undefined)offset=0;
-  currentOrgId=orgId;
-  // Reset plan form state on season (re)load
+  weekOffset=offset; currentOrgId=orgId;
+  // Reset plan form state on week change
   _loggingDate=null;
   _weekLoggedSessions={};
   try{
-    var baseWeekIdx=0;
-    var checkinsStartISO=null, checkinsEndISO=null;
+    var phase='none'; // will be set from season doc
     const seasonDoc=await window.db.collection('seasons').doc(orgId).get();
+    var baseWeekIdx=0;
+    var weekEvents={};
     if(seasonDoc.exists&&seasonDoc.data().startDate){
       const start=parseLocalDate(seasonDoc.data().startDate);
       const end=seasonDoc.data().endDate?parseLocalDate(seasonDoc.data().endDate):null;
@@ -1252,138 +1314,121 @@ async function loadWeekPlan(orgId,offset){
       seasonMinOffset=-baseWeekIdx; // can't go before season start
       if(end){
         seasonMaxOffset=Math.floor((end.getTime()-Date.now())/(7*24*3600*1000))+1;
-        if(offset>seasonMaxOffset) offset=seasonMaxOffset;
+        if(weekOffset>seasonMaxOffset) weekOffset=seasonMaxOffset;
       }
-      if(offset<seasonMinOffset) offset=seasonMinOffset;
-      _seasonPhaseMap=seasonDoc.data().weekPhases||{};
-      _seasonWeekEvents=seasonDoc.data().weekEvents||{};
+      if(weekOffset<seasonMinOffset) weekOffset=seasonMinOffset;
+      var phaseMap=seasonDoc.data().weekPhases||{};
+      weekEvents=seasonDoc.data().weekEvents||{};
       window._competitions=seasonDoc.data().competitions||[];
       window._camps=seasonDoc.data().camps||[];
-      checkinsStartISO=toISO(mondayAnchor);
-      checkinsEndISO=toISO(end||new Date(Date.now()+120*24*3600*1000));
-    } else {
-      // No season configured — fall back to a wide window around today so nav still works
-      _seasonMonAnchor=null; _seasonBaseWeekIdx=0;
-      var wideStart=new Date(); wideStart.setDate(wideStart.getDate()-90);
-      var wideEnd=new Date(); wideEnd.setDate(wideEnd.getDate()+90);
-      checkinsStartISO=toISO(wideStart); checkinsEndISO=toISO(wideEnd);
+      window._matches=seasonDoc.data().matchCalendar||[];
+      var weekIdx=Math.max(0,baseWeekIdx+weekOffset);
+      phase=phaseMap[weekIdx]||'none';
     }
-    weekOffset=offset;
-
-    // Preload ALL microcycles for the season in one round-trip (like coach-mobile/desktop)
-    _allMicrocycles={};
-    const microSnap=await window.db.collection('seasons').doc(orgId).collection('microcycles').get();
-    microSnap.forEach(function(doc){
-      var wIdx=(doc.data().weekIdx!==undefined)?doc.data().weekIdx:parseInt(doc.id.replace('week_',''),10);
-      _allMicrocycles[wIdx]=doc.data().plan||{};
-    });
-
-    // Preload ALL checkins across the season's date range in one query
-    _allCheckins={};
-    if(ADA_UID){
+    var weekIdx=Math.max(0,baseWeekIdx+weekOffset);
+    console.log('[ADA][date-diag] loadWeekPlan', { orgId: orgId, weekOffset: weekOffset, baseWeekIdx: baseWeekIdx, weekIdx: weekIdx, seasonStart: (seasonDoc.exists?seasonDoc.data().startDate:null), docPath: 'seasons/'+orgId+'/microcycles/week_'+weekIdx, todayLocal: toISO(new Date()) });
+    const microDoc=await window.db.collection('seasons').doc(orgId)
+      .collection('microcycles').doc('week_'+weekIdx).get();
+    const weekDates=buildWeekDatesOffset(weekOffset);
+    dayDates=weekDates.map(d=>d.getDate());
+    sessions=[];
+    if(microDoc.exists&&microDoc.data().plan){
+      const plan=microDoc.data().plan;
+      dayKeys.forEach(function(key,i){
+        const daySessions=plan[key]||[];
+        const nonRest=daySessions.filter(function(s){return s.type!=='rest'&&s.id!=='rest';});
+        if(!nonRest.length){
+          sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Rest day',dur:0,rpe:0,tl:0,done:false,_planned:[]});
+        } else {
+          const s=nonRest[0];
+          const t=sessTypeInfo(s.type);
+          const dur=s.duration||s.dur||0;
+          const rpe=s.rpe||0;
+          // Build _planned array for all non-rest sessions (multi-session support)
+          const plannedAll=nonRest.map(function(ps){
+            var pt=sessTypeInfo(ps.type);
+            var pd=ps.duration||ps.dur||0;
+            var pr=ps.rpe||0;
+            return {type:ps.type,icon:pt.icon,col:pt.col,name:ps.label||pt.name,dur:pd,rpe:pr,tl:pd*pr};
+          });
+          sessions.push({day:i,type:s.type,icon:t.icon,col:t.col,
+            name:s.label||t.name,dur:dur,rpe:rpe,tl:dur*rpe,done:false,_planned:plannedAll});
+        }
+      });
+    } else {
+      // No plan yet — show empty days
+      for(var i=0;i<7;i++){
+        sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Plan not created',dur:0,rpe:0,tl:0,done:false});
+      }
+    }
+    // Show phase in topbar
+    var phTag=document.getElementById('phase-tag');
+    if(phTag&&phase&&phase!=='none'){
+      var phLabels={off:'Off-season',prep:'General Prep',phys:'Specific Prep',precomp:'Pre-Competitive',comp:'Competitive',trans:'Transition'};
+      phTag.textContent=(phLabels[phase]||phase)+' · W'+(weekIdx+1);
+      phTag.style.display='';
+    }
+    // Update Today screen hero card
+    if(weekOffset===0){
+      var tIdx=(new Date().getDay()===0?6:new Date().getDay()-1);
+      var tS=sessions.find(function(s){return s.day===tIdx;})||null;
+      var ea=document.getElementById('hero-sess-icon'),eb=document.getElementById('hero-sess-name'),ec=document.getElementById('hero-sess-meta'),ed=document.getElementById('hero-sess-badge');
+      if(eb){
+        if(tS&&tS.type!=='rest'){eb.textContent=tS.name||'Training';if(ec)ec.textContent=(tS.type||'')+' · '+tS.dur+' min · RPE '+tS.rpe;if(ea){ea.innerHTML=tS.svg||tS.icon||'';ea.style.background=(tS.col||'#888')+'20';}if(ed)ed.textContent='Planned';}
+        else{eb.textContent='Rest day';if(ec)ec.textContent='No training today';if(ea){ea.innerHTML='';ea.style.background='var(--s2)';}if(ed)ed.textContent='Rest';}
+      }
+    }
+    var weekStartDate=buildWeekDatesOffset(weekOffset)[0];
+    var weekEndDate=buildWeekDatesOffset(weekOffset)[6];
+    var fmtD=function(d){return d.getDate()+'. '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];};
+    var pl=document.getElementById('plan-week-label');
+    if(pl){
+      var lbl=weekOffset===0?'This Week':weekOffset===-1?'Last Week':weekOffset===1?'Next Week':(weekOffset>0?'+':'')+weekOffset+' weeks';
+      pl.textContent=lbl+' · '+fmtD(weekStartDate)+' – '+fmtD(weekEndDate)+' · '+weekEndDate.getFullYear();
+    }
+    // Store weekEvents for competition marking
+    window._weekEventsCache=weekEvents; window._currentWeekIdx=weekIdx;
+    // Mark sessions as done for any day in this week that has a logged checkin
+    if(ADA_UID && window.db){
       try{
-        const checkinSnap=await window.db.collection('checkins').doc(ADA_UID)
-          .collection('sessions').where('date','>=',checkinsStartISO).where('date','<=',checkinsEndISO).get();
-        checkinSnap.forEach(function(doc){ _allCheckins[doc.data().date]=doc.data(); });
+        var weekDatesCheck=buildWeekDatesOffset(weekOffset);
+        var weekStart=toISO(weekDatesCheck[0]);
+        var weekEnd=toISO(weekDatesCheck[6]);
+        var weekSnap=await window.db.collection('checkins').doc(ADA_UID)
+          .collection('sessions').where('date','>=',weekStart).where('date','<=',weekEnd).get();
+        _weekLoggedSessions={};
+        weekSnap.forEach(function(doc){
+          var data=doc.data();
+          var loggedIso=data.date;
+          weekDatesCheck.forEach(function(d,i){
+            if(toISO(d)===loggedIso){
+              var ps=sessions.find(function(x){return x.day===i;});
+              if(ps){
+                ps.done=true;
+                // Overlay first logged session values over coach's plan
+                var ls=(data.sessions&&data.sessions.length)?data.sessions[0]:data;
+                if(ls.type&&ls.type!=='rest'){
+                  ps.type=ls.type;ps.name=ls.name||ps.name;ps.rpe=ls.rpe||ps.rpe;
+                  ps.dur=ls.duration||ls.dur||ps.dur;
+                  ps.tl=(data.sessions&&data.sessions.length)?data.sessions.reduce(function(s,x){return s+(x.tl||0);},0):(ls.rpe||ps.rpe)*(ls.duration||ls.dur||ps.dur);
+                  ps.col=(SESS_TYPES[ls.type]&&SESS_TYPES[ls.type].col)||ps.col;
+                }
+                // Cache full sessions array for multi-session display
+                _weekLoggedSessions[i]=(data.sessions&&data.sessions.length)?data.sessions
+                  :[{id:data.date,type:data.type||'training',name:data.name||'Training',
+                     rpe:data.rpe||0,duration:data.duration||0,tl:data.tl||0,note:data.note||''}];
+              }
+            }
+          });
+        });
+
       }catch(e){}
     }
-
-    renderWeek(weekOffset);
+    renderPlan();
   }catch(e){
     console.warn('loadWeekPlan:',e.message);
     renderPlan();
   }
-}
-
-// Pure in-memory render of a given week offset — reads from _allMicrocycles/_allCheckins
-// caches populated by loadWeekPlan. No Firestore calls, so week navigation is instant.
-function renderWeek(offset){
-  weekOffset=offset;
-  var weekIdx=Math.max(0,_seasonBaseWeekIdx+weekOffset);
-  var phase=_seasonPhaseMap[weekIdx]||'none';
-  const weekDates=buildWeekDatesOffset(weekOffset);
-  dayDates=weekDates.map(d=>d.getDate());
-  sessions=[];
-  const plan=_allMicrocycles[weekIdx];
-  if(plan){
-    dayKeys.forEach(function(key,i){
-      const daySessions=plan[key]||[];
-      const nonRest=daySessions.filter(function(s){return s.type!=='rest'&&s.id!=='rest';});
-      if(!nonRest.length){
-        sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Rest day',dur:0,rpe:0,tl:0,done:false,_planned:[]});
-      } else {
-        const s=nonRest[0];
-        const t=sessTypeInfo(s.type);
-        const dur=s.duration||s.dur||0;
-        const rpe=s.rpe||0;
-        // Build _planned array for all non-rest sessions (multi-session support)
-        const plannedAll=nonRest.map(function(ps){
-          var pt=sessTypeInfo(ps.type);
-          var pd=ps.duration||ps.dur||0;
-          var pr=ps.rpe||0;
-          return {type:ps.type,icon:pt.icon,col:pt.col,name:ps.label||pt.name,dur:pd,rpe:pr,tl:pd*pr};
-        });
-        sessions.push({day:i,type:s.type,icon:t.icon,col:t.col,
-          name:s.label||t.name,dur:dur,rpe:rpe,tl:dur*rpe,done:false,_planned:plannedAll});
-      }
-    });
-  } else {
-    // No plan cached for this week — show empty days
-    for(var i=0;i<7;i++){
-      sessions.push({day:i,type:'rest',icon:'—',col:'#cbd5e1',name:'Plan not created',dur:0,rpe:0,tl:0,done:false});
-    }
-  }
-  // Show phase in topbar
-  var phTag=document.getElementById('phase-tag');
-  if(phTag&&phase&&phase!=='none'){
-    var phLabels={off:'Off-season',prep:'General Prep',phys:'Specific Prep',precomp:'Pre-Competitive',comp:'Competitive',trans:'Transition'};
-    phTag.textContent=(phLabels[phase]||phase)+' · W'+(weekIdx+1);
-    phTag.style.display='';
-  }
-  // Update Today screen hero card
-  if(weekOffset===0){
-    var tIdx=(new Date().getDay()===0?6:new Date().getDay()-1);
-    var tS=sessions.find(function(s){return s.day===tIdx;})||null;
-    var ea=document.getElementById('hero-sess-icon'),eb=document.getElementById('hero-sess-name'),ec=document.getElementById('hero-sess-meta'),ed=document.getElementById('hero-sess-badge');
-    if(eb){
-      if(tS&&tS.type!=='rest'){eb.textContent=tS.name||'Training';if(ec)ec.textContent=(tS.type||'')+' · '+tS.dur+' min · RPE '+tS.rpe;if(ea){ea.innerHTML=tS.svg||tS.icon||'';ea.style.background=(tS.col||'#888')+'20';}if(ed)ed.textContent='Planned';}
-      else{eb.textContent='Rest day';if(ec)ec.textContent='No training today';if(ea){ea.innerHTML='';ea.style.background='var(--s2)';}if(ed)ed.textContent='Rest';}
-    }
-  }
-  var weekStartDate=weekDates[0];
-  var weekEndDate=weekDates[6];
-  var fmtD=function(d){return d.getDate()+'. '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];};
-  var pl=document.getElementById('plan-week-label');
-  if(pl){
-    var lbl=weekOffset===0?'This Week':weekOffset===-1?'Last Week':weekOffset===1?'Next Week':(weekOffset>0?'+':'')+weekOffset+' weeks';
-    pl.textContent=lbl+' · '+fmtD(weekStartDate)+' – '+fmtD(weekEndDate)+' · '+weekEndDate.getFullYear();
-  }
-  // Store weekEvents for competition marking
-  window._weekEventsCache=_seasonWeekEvents; window._currentWeekIdx=weekIdx;
-  // Mark sessions as done for any day in this week that has a logged checkin (from cache)
-  _weekLoggedSessions={};
-  weekDates.forEach(function(d,i){
-    var iso=toISO(d);
-    var data=_allCheckins[iso];
-    if(!data)return;
-    var ps=sessions.find(function(x){return x.day===i;});
-    if(ps){
-      ps.done=true;
-      // Overlay first logged session values over coach's plan
-      var ls=(data.sessions&&data.sessions.length)?data.sessions[0]:data;
-      if(ls.type&&ls.type!=='rest'){
-        ps.type=ls.type;ps.name=ls.name||ps.name;ps.rpe=ls.rpe||ps.rpe;
-        ps.dur=ls.duration||ls.dur||ps.dur;
-        ps.tl=(data.sessions&&data.sessions.length)?data.sessions.reduce(function(s,x){return s+(x.tl||0);},0):(ls.rpe||ps.rpe)*(ls.duration||ls.dur||ps.dur);
-        ps.col=(SESS_TYPES[ls.type]&&SESS_TYPES[ls.type].col)||ps.col;
-      }
-      // Cache full sessions array for multi-session display
-      _weekLoggedSessions[i]=(data.sessions&&data.sessions.length)?data.sessions
-        :[{id:data.date,type:data.type||'training',name:data.name||'Training',
-           rpe:data.rpe||0,duration:data.duration||0,tl:data.tl||0,note:data.note||''}];
-    }
-  });
-  renderPlan();
 }
 
 // Load last 7 checkin sessions for past sessions list
@@ -1698,6 +1743,10 @@ function savePast(i){
     .catch(function(e){console.warn('Past save:',e.message);});
 }
 
+function getMatchForISO(iso){
+  return (window._matches||[]).find(function(m){return m.date===iso;})||null;
+}
+
 function renderPlan(){
   const strip=document.getElementById('week-strip');
   if(!sessions.length||!dayDates.length){
@@ -1712,9 +1761,10 @@ function renderPlan(){
     const iso=toISO(buildWeekDatesOffset(weekOffset)[i]);
     const comps=window._competitions||[];
     const campArr=window._camps||[];
-    const inComp=comps.find(c=>iso>=c.startDate&&iso<=c.endDate);
-    const inCamp=!inComp&&campArr.find(c=>iso>=c.startDate&&iso<=c.endDate);
-    const evColor=inComp?'#f59e0b':inCamp?'#22c55e':null;
+    const inMatch=getMatchForISO(iso);
+    const inComp=!inMatch&&comps.find(c=>iso>=c.startDate&&iso<=c.endDate);
+    const inCamp=!inMatch&&!inComp&&campArr.find(c=>iso>=c.startDate&&iso<=c.endDate);
+    const evColor=inMatch?'#FF6F61':inComp?'#f59e0b':inCamp?'#22c55e':null;
     const evBg=evColor?`background:${evColor}18;`:'';
     const evBorder=evColor?`border-bottom:2px solid ${evColor};`:'';
     const dotColor=s?s.col:evColor?evColor:'transparent';
@@ -1726,13 +1776,23 @@ function renderPlan(){
   }).join('');
   const s=sessions.find(x=>x.day===activePlanDay);
   const dd=document.getElementById('plan-day-detail');
+  const selDateObj=buildWeekDatesOffset(weekOffset)[activePlanDay];
+  const selIso=selDateObj?toISO(selDateObj):null;
+  const selMatch=selIso?getMatchForISO(selIso):null;
+  const matchBannerHTML=selMatch?'<div style="background:rgba(255,111,97,0.08);border:1px solid rgba(255,111,97,0.3);border-left:3px solid #FF6F61;border-radius:10px;padding:11px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px">'
+    +'<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,111,97,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6F61" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>'
+    +'</div><div style="flex:1;min-width:0">'
+    +'<div style="font-family:var(--mono);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#FF6F61">Match Day</div>'
+    +'<div style="font-size:0.88rem;font-weight:800;margin-top:1px">vs '+(selMatch.opponent||'TBD')+'</div>'
+    +'</div></div>':'';
   if(!s||s.type==='rest'){
     var detTodayIdxR=(new Date().getDay()+6)%7;
     var canLogR=(weekOffset<0)||(weekOffset===0&&activePlanDay<=detTodayIdxR);
     var showFormR=(_planFormDay===activePlanDay);
     var inlineFormR=showFormR?(buildPlanInlineForm(activePlanDay)):'';
     _planFormDay=showFormR?_planFormDay:null;
-    dd.innerHTML='<div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;text-align:center">'
+    dd.innerHTML=matchBannerHTML+'<div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;text-align:center">'
       +'<div style="opacity:0.4;margin-bottom:6px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>'
       +'<div style="font-weight:700;font-size:0.85rem;margin-bottom:'+(canLogR&&!showFormR?'10':'0')+'px">Rest Day</div>'
       +(canLogR&&!showFormR?'<button class="btn" style="background:var(--s2);border:1px solid var(--bdr);font-size:0.82rem;margin-top:4px" onclick="openPlanForm('+activePlanDay+',false,false)">+ Add Session</button>':'')
@@ -1742,9 +1802,11 @@ function renderPlan(){
     document.getElementById('plan-all').innerHTML=sessions.map(function(s){
       var iso=buildWeekDatesOffset(weekOffset)[s.day]?toISO(buildWeekDatesOffset(weekOffset)[s.day]):null;
       var comps=window._competitions||[],campArr=window._camps||[];
-      var inComp=iso&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-      var inCamp=iso&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-      var evPill=inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
+      var inMatch=iso&&getMatchForISO(iso);
+      var inComp=iso&&!inMatch&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+      var inCamp=iso&&!inMatch&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+      var evPill=inMatch?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#FF6F6120;color:#FF6F61;border:1px solid #FF6F6140;border-radius:4px;padding:1px 5px">vs '+(inMatch.opponent||'Match')+'</span>'
+        :inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
         :inCamp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#22c55e20;color:#15803d;border:1px solid #22c55e40;border-radius:4px;padding:1px 5px">Camp</span>':'';
       var tIdx2=(new Date().getDay()+6)%7;
       var rowToday=(weekOffset===0&&s.day===tIdx2);
@@ -1752,7 +1814,7 @@ function renderPlan(){
       return '<div class="prev-day'+(s.done?' done':'')+(s.day===activePlanDay?' sel':'')+'\" '+rowStyle+' onclick="selectPlanDay('+s.day+')" style="cursor:pointer">'
         +'<div class="prev-date"><div class="pd-dow">'+dayNames[s.day]+'</div><div class="pd-n">'+dayDates[s.day]+'</div></div>'
         +'<div class="pd-div"></div>'
-        +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+((SESS_TYPES[s.type]&&SESS_TYPES[s.type].name)||s.type)+evPill+'</div>'
+        +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+s.name+evPill+'</div>'
         +'<div class="pd-meta">'+(s.type!=='rest'?s.dur+' min · RPE '+s.rpe+' · TL '+s.tl:'Rest day')+'</div></div>'
         +(s.type==='rest'?'<span class="badge" style="background:var(--s2);color:var(--tl);border:1px solid var(--bdr)">Rest</span>'
           :s.done?'<span class="badge bg">&#x2713; Logged</span>':'<span class="badge bc">Planned</span>')
@@ -1779,17 +1841,15 @@ function renderPlan(){
     var ls=loggedArr[idx];
     var isLogged=!!ls;
     var lc=(ls&&SESS_TYPES[ls.type]&&SESS_TYPES[ls.type].col)||ps.col;
-    var typeName=(SESS_TYPES[ps.type]&&SESS_TYPES[ps.type].name)||ps.type;
-    var hasObjective=ps.name&&ps.name!==typeName;
     return divider
       +'<div style="display:flex;align-items:flex-start;gap:9px">'
       +'<div style="width:3px;border-radius:2px;background:'+ps.col+';align-self:stretch;flex-shrink:0;margin-top:2px"></div>'
       +'<div style="flex:1;min-width:0">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px">'
-      +'<div style="font-size:0.88rem;font-weight:800">'+typeName+'</div>'
+      +'<div style="font-size:0.88rem;font-weight:800">'+ps.name+'</div>'
       +'<span class="badge '+(isLogged?'bg':'bc')+'" style="font-size:0.6rem;padding:2px 6px;flex-shrink:0">'+(isLogged?'&#x2713; Logged':'Planned')+'</span>'
       +'</div>'
-      +'<div style="font-size:0.78rem;color:'+(hasObjective?'var(--tm)':'var(--tl)')+';margin-bottom:4px'+(hasObjective?'':';font-style:italic')+'">'+(hasObjective?ps.name:'No objective set')+'</div>'
+      +'<div style="font-family:var(--mono);font-size:0.68rem;color:'+ps.col+';margin-bottom:4px">'+ps.type+'</div>'
       +'<div style="font-family:var(--mono);font-size:0.7rem;color:var(--tl)">'+ps.dur+' min · RPE '+ps.rpe+' · TL '+ps.tl+'</div>'
       +(isLogged&&ls
         ?'<div style="margin-top:7px;padding:7px 9px;background:'+lc+'0f;border:1px solid '+lc+'30;border-left:2px solid '+lc+';border-radius:7px">'
@@ -1810,7 +1870,7 @@ function renderPlan(){
       +'<span style="font-family:var(--mono);font-size:0.85rem;font-weight:700;color:var(--coral)">TL '+(allLogged?totalLoggedTL:totalPlannedTL)+'</span>'
       +'</div>'
     :'';
-  dd.innerHTML='<div style="'+border+bg+'border-radius:10px;padding:12px;">'
+  dd.innerHTML=matchBannerHTML+'<div style="'+border+bg+'border-radius:10px;padding:12px;">'
     +(isToday?'<div style="font-family:var(--mono);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--coral);margin-bottom:8px">&#x2605; Today</div>':'')
     +stackHTML
     +totalRow
@@ -1828,9 +1888,11 @@ function renderPlan(){
   document.getElementById('plan-all').innerHTML=sessions.map(function(s){
     var iso=buildWeekDatesOffset(weekOffset)[s.day]?toISO(buildWeekDatesOffset(weekOffset)[s.day]):null;
     var comps=window._competitions||[],campArr=window._camps||[];
-    var inComp=iso&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-    var inCamp=iso&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
-    var evPill=inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
+    var inMatch=iso&&getMatchForISO(iso);
+    var inComp=iso&&!inMatch&&comps.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+    var inCamp=iso&&!inMatch&&!inComp&&campArr.find(function(c){return iso>=c.startDate&&iso<=c.endDate;});
+    var evPill=inMatch?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#FF6F6120;color:#FF6F61;border:1px solid #FF6F6140;border-radius:4px;padding:1px 5px">vs '+(inMatch.opponent||'Match')+'</span>'
+      :inComp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#f59e0b20;color:#d97706;border:1px solid #f59e0b40;border-radius:4px;padding:1px 5px">Competition</span>'
       :inCamp?'&nbsp;<span style="font-family:var(--mono);font-size:0.65rem;background:#22c55e20;color:#15803d;border:1px solid #22c55e40;border-radius:4px;padding:1px 5px">Camp</span>':'';
     var tIdx2=(new Date().getDay()+6)%7;
     var rowToday=(weekOffset===0&&s.day===tIdx2);
@@ -1838,7 +1900,7 @@ function renderPlan(){
     return '<div class="prev-day'+(s.done?' done':'')+(s.day===activePlanDay?' sel':'')+'" '+rowStyle+' onclick="selectPlanDay('+s.day+')" style="cursor:pointer">'
       +'<div class="prev-date"><div class="pd-dow">'+dayNames[s.day]+'</div><div class="pd-n">'+dayDates[s.day]+'</div></div>'
       +'<div class="pd-div"></div>'
-      +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+((SESS_TYPES[s.type]&&SESS_TYPES[s.type].name)||s.type)+evPill+'</div>'
+      +'<div class="pd-info"><div class="pd-type">'+(SESS_TYPES[s.type]&&SESS_TYPES[s.type].svg||'')+' '+s.name+evPill+'</div>'
       +'<div class="pd-meta">'+(s.type!=='rest'?s.dur+' min · RPE '+s.rpe+' · TL '+s.tl:'Rest day')+'</div></div>'
       +(s.type==='rest'?'<span class="badge" style="background:var(--s2);color:var(--tl);border:1px solid var(--bdr)">Rest</span>'
         :s.done?'<span class="badge bg">&#x2713; Logged</span>':'<span class="badge bc">Planned</span>')
@@ -1878,7 +1940,7 @@ function shiftWeek(dir){
   if(seasonMinOffset!==null&&newOffset<seasonMinOffset)return;
   if(seasonMaxOffset!==null&&newOffset>seasonMaxOffset)return;
   _planFormDay=null;
-  renderWeek(newOffset);
+  loadWeekPlan(currentOrgId,newOffset);
 }
 function selectPlanDay(i){
   activePlanDay=i;_planFormDay=null;renderPlan();
@@ -1942,22 +2004,19 @@ function submitPlanLog(day){
   if(!ADA_UID||!window.db)return;
   if(_planFormAddAnother){
     // Append to existing sessions array — read first, then write
-    var _appendDocData=null;
     window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso)
       .get().then(function(doc){
         var existing=doc.exists?(doc.data().sessions||[]):[];
         var updatedSessions=existing.concat([newSess]);
         var combinedTL=updatedSessions.reduce(function(s,x){return s+(x.tl||0);},0);
-        _appendDocData={date:iso,sessions:updatedSessions,tl:combinedTL};
-        return window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).set(_appendDocData,{merge:true});
+        var docData={date:iso,sessions:updatedSessions,tl:combinedTL};
+        return window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).set(docData,{merge:true});
       }).then(function(){
         var ps=sessions.find(function(x){return x.day===day;});
         if(ps){ps.done=true;ps.tl=(ps.tl||0)+tl;}
         // Update local cache for immediate multi-session display
         if(!_weekLoggedSessions[day]) _weekLoggedSessions[day]=[];
         _weekLoggedSessions[day]=_weekLoggedSessions[day].concat([newSess]);
-        // Keep season-wide checkins cache in sync so revisiting this week later stays correct
-        _allCheckins[iso]=_appendDocData;
         _planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;
         renderPlan();
         showSuccess('ok','Session Added','TL '+tl+' · RPE '+_planFormRpe+' · '+_planFormDur+' min');
@@ -1975,8 +2034,6 @@ function submitPlanLog(day){
         }
         // Update local cache — replace first session (edit) or initialise (new)
         _weekLoggedSessions[day]=[newSess];
-        // Keep season-wide checkins cache in sync so revisiting this week later stays correct
-        _allCheckins[iso]=doc;
         _planFormDay=null;_planFormEditing=false;_planFormOrigId=null;_planFormAddAnother=false;
         renderPlan();
         showSuccess('ok','Session Saved','TL '+tl+' · RPE '+_planFormRpe+' · '+_planFormDur+' min');
@@ -1989,14 +2046,7 @@ function deletePlanLog(day){
   window.db.collection('checkins').doc(ADA_UID).collection('sessions').doc(iso).delete()
     .then(function(){
       var ps=sessions.find(function(x){return x.day===day;});if(ps)ps.done=false;
-      // Keep season-wide checkins cache in sync
-      delete _allCheckins[iso];
-      delete _weekLoggedSessions[day];
-      _planFormDay=null;
-      // Rebuild sessions[] from cache so any overlaid logged-session fields
-      // (type/name/rpe/dur/tl/col) revert to the original planned session —
-      // renderPlan() alone would just re-render the still-stale data.
-      renderWeek(weekOffset);
+      _planFormDay=null;renderPlan();
       showSuccess('ok','Session Deleted','Log removed.');
     }).catch(function(e){console.warn('deletePlanLog:',e.message);});
 }
@@ -2113,6 +2163,71 @@ window.addEventListener('popstate', function(){
 });
 
 
+/* ── Welcome / Onboarding Modal ── */
+var _welcomeStep = 1;
+var _welcomeMaxStep = 3;
+
+function welcomeShow() {
+  if (window.ADA_USER && window.ADA_USER.onboarded) return;
+  _welcomeStep = 1;
+  _welcomeMaxStep = (window.ADA_USER && window.ADA_USER.coachId) ? 2 : 3; // skip "link to coach" step if already linked
+  welcomeRender();
+  document.getElementById('welcome-overlay').classList.add('open');
+}
+
+function welcomeRender() {
+  [1, 2, 3].forEach(function(n) {
+    var el = document.getElementById('welcome-step-' + n);
+    if (el) el.classList.toggle('active', n === _welcomeStep);
+  });
+  document.getElementById('welcome-dots').innerHTML = Array.from({length: _welcomeMaxStep}, function(_, i) {
+    return '<div class="welcome-dot' + (i + 1 === _welcomeStep ? ' active' : '') + '"></div>';
+  }).join('');
+
+  var isLast = _welcomeStep === _welcomeMaxStep;
+  var ctaBtn  = document.getElementById('welcome-cta-btn');
+  var skipBtn = document.getElementById('welcome-skip-btn');
+  if (isLast && _welcomeMaxStep === 3) {
+    // Final step is the "link to coach" step
+    ctaBtn.textContent = 'Link to Coach →';
+    ctaBtn.setAttribute('onclick', 'welcomeCloseAndLink()');
+    skipBtn.textContent = "I'll do this later";
+  } else if (isLast) {
+    ctaBtn.textContent = 'Get Started ✓';
+    ctaBtn.setAttribute('onclick', 'welcomeClose()');
+    skipBtn.textContent = 'Skip';
+  } else {
+    ctaBtn.textContent = 'Next →';
+    ctaBtn.setAttribute('onclick', 'welcomeNext()');
+    skipBtn.textContent = 'Skip';
+  }
+}
+
+function welcomeNext() {
+  if (_welcomeStep < _welcomeMaxStep) { _welcomeStep++; welcomeRender(); }
+  else welcomeClose();
+}
+
+function welcomeMarkOnboarded() {
+  if (window.ADA_USER && window.db && window.ADA_USER.uid) {
+    window.ADA_USER.onboarded = true; // don't re-show later this same session
+    window.db.collection('users').doc(window.ADA_USER.uid)
+      .set({ onboarded: true }, { merge: true })
+      .catch(function(e){ console.error('Failed to save onboarded flag:', e); });
+  }
+}
+
+function welcomeClose() {
+  document.getElementById('welcome-overlay').classList.remove('open');
+  welcomeMarkOnboarded();
+}
+
+function welcomeCloseAndLink() {
+  document.getElementById('welcome-overlay').classList.remove('open');
+  welcomeMarkOnboarded();
+  openCoachLinkModal();
+}
+
 window.addEventListener('ada:ready', function(e){
   var u=window.ADA_USER;
   if(u&&!u.error){
@@ -2129,6 +2244,7 @@ window.addEventListener('ada:ready', function(e){
     if(!u.coachId){
       document.getElementById('coach-link-banner').classList.add('visible');
     }
+    setTimeout(function(){ welcomeShow(); }, 800);
   } else {
     init();
   }
@@ -2137,6 +2253,18 @@ window.addEventListener('ada:ready', function(e){
 // ── Coach Link Modal ──────────────────────────────────────────────
 var clbResolvedCoach = null;
 var clbCheckTimer    = null;
+
+// Invite-code lookup goes through a Cloud Function, not a direct Firestore
+// query — no rule permits an athlete to list coaches by an arbitrary field
+// like inviteCode, and rightly so (that's the same broad access we removed
+// for security reasons). Region must match where the function is deployed.
+// Lazily resolved (not a top-level firebase.app() call) because the Firebase
+// SDK scripts load at the bottom of this file, after this block is parsed —
+// calling firebase.app() here at parse time would throw before the SDK exists.
+function clbLookupCoachFn(payload){
+  return firebase.app().functions('asia-southeast1')
+    .httpsCallable('lookupCoachByInviteCode')(payload);
+}
 
 function openCoachLinkModal(){
   document.getElementById('clb-modal').classList.add('open');
@@ -2167,19 +2295,15 @@ document.getElementById('clb-code-input').addEventListener('input', function(){
 
   clbCheckTimer = setTimeout(async function(){
     try {
-      var snap = await window.db.collection('users')
-        .where('role','==','coach')
-        .where('inviteCode','==',val)
-        .limit(1).get();
-      if(snap.empty){
+      var res = await clbLookupCoachFn({ code: val });
+      if(!res.data || !res.data.found){
         st.className='clb-status err';
         st.textContent='No coach found with that code.';
       } else {
-        var doc = snap.docs[0];
-        var d   = doc.data();
-        clbResolvedCoach = { uid: doc.id, orgId: d.orgId || doc.id, name: d.name || '' };
+        var d = res.data;
+        clbResolvedCoach = { uid: d.uid, orgId: d.orgId, name: d.name || '' };
         st.className='clb-status ok';
-        st.textContent='Coach found: ' + (d.name || doc.id);
+        st.textContent='Coach found: ' + (d.name || d.uid);
         document.getElementById('clb-link-btn').disabled = false;
       }
     } catch(err){
@@ -2194,11 +2318,13 @@ async function submitCoachLink(){
   var btn = document.getElementById('clb-link-btn');
   btn.disabled = true;
   btn.textContent = 'Linking…';
+  var codeVal = document.getElementById('clb-code-input').value.trim();
   try {
     var batch = window.db.batch();
     batch.update(window.db.collection('users').doc(ADA_UID), {
-      coachId: clbResolvedCoach.uid,
-      orgId:   clbResolvedCoach.orgId
+      coachId:    clbResolvedCoach.uid,
+      orgId:      clbResolvedCoach.orgId,
+      inviteCode: codeVal
     });
     batch.update(window.db.collection('users').doc(clbResolvedCoach.uid), {
       assignedAthletes: firebase.firestore.FieldValue.arrayUnion(ADA_UID)
@@ -2248,6 +2374,7 @@ function ctxTipDismiss(key) {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script src="../assets/firebase-config.js"></script>
 <script>firebase.initializeApp(FIREBASE_CONFIG);</script>
 <script src="../assets/auth-gate.js"></script>

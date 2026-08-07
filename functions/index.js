@@ -17,7 +17,7 @@
  * Deploy: firebase deploy --only functions
  */
 
-const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
+const { onDocumentCreated, onDocumentUpdated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
@@ -43,6 +43,10 @@ const COUNTERS_DOC = db.collection('meta').doc('counters');
  * coach is attached to their head coach's existing orgId (see
  * generateAssistantInviteCode / lookupAssistantCoachByInviteCode below) and
  * must never get an orgs/{orgId} doc, tier, or athleteLimit of their own.
+ *
+ * Only fires on document CREATION — an athlete linking to a coach after
+ * their initial signup is an UPDATE to an existing doc, not a create, and
+ * is handled separately by onUserUpdated below.
  */
 exports.onUserCreated = onDocumentCreated('users/{uid}', async (event) => {
   const snap = event.data;
@@ -99,6 +103,56 @@ async function handleAthleteCreated(data) {
       console.error(`Failed to increment athleteCount for org ${orgId}:`, e.message);
     });
 }
+
+/**
+ * Keeps orgs/{orgId}.athleteCount accurate when an EXISTING athlete's orgId
+ * changes — linking to a coach for the first time after a self-org signup,
+ * switching from one coach to another, or unlinking back to self-org.
+ *
+ * This is the piece handleAthleteCreated (above) can't cover: that only
+ * fires on onDocumentCreated, i.e. brand-new docs at signup time. An athlete
+ * who signs up self-org and links to a coach LATER is doing an update to an
+ * already-existing doc, which never fires the create trigger — so without
+ * this, a coach's athleteCount silently never increments for any athlete
+ * who links post-signup rather than joining directly via invite code at
+ * signup time (see athleteSignupAllowed's orgId == athleteUid branch).
+ *
+ * Symmetric: decrements the OLD org (if any) and increments the NEW org (if
+ * any), same tolerant fire-and-log-don't-throw pattern as the rest of this
+ * file — a self-org orgId has no orgs/{orgId} doc to update in the first
+ * place, so that side is just a harmless no-op via the .catch().
+ */
+exports.onUserUpdated = onDocumentUpdated('users/{uid}', async (event) => {
+  const before = event.data && event.data.before && event.data.before.data();
+  const after  = event.data && event.data.after  && event.data.after.data();
+  if (!before || !after) return;
+  if (after.role !== 'athlete') return;
+
+  const oldOrgId = before.orgId;
+  const newOrgId = after.orgId;
+  if (oldOrgId === newOrgId) return; // no org change — nothing to reconcile
+
+  const ops = [];
+  if (oldOrgId) {
+    ops.push(
+      db.collection('orgs').doc(oldOrgId)
+        .update({ athleteCount: FieldValue.increment(-1) })
+        .catch((e) => {
+          console.error(`Failed to decrement athleteCount for org ${oldOrgId}:`, e.message);
+        })
+    );
+  }
+  if (newOrgId) {
+    ops.push(
+      db.collection('orgs').doc(newOrgId)
+        .update({ athleteCount: FieldValue.increment(1) })
+        .catch((e) => {
+          console.error(`Failed to increment athleteCount for org ${newOrgId}:`, e.message);
+        })
+    );
+  }
+  await Promise.all(ops);
+});
 
 /**
  * Keep athleteCount accurate when an athlete account is deleted

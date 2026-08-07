@@ -270,14 +270,14 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 .bn-item.on .bn-icon svg{stroke:var(--coral)}
 
 .s-settings-wrap{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;padding-bottom:40px}
-.set-card{background:#fff;border:1px solid var(--bdr2);border-radius:11px;padding:0 16px;overflow:hidden}
+.set-card{background:#fff;border:1px solid var(--bdr2);border-radius:11px;padding:0 16px;overflow:hidden;flex-shrink:0}
 .set-section-lbl{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--tl);padding:12px 0 8px;border-bottom:1px solid var(--bdr2);margin-bottom:0}
 .set-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bdr)}
 .set-row:last-child{border-bottom:none}
 .set-row-lbl{font-size:0.85rem;font-weight:700;color:var(--tx)}
 .set-row-val{font-family:var(--mono);font-size:0.82rem;color:var(--tl);max-width:55%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.set-code-block{background:var(--s1);border:1.5px dashed rgba(22,101,52,0.35);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;margin:8px 0 12px}
-.set-code-val{font-family:var(--mono);font-size:1.5rem;font-weight:700;letter-spacing:0.2em;color:var(--tx);flex:1}
+.set-code-block{background:var(--s1);border:1.5px dashed rgba(22,101,52,0.35);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;margin:8px 0 12px;min-height:52px}
+.set-code-val{font-family:var(--mono);font-size:1.5rem;line-height:1.3;font-weight:700;letter-spacing:0.2em;color:var(--tx);flex:1;overflow-wrap:break-word;word-break:break-all}
 .set-code-copy{padding:8px 12px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-family:var(--sans);font-weight:700;font-size:0.8rem;cursor:pointer}
 .set-signout{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(220,38,38,0.3);background:rgba(220,38,38,0.06);color:var(--red);font-family:var(--sans);font-weight:700;font-size:0.88rem;cursor:pointer;margin:8px 0 4px}
 .set-delete{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(220,38,38,0.5);background:rgba(220,38,38,0.12);color:var(--red);font-family:var(--sans);font-weight:700;font-size:0.88rem;cursor:pointer;margin:0 0 4px}
@@ -336,6 +336,7 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <script src="../assets/firebase-config.js"></script>
 </head>
 <body>
@@ -612,20 +613,34 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 
   <div id="phase-picker" style="display:none;flex-shrink:0;padding:10px 14px 12px;background:var(--bg);border-top:1.5px solid var(--bdr2);flex-direction:column;gap:0"></div>
   <!-- SETTINGS SCREEN -->
-  <div class="screen" id="s-settings" style="flex-direction:column">
+  <div class="screen" id="s-settings" style="flex-direction:column;overflow:hidden">
     <div class="s-settings-wrap">
       <div class="set-card">
         <div class="set-section-lbl">Profile</div>
         <div class="set-row"><div class="set-row-lbl">Name</div><div class="set-row-val" id="set-name">—</div></div>
         <div class="set-row"><div class="set-row-lbl">Email</div><div class="set-row-val" id="set-email">—</div></div>
-        <div class="set-row"><div class="set-row-lbl">Role</div><div class="set-row-val">Coach</div></div>
+        <div class="set-row"><div class="set-row-lbl">Role</div><div class="set-row-val" id="set-role">Coach</div></div>
       </div>
-      <div class="set-card">
+      <div class="set-card" id="settings-athlete-invite-section">
         <div class="set-section-lbl">Athlete Invite Code</div>
         <div style="font-size:0.78rem;color:var(--tl);line-height:1.5;padding:10px 0 0">Share this code with athletes to link them to your roster.</div>
         <div class="set-code-block">
           <div class="set-code-val" id="set-invite-code">——</div>
-          <button class="set-code-copy" onclick="copySettingsCode()">Copy</button>
+          <button class="set-code-copy" onclick="copySettingsCode(this)">Copy</button>
+        </div>
+      </div>
+      <div class="set-card" id="settings-assistant-invite-section" style="display:none">
+        <div class="set-section-lbl">Assistant Coach Invite Code</div>
+        <div style="font-size:0.78rem;color:var(--tl);line-height:1.5;padding:10px 0 0">Share this code with an assistant coach so they can access your plans and stats.</div>
+        <div class="set-code-block">
+          <div class="set-code-val" id="set-assistant-invite-code">——</div>
+          <button class="set-code-copy" onclick="copyAssistantInviteCode(this)">Copy</button>
+        </div>
+        <button class="add-match-btn" style="margin-top:10px" onclick="generateAssistantCode(true)">Generate New Code</button>
+        <div style="height:1px;background:var(--bdr);margin:16px 0 12px;"></div>
+        <div style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--tl);margin-bottom:8px;">Linked Assistants</div>
+        <div id="assistant-list" style="display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:0.78rem;color:var(--tl);">Loading…</div>
         </div>
       </div>
       <div class="set-card">
@@ -642,7 +657,7 @@ html,body{height:100%;background:#1A2918;font-family:var(--sans);overflow:hidden
 <div class="del-modal-overlay" id="del-modal-overlay" onclick="closeDeleteModal(event)">
   <div class="del-modal" onclick="event.stopPropagation()">
     <div class="del-modal-title">&#x26A0; Delete Account</div>
-    <div class="del-modal-body">This will permanently delete your account, season plan, weekly plans and unlink all your athletes. This cannot be undone.<br><br>Enter your password to confirm.</div>
+    <div class="del-modal-body" id="del-modal-body">This will permanently delete your account, season plan, weekly plans and unlink all your athletes. This cannot be undone.<br><br>Enter your password to confirm.</div>
     <input class="del-modal-pw" type="password" id="del-modal-pw" placeholder="Your password" autocomplete="current-password">
     <div class="del-modal-status" id="del-modal-status"></div>
     <div class="del-modal-actions">
@@ -757,17 +772,36 @@ window.addEventListener('ada:ready', function(e) {
     orgName:    u.orgName    || '',
     discipline: u.discipline || '',
     coachRole:  u.coachRole  || '',
-    uid:        u.uid        || ''
+    uid:        u.uid        || '',
+    role:       u.role       || ''
   };
 
-  // Populate settings + invite cards
-  if(u.inviteCode){
+  // Populate settings + invite cards — head coach only. u.inviteCode is also
+  // populated for assistant coaches (it holds the code THEY typed in at
+  // signup, needed by firestore.rules to verify their signup) — showing it
+  // here for an assistant would display the wrong code under the wrong
+  // label, so this is gated on role, not just presence of the field.
+  if (u.role === 'coach' && u.inviteCode) {
     var timCard=document.getElementById('tim-invite-card');
     var timCode=document.getElementById('tim-invite-code');
     if(timCard) timCard.classList.add('visible');
     if(timCode) timCode.textContent=u.inviteCode;
     var setCode=document.getElementById('set-invite-code');
     if(setCode) setCode.textContent=u.inviteCode;
+  }
+  var setRoleEl = document.getElementById('set-role');
+  if (setRoleEl) setRoleEl.textContent = (u.role === 'assistantCoach') ? 'Assistant Coach' : 'Head Coach';
+  var athInviteSection = document.getElementById('settings-athlete-invite-section');
+  var assistInviteSection = document.getElementById('settings-assistant-invite-section');
+  if (u.role === 'assistantCoach') {
+    if (athInviteSection) athInviteSection.style.display = 'none';
+  } else if (u.role === 'coach') {
+    if (assistInviteSection) {
+      assistInviteSection.style.display = 'block';
+      var assistCodeEl = document.getElementById('set-assistant-invite-code');
+      if (assistCodeEl) assistCodeEl.textContent = u.assistantInviteCode || '——';
+      loadAssistantList();
+    }
   }
   var setName=document.getElementById('set-name');
   var setEmail=document.getElementById('set-email');
@@ -781,7 +815,27 @@ function loadAthletesFromFirestore(u) {
   var db = window.db;
   if (!u.orgId) { enterApp(); return; }
 
-  var uids = Array.isArray(u.assignedAthletes) ? u.assignedAthletes : [];
+  if (!Array.isArray(u.assignedAthletes)) {
+    // Assistant coaches have no assignedAthletes field of their own — that
+    // list lives on the head coach's doc, not theirs. Without this, the
+    // check below would always see zero uids and show an assistant an
+    // empty roster regardless of team size. Mirrors this function's own
+    // athletes→users fallback below, just org-scoped instead of uid-scoped.
+    db.collection('athletes').where('orgId','==',u.orgId).get().then(function(snap) {
+      if (!snap.empty) {
+        athletes = snap.docs.map(function(doc){ return { id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() }; });
+        loadCheckins(u);
+      } else {
+        db.collection('users').where('orgId','==',u.orgId).where('role','==','athlete').get().then(function(uSnap) {
+          athletes = uSnap.docs.map(function(doc){ return { id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() }; });
+          if (athletes.length) loadCheckins(u); else loadWeekPlan(u);
+        }).catch(function(){ athletes = []; loadWeekPlan(u); });
+      }
+    }).catch(function(){ athletes = []; loadWeekPlan(u); });
+    return;
+  }
+
+  var uids = u.assignedAthletes;
 
   if (uids.length === 0) {
     athletes = [];
@@ -789,39 +843,28 @@ function loadAthletesFromFirestore(u) {
     return;
   }
 
-  // Firestore 'in' query limit is 30 — chunk if needed
-  var chunks = [];
-  for (var i = 0; i < uids.length; i += 30) chunks.push(uids.slice(i, i+30));
+  // Query by orgId, not uid list — Firestore security rules aren't filters:
+  // a list query must structurally match the rule's own field comparison
+  // (orgId == myOrgId()) for Firestore to authorize it, even when every
+  // actual result would individually pass a uid-based check.
+  // https://firebase.google.com/docs/firestore/security/rules-conditions#rules_are_not_filters
+  var assignedSet = {};
+  uids.forEach(function(id){ assignedSet[id] = true; });
 
-  var allAthletes = [];
-  var pending = chunks.length;
-
-  chunks.forEach(function(chunk) {
-    db.collection('athletes').where('uid','in',chunk).get().then(function(snap) {
-      if (!snap.empty) {
-        snap.forEach(function(doc) {
-          allAthletes.push({ id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() });
-        });
-        pending--;
-        if (pending === 0) { athletes = allAthletes; loadCheckins(u); }
-      } else {
-        // Free-tier fallback: athletes live in users collection, not athletes collection
-        db.collection('users').where('uid','in',chunk).get().then(function(uSnap) {
-          uSnap.forEach(function(doc) {
-            allAthletes.push({ id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() });
-          });
-          pending--;
-          if (pending === 0) { athletes = allAthletes; loadCheckins(u); }
-        }).catch(function() {
-          pending--;
-          if (pending === 0) { athletes = allAthletes; loadWeekPlan(u); }
-        });
-      }
-    }).catch(function() {
-      pending--;
-      if (pending === 0) { athletes = allAthletes; loadWeekPlan(u); }
-    });
-  });
+  db.collection('athletes').where('orgId','==',u.orgId).get().then(function(snap) {
+    var found = snap.docs.filter(function(doc){ return assignedSet[doc.id] || assignedSet[doc.data().uid]; });
+    if (found.length) {
+      athletes = found.map(function(doc){ return { id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() }; });
+      loadCheckins(u);
+    } else {
+      // Free-tier fallback: athletes live in users collection, not athletes collection
+      db.collection('users').where('orgId','==',u.orgId).where('role','==','athlete').get().then(function(uSnap) {
+        var uFound = uSnap.docs.filter(function(doc){ return assignedSet[doc.id] || assignedSet[doc.data().uid]; });
+        athletes = uFound.map(function(doc){ return { id: doc.id, uid: doc.id, score: null, checkin: null, lastCheckin: null, injury: null, ...doc.data() }; });
+        if (athletes.length) loadCheckins(u); else loadWeekPlan(u);
+      }).catch(function(){ athletes = []; loadWeekPlan(u); });
+    }
+  }).catch(function(){ athletes = []; loadWeekPlan(u); });
 }
 
 // ── Load stats — ported from coach-desktop, identical calculations ──
@@ -2788,6 +2831,12 @@ function openDeleteModal() {
   document.getElementById('del-modal-status').textContent = '';
   document.getElementById('del-modal-status').style.color = '';
   document.getElementById('del-modal-confirm').disabled = false;
+  var bodyEl = document.getElementById('del-modal-body');
+  if (bodyEl) {
+    bodyEl.innerHTML = (window.ADA_USER && window.ADA_USER.role === 'assistantCoach')
+      ? 'This will permanently delete your account and remove your access to this team\u2019s plans and stats. This cannot be undone.<br><br>Enter your password to confirm.'
+      : 'This will permanently delete your account, season plan, weekly plans and unlink all your athletes. This cannot be undone.<br><br>Enter your password to confirm.';
+  }
   document.getElementById('del-modal-overlay').classList.add('open');
   setTimeout(function(){ document.getElementById('del-modal-pw').focus(); }, 50);
 }
@@ -2814,30 +2863,19 @@ async function confirmDeleteAccount() {
     setDelStatus('Incorrect password. Please try again.');
     btn.disabled = false; return;
   }
-  setDelStatus('Deleting data\u2026', 'var(--tm)');
-  var uid = window.ADA_USER.uid;
-  var orgId = window.ADA_USER.orgId;
-  var db = window.db;
+  setDelStatus('Deleting account\u2026', 'var(--tm)');
+  // Server-side deletion (Admin SDK) — the client has no rule permission to
+  // write to athlete docs or delete orgs/{orgId} directly, and never did;
+  // the old client-side sequence here threw permission-denied on step 1 for
+  // any coach with linked athletes. Cloud Functions handle it atomically:
+  // deleteCoachAccount unlinks athletes + deletes season/microcycles/org;
+  // deleteAssistantCoachAccount just removes the assistant's own doc, since
+  // an assistant never owned any of that data to begin with.
   try {
-    // 1. Unlink all athletes
-    var athletes = window.ADA_USER.assignedAthletes || [];
-    var unlinkPromises = athletes.map(function(athUid) {
-      return db.collection('users').doc(athUid).update({
-        coachId: firebase.firestore.FieldValue.delete(),
-        orgId: ''
-      });
-    });
-    await Promise.all(unlinkPromises);
-    // 2. Delete microcycle docs
-    var microSnap = await db.collection('seasons').doc(orgId).collection('microcycles').get();
-    var microDeletes = microSnap.docs.map(function(d){ return d.ref.delete(); });
-    await Promise.all(microDeletes);
-    // 3. Delete season doc
-    await db.collection('seasons').doc(orgId).delete();
-    // 4. Delete user doc
-    await db.collection('users').doc(uid).delete();
-    // 5. Delete Auth account
-    await user.delete();
+    var fnName = (window.ADA_USER && window.ADA_USER.role === 'assistantCoach')
+      ? 'deleteAssistantCoachAccount'
+      : 'deleteCoachAccount';
+    await firebase.app().functions('asia-southeast1').httpsCallable(fnName)();
     window.location.href = '/login.html';
   } catch(e) {
     setDelStatus('Error: ' + (e.message || 'deletion failed.'));
@@ -2852,13 +2890,94 @@ function copyTimInviteCode(){
     if(btn){ var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=o; },1500); }
   }).catch(function(){});
 }
-function copySettingsCode(){
+function copySettingsCode(btn){
   var code=document.getElementById('set-invite-code');
   if(!code) return;
-  var btn=document.querySelector('.set-code-copy');
   navigator.clipboard.writeText(code.textContent).then(function(){
     if(btn){ var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=o; },1500); }
   }).catch(function(){});
+}
+
+function copyAssistantInviteCode(btn){
+  var code=document.getElementById('set-assistant-invite-code');
+  if(!code) return;
+  var text = code.textContent;
+  if(!text || text==='——') return;
+  navigator.clipboard.writeText(text).then(function(){
+    if(btn){ var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=o; },1500); }
+  }).catch(function(){});
+}
+
+// Generates (or, with regenerate=true, replaces) the head coach's assistant
+// invite code via the Cloud Function — never written directly by the
+// client, since Firestore rules don't grant coaches write access to this
+// field and shouldn't: it must come from the same server-side uniqueness
+// check as the athlete invite code.
+async function generateAssistantCode(regenerate){
+  if (!window.ADA_USER || window.ADA_USER.role !== 'coach') return;
+  var el = document.getElementById('set-assistant-invite-code');
+  if (el) el.textContent = '…';
+  try {
+    var fn = firebase.app().functions('asia-southeast1').httpsCallable('generateAssistantInviteCode');
+    var res = await fn({ regenerate: !!regenerate });
+    var code = res.data && res.data.code;
+    if (code) {
+      window.ADA_USER.assistantInviteCode = code;
+      if (el) el.textContent = code;
+    } else if (el) {
+      el.textContent = '——';
+    }
+  } catch(e) {
+    console.error('generateAssistantInviteCode failed:', e);
+    if (el) el.textContent = 'Error — try again';
+  }
+}
+
+// Lists the head coach's linked assistants directly from Firestore (covered
+// by the existing `allow list: if isCoach() && resource.data.orgId ==
+// myOrgId()` rule — no new rule needed) rather than trusting
+// window.ADA_USER.assistants, which only has uids and can go stale.
+async function loadAssistantList(){
+  var el = document.getElementById('assistant-list');
+  if (!el || !window.db || !window.ADA_USER || window.ADA_USER.role !== 'coach') return;
+  try {
+    var snap = await window.db.collection('users')
+      .where('orgId', '==', window.ADA_USER.orgId)
+      .where('role', '==', 'assistantCoach')
+      .get();
+    if (snap.empty) {
+      el.innerHTML = '<div style="font-size:0.78rem;color:var(--tl);">No assistants linked yet.</div>';
+      return;
+    }
+    el.innerHTML = snap.docs.map(function(d){
+      var a = d.data();
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--s1);border-radius:8px;">'
+        + '<div><div style="font-size:0.85rem;font-weight:600;">'+(a.name||'Unnamed')+'</div><div style="font-size:0.72rem;color:var(--tl);">'+(a.email||'')+'</div></div>'
+        + '<button class="set-code-copy" style="background:rgba(220,38,38,0.08);color:var(--red);border:1px solid rgba(220,38,38,0.25);" onclick="removeAssistant(\''+d.id+'\',this)">Remove</button>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    console.error('loadAssistantList failed:', e);
+    el.innerHTML = '<div style="font-size:0.78rem;color:var(--red);">Could not load assistants.</div>';
+  }
+}
+
+// Full account removal, not a soft unlink — an assistant coach account has
+// no data of its own (no athletes, no season) to fall back to as a
+// self-org, so there's no meaningful "detached but still exists" state for
+// it to land in.
+async function removeAssistant(assistantUid, btn){
+  if (!confirm('Remove this assistant coach? They will lose access immediately and need a new invite code to rejoin.')) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Removing…'; }
+  try {
+    var fn = firebase.app().functions('asia-southeast1').httpsCallable('removeAssistantCoach');
+    await fn({ assistantUid: assistantUid });
+    loadAssistantList();
+  } catch(e) {
+    console.error('removeAssistantCoach failed:', e);
+    if (btn) { btn.disabled = false; btn.textContent = 'Remove'; }
+    alert('Could not remove assistant: ' + (e.message || e.code || 'unknown error'));
+  }
 }
 
 function goTab(tab){

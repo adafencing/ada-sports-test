@@ -2314,11 +2314,13 @@ async function submitCoachLink(){
   var btn = document.getElementById('clb-link-btn');
   btn.disabled = true;
   btn.textContent = 'Linking…';
+  var codeVal = document.getElementById('clb-code-input').value.trim();
   try {
     var batch = window.db.batch();
     batch.update(window.db.collection('users').doc(ADA_UID), {
-      coachId: clbResolvedCoach.uid,
-      orgId:   clbResolvedCoach.orgId
+      coachId:    clbResolvedCoach.uid,
+      orgId:      clbResolvedCoach.orgId,
+      inviteCode: codeVal
     });
     batch.update(window.db.collection('users').doc(clbResolvedCoach.uid), {
       assignedAthletes: firebase.firestore.FieldValue.arrayUnion(ADA_UID)

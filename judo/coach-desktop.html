@@ -917,7 +917,7 @@ body.paint-mode .s-week-block:hover{filter:brightness(1.18) !important;outline:2
             </div>
             <div class="modal-field">
               <label>Session Objective</label>
-              <textarea class="modal-input" id="sess-label-input" rows="3" placeholder="e.g. Rail drilling — focus on tight length and quick recovery to the T" style="resize:vertical;min-height:72px;line-height:1.5;font-family:inherit;"></textarea>
+              <textarea class="modal-input" id="sess-label-input" rows="3" placeholder="e.g. Uchikomi drilling — focus on grip fighting and explosive hip entry" style="resize:vertical;min-height:72px;line-height:1.5;font-family:inherit;"></textarea>
             </div>
             <div class="modal-field">
               <label>Duration</label>
@@ -1229,85 +1229,79 @@ const PHASE_GUIDANCE = {
   off: {
     label:'Off-Season / Rest Period', color:'#94a3b8',
     duration:'2–4 weeks',
-    durationNote:'More than 4 weeks risks losing lower-body conditioning specific to lunging and repeated sprinting. Less than 2 weeks does not let the shoulder and knees recover from a full season of stroke play and court movement.',
-    objective:'Complete physical and mental recovery from the competitive season. Let overuse patterns from repetitive lunging and racket-arm loading settle before the next training block begins.',
+    durationNote:'More than 4 weeks risks detraining. Less than 2 weeks does not provide sufficient physical and mental recovery.',
+    objective:'Complete rest and regeneration. Physical and mental recovery from competitive load. Restoration of motivation for the next season.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'No structured training. Light, low-impact activity of own choice (swimming, cycling, walking) — avoid lunging-dominant or repetitive overhead movement patterns that mirror match play.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'No racket work. Full mental and physical detachment from the court is the goal of this phase.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Priority is mental rest — time away from squash entirely. Honest review of the season just finished, and early goal-setting for the next.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Reduce intake in line with the drop in activity. Favour anti-inflammatory foods to support tendon and joint recovery.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Sleep is the priority (8–9 hours). Any lingering knee, shoulder or lower-back niggles from the season should be assessed and treated now, not carried into pre-season.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>`,name:'Movement &amp; Court Craft',text:'No court-specific movement work — intentionally. The T-movement pattern and repeated lunging are the single biggest overuse driver in squash, and this phase exists partly to let that pattern rest completely.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'No structured training. Light activities of own choice (swimming, hiking, cycling). Goal is active rest, not passivity.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'No technical work. Mental detachment from sport is desirable in this phase.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Priority is mental rest. Social activities, hobbies, travel. Evaluation of the past season and goal-setting for the next.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Reduce caloric intake proportionally to reduced activity. Focus on recovery and anti-inflammatory foods.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Prioritize sleep (8–9 hours). Massage and passive recovery. Psychological recovery through activities outside sport.'},
     ], warning:null
   },
   prep: {
     label:'General Preparation Phase', color:'#3b82f6',
     duration:'6–10 weeks',
-    durationNote:'Less than 6 weeks does not build the aerobic and lower-body strength base that long rallies and repeated lunging will demand later in the season. More than 10 weeks delays racket-specific sharpness.',
-    objective:'Build the aerobic base, lower-body strength and general movement capacity that repeated high-intensity rallies and constant direction change will demand later. Racket work stays light and technical, not tactical.',
+    durationNote:'Less than 6 weeks does not build sufficient aerobic base. More than 10 weeks may slow sport-specific adaptation.',
+    objective:'Building general physical fitness, aerobic base and technical foundations. High volume, moderate intensity.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High volume, moderate intensity. Aerobic base (Zone 2, 70–75% HRmax) built through running or bike work, plus general strength — squat, lunge and posterior-chain patterns that directly transfer to court movement. 5–6 sessions per week.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Solo practice and shadow work on stroke fundamentals — no tactical pressure yet. Rebuild any technical habits that broke down under fatigue late last season.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Re-establish training routines and habits. Set clear, specific goals for the season — ranking targets, tournament calendar, technical priorities.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Increase carbohydrate intake to support higher training volume. Protein 1.6–2.0 g/kg for the muscular adaptation this phase is built around.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'9 hours sleep as a floor, not a target. Active recovery between sessions. This is the phase to address structural issues (ankle stability, hip mobility) before load increases.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>`,name:'Movement &amp; Court Craft',text:'Introduce structured footwork patterns — split-step timing, movement to and recovery from all four corners — at low intensity. This is where efficient movement mechanics are built, before speed or pressure are added.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High volume, moderate intensity. Aerobic base (70–75% HRmax). General strength and conditioning. 5–6 sessions per week. Goal: adaptive platform for advanced phases.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Fundamentals of technical elements without tactical pressure. Analysis of errors from last season. Individual development of weak points.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Building group cohesion and team culture. Clear season goals. Routines and habits for training quality.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Increase carbohydrate intake for training. Protein for muscle adaptation (1.6–2.0 g/kg). Hydration 35–40 ml/kg/day.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'9 hours sleep as priority. Active recovery between sessions. Regular massage, foam rolling, stretching.'},
     ], warning:'Preparation is the foundation of the season. Mistakes here directly impact competitive performance.'
   },
   phys: {
-    label:'Specific Preparation', color:'#8b5cf6',
+    label:'Specific Prep', color:'#8b5cf6',
     duration:'3–5 weeks',
-    durationNote:'This phase is intense and short by design. More than 5 weeks increases overuse risk in the knees and shoulder from the sudden jump in racket-specific volume. Monitor ACWR daily.',
-    objective:'Convert the general base into squash-specific power, repeated-sprint capacity and movement speed. Racket work becomes live and game-paced — pressure drilling is introduced here for the first time in the cycle.',
+    durationNote:'This phase is intense and short. More than 5 weeks increases risk of overtraining. Monitor ACWR daily.',
+    objective:'Development of sport-specific strength, speed and explosiveness. Moderate volume, high intensity. Peak of physical preparation.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High intensity (85–95% max). Explosive lower-body power. Repeated-sprint and change-of-direction conditioning replaces steady-state running. ACWR must not exceed 1.5.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Stroke technique now under speed and fatigue, not in isolation. Shot-making and movement start training together instead of separately.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Building tolerance for discomfort under load. Shot selection quality when tired becomes an explicit training target, not an accident.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Carbohydrate support is critical around the highest-intensity sessions. Protein and post-session nutrition timing matter more here than in Prep.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'The highest overtraining-risk phase of the season. Cold water immersion after key sessions, sleep tracking, and genuinely periodized rest days — not just ‘less training’.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>`,name:'Movement &amp; Court Craft',text:'Ghosting and movement drills at match speed — full-court patterns linking the T to all four corners under time pressure. This is where movement efficiency under fatigue is actually tested.'},
-    ], warning:'High overtraining risk! Monitor ACWR daily. Acute:chronic load ratio above 1.5 requires immediate reduction.'
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'High intensity (85–95% max). Strength and explosiveness. Sport-specific conditioning (sprint, jumps, direction change). ACWR must not exceed 1.5.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Technique under high intensity. Sport-specificity increases — integration of technical and physical elements.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Tolerance for high load. Mental toughness and focus on quality under fatigue.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Maximum carbohydrate support. Increase protein for regeneration. Pre/post-training nutrition is critical.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Critical recovery phase. Cold water immersion after intense sessions. Sleep tracking. Periodized rest days.'},
+    ], warning:'High overtraining risk! Monitor ACWR daily. Acute:chronic load ratio >1.5 requires immediate reduction.'
   },
   precomp: {
     label:'Pre-Competitive Phase', color:'#f59e0b',
     duration:'2–4 weeks',
-    durationNote:'Classic taper: volume drops sharply, intensity stays high. Getting this wrong — tapering too long or too short — is one of the most common reasons players arrive at their first tournament under- or over-cooked.',
-    objective:'Sharpen match readiness while shedding accumulated fatigue. Racket work shifts from generic drilling to opponent- and format-specific preparation.',
+    durationNote:'Tapering phase. Volume decreases, intensity stays high. Preparation for peak form.',
+    objective:'Achieving competitive form. Reducing fatigue while maintaining fitness. Integration of tactics and system variants.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduce volume by 40–60% from Specific Prep. Intensity stays close to maximum in short, sharp sessions — this is a fatigue-shedding phase, not a rest phase.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'High specificity. If opponents or draw are known, tailor sessions to their game style. Match-simulation practice at full intensity.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Build match-day confidence: visualization, pre-match routines, and rehearsing how to reset after a bad game rather than a bad point.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Carbohydrate loading before the first tournament match. This is also when any match-day nutrition and hydration strategy should be tested, not invented on the day.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Recovery becomes the priority over new training stimulus. CWI after key sessions, massage, 9 hours sleep — no new training stress this close to competition.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>`,name:'Movement &amp; Court Craft',text:'Movement rehearsed at full match speed but low overall volume — sharpening reaction and recovery-to-the-T speed rather than building new capacity.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduce volume by 40–60% from previous phase. Maintain intensity near maximum. Short, sharp sessions.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'High specificity. Tactical preparation for specific opponents. Video analysis of game systems.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Building confidence. Performance visualization. Pre-match routines. Anxiety management.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'CHO loading before first matches. Test nutrition protocols that will be used during competition.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Maximum recovery priority. CWI 10–15 min after key sessions. Massage. 9 hours sleep.'},
     ], warning:null
   },
   comp: {
     label:'Competitive Phase', color:'#FF6F61',
     duration:'Depends on calendar',
-    durationNote:'Squash’s competitive calendar is rarely one match a week — tournaments are typically several matches across consecutive days. This phase has to manage fatigue that accumulates within a single event, not just across the season.',
-    objective:'Perform at tournaments while managing fatigue that builds both within a single event (multiple matches on consecutive days) and across the season’s full calendar.',
+    durationNote:'Longest phase of the season. Goal is to maintain form and manage cumulative fatigue throughout.',
+    objective:'Maximum competitive performance. Balance training and competition. Fatigue management.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Low volume (3–5 sessions/week outside tournament weeks). During a tournament, physical training essentially stops — recovery between matches is the only physical priority.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Maximum specificity: preparation is opponent-by-opponent where the draw allows. Post-match video and self-review after every match, win or lose.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Match-to-match reset is the core skill here — especially recovering mentally between same-day or next-day matches during a tournament, not just after a loss.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Full carbohydrate and hydration support around matches. Between-match nutrition should be a rehearsed routine by now, not improvised courtside.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Recovery between matches — not just between weeks — is the single biggest lever in this phase. CWI, elevation and sleep protect the ability to perform in round two and three, not just round one.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>`,name:'Movement &amp; Court Craft',text:'No new movement training during tournament weeks. Outside tournaments, brief movement maintenance only — this phase protects existing movement quality under match fatigue, it doesn’t build new capacity.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Low volume (3–5 sessions/week). High intensity in specific sessions. Recovery between matches is the priority.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Maximum specificity. Tactical preparation for each opponent. Video review and analysis of every match.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Confidence, flexibility, self-belief. Match plan. Error tolerance. Accepting uncertainty.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Full carbohydrate support for matches and training. Pre/during/post-match protocols practiced.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Maximum recovery before each match. CWI immediately after (10–15 min @ 12°C). Active fatigue management.'},
     ], warning:null
   },
   trans: {
     label:'Transition Period', color:'#10b981',
     duration:'2–3 weeks',
-    durationNote:'Short bridge between competitive blocks. More than 3 weeks risks losing the movement sharpness built over the season; less than 2 doesn’t let accumulated match fatigue actually clear.',
-    objective:'Short recovery and reset between competitive blocks — address fatigue and niggles that built up across the last tournament run, and refine anything technical that broke down under match pressure.',
+    durationNote:'Short bridge between competitive blocks. More than 3 weeks risks detraining; less than 2 does not provide sufficient recovery.',
+    objective:'Short recovery and reset between competitive blocks. Address accumulated fatigue, refine technique, restore motivation.',
     pillars:[
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduced load, active recovery. Good window for addressing any knee, shoulder or ankle niggles that built up during the competitive block, without season pressure.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Lower specificity. Correct technical patterns that broke down under fatigue during recent tournaments — easier to see and fix now than mid-season.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Mental rest from competitive stress. Honest review of the last block: what worked, what didn’t, and why.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Scale intake down with the drop in training load. Anti-inflammatory focus to support joint and tendon recovery.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Sleep quality and duration as priority. A reasonable window for a full movement or physio screen before the next Prep phase begins.'},
-      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>`,name:'Movement &amp; Court Craft',text:'Light, low-volume movement maintenance only — enough to not lose court sense entirely, without adding fresh load to joints that just carried a competitive block.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`,name:'Physical Training',text:'Reduced load. Active recovery. Corrective work and injury prevention without time pressure.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,name:'Technical Skills',text:'Lower specificity. Correction of technical errors identified during competition. Setting the base for the next cycle.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3"/></svg>`,name:'Psychology',text:'Mental rest from competitive stress. Honest evaluation of the first competitive block. Restoration of motivation and energy.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,name:'Nutrition',text:'Reduce intake proportionally to lower load. Focus on recovery and anti-inflammatory foods.'},
+      {icon:'',svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,name:'Recovery',text:'Sleep priority (quality and duration). Massage, passive recovery. Psychological rest through activities outside sport.'},
     ], warning:null
   }
 };
@@ -2706,8 +2700,7 @@ const sessionTypes = [
   {id:'tactical',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/></svg>`, name:'Tactical',    color:'#8b5cf6', rpe:7, dur:60},
   {id:'strength',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5h3v5H3z"/><path d="M18 9.5h3v5h-3z"/><path d="M6.5 12h11"/></svg>`, name:'Strength',    color:'#ef4444', rpe:8, dur:60},
   {id:'conditioning', icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`, name:'Conditioning', color:'#22c55e', rpe:6, dur:45},
-  {id:'match',        icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Friendly Match', color:'#FF6F61', rpe:8, dur:90},
-  {id:'pressure',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`, name:'Pressure',     color:'#ec4899', rpe:8, dur:60},
+  {id:'match',        icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Sparring', color:'#FF6F61', rpe:8, dur:90},
   {id:'competition',  icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`, name:'Competition',  color:'#FF6F61', rpe:10, dur:120},
   {id:'recovery',     icon:'',  svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`, name:'Recovery',    color:'#94a3b8', rpe:2, dur:40},
   {id:'rest',         icon:'—',   svg:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`, name:'Rest Day',    color:'#cbd5e1', rpe:0, dur:0},
@@ -2731,64 +2724,51 @@ const PHASE_WEEKLY_TEMPLATES = {
   // General Preparation: aerobic base + general strength; light technical to maintain skill
   // Bompa & Buzzichelli (2019): high volume, moderate intensity; 5–6 sessions
   prep:    {Mon:[{type:'conditioning',dur:50,rpe:6}],Tue:[{type:'strength',dur:60,rpe:7}],Wed:[{type:'technical',dur:75,rpe:5}],Thu:[{type:'conditioning',dur:50,rpe:6}],Fri:[{type:'strength',dur:60,rpe:7}],Sat:[{type:'technical',dur:75,rpe:6}],Sun:[{type:'rest'}]},
-  // Specific Preparation: sport-specific conditioning + technical volume + pressure training introduced
+  // Specific Preparation: sport-specific conditioning + technical volume + high-intensity tactical work introduced
   // Turner (2011): shift from general to specific; ACWR target 1.0–1.3
-  phys:    {Mon:[{type:'strength',dur:60,rpe:8}],Tue:[{type:'technical',dur:75,rpe:7}],Wed:[{type:'pressure',dur:75,rpe:8}],Thu:[{type:'conditioning',dur:45,rpe:7}],Fri:[{type:'technical',dur:75,rpe:7}],Sat:[{type:'pressure',dur:75,rpe:8}],Sun:[{type:'recovery',dur:40,rpe:2}]},
+  phys:    {Mon:[{type:'strength',dur:60,rpe:8}],Tue:[{type:'technical',dur:75,rpe:7}],Wed:[{type:'tactical',dur:75,rpe:8}],Thu:[{type:'conditioning',dur:45,rpe:7}],Fri:[{type:'technical',dur:75,rpe:7}],Sat:[{type:'tactical',dur:75,rpe:8}],Sun:[{type:'recovery',dur:40,rpe:2}]},
   // Pre-Competitive (taper): sharp volume reduction, maintain intensity; technical sharpening
   // Mujika et al. (2004): exponential taper; reduce volume 40–60%, keep intensity
-  precomp: {Mon:[{type:'technical',dur:60,rpe:7}],Tue:[{type:'pressure',dur:60,rpe:8}],Wed:[{type:'tactical',dur:60,rpe:6}],Thu:[{type:'recovery',dur:40,rpe:2}],Fri:[{type:'technical',dur:45,rpe:7}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
-  // Competitive: this is the DEFAULT week (no tournament) baseline — Saturday carries an
-  // ordinary club/league match. Actual tournament weeks are overlaid dynamically in
-  // generateRecommendedPlan() from real Competitions data, since squash tournaments run
-  // several matches across consecutive days rather than one fixed weekly slot.
-  comp:    {Mon:[{type:'recovery',dur:40,rpe:2}],Tue:[{type:'technical',dur:60,rpe:6}],Wed:[{type:'pressure',dur:60,rpe:7}],Thu:[{type:'tactical',dur:45,rpe:5}],Fri:[{type:'technical',dur:30,rpe:5}],Sat:[{type:'match',dur:90,rpe:8}],Sun:[{type:'recovery',dur:40,rpe:2}]},
-  // Transition: active recovery; cross-training; no high-intensity pressure work; restore motivation
+  precomp: {Mon:[{type:'technical',dur:60,rpe:7}],Tue:[{type:'tactical',dur:60,rpe:8}],Wed:[{type:'tactical',dur:60,rpe:6}],Thu:[{type:'recovery',dur:40,rpe:2}],Fri:[{type:'technical',dur:45,rpe:7}],Sat:[{type:'rest'}],Sun:[{type:'rest'}]},
+  // Competitive: competition day Saturday; activation Friday, recovery Sunday; minimal load
+  // Franchini et al. (2011): preserve peak form; limit fatigue accumulation
+  comp:    {Mon:[{type:'recovery',dur:40,rpe:2}],Tue:[{type:'technical',dur:60,rpe:6}],Wed:[{type:'tactical',dur:60,rpe:7}],Thu:[{type:'tactical',dur:45,rpe:5}],Fri:[{type:'technical',dur:30,rpe:5}],Sat:[{type:'competition',dur:120,rpe:10}],Sun:[{type:'recovery',dur:40,rpe:2}]},
+  // Transition: active recovery; cross-training; no high-intensity tactical work; restore motivation
   // Bompa (2019): 2–3 weeks; prevent detraining without accumulated fatigue
   trans:   {Mon:[{type:'conditioning',dur:35,rpe:4}],Tue:[{type:'recovery',dur:40,rpe:2}],Wed:[{type:'technical',dur:50,rpe:4}],Thu:[{type:'rest'}],Fri:[{type:'conditioning',dur:35,rpe:4}],Sat:[{type:'recovery',dur:40,rpe:2}],Sun:[{type:'rest'}]},
 };
 
-// Reduced-volume variants for the 3-load:1-deload cadence — only Prep and Specific Prep
-// carry sustained enough weekly load to need a scheduled deload week (see
-// countConsecutivePhaseWeeks / generateRecommendedPlan).
-const PHASE_WEEKLY_TEMPLATES_DELOAD = {
-  prep: {Mon:[{type:'conditioning',dur:35,rpe:4}],Tue:[{type:'strength',dur:40,rpe:5}],Wed:[{type:'technical',dur:45,rpe:4}],Thu:[{type:'recovery',dur:35,rpe:2}],Fri:[{type:'strength',dur:40,rpe:5}],Sat:[{type:'technical',dur:45,rpe:4}],Sun:[{type:'rest'}]},
-  phys: {Mon:[{type:'strength',dur:40,rpe:5}],Tue:[{type:'technical',dur:45,rpe:5}],Wed:[{type:'recovery',dur:35,rpe:2}],Thu:[{type:'conditioning',dur:30,rpe:5}],Fri:[{type:'technical',dur:45,rpe:5}],Sat:[{type:'pressure',dur:40,rpe:5}],Sun:[{type:'recovery',dur:35,rpe:2}]},
-};
-
 const EXERCISE_REC = {
   prep: {
-    conditioning:['Continuous aerobic run 25–35 min @ Zone 2 (60–70% HRmax)','Aerobic intervals: 4×4 min @ Zone 3 · 3 min active rest','Bike or rower 30 min @ moderate pace — low-impact base building','Step-ups and lateral bounds: general lower-body conditioning circuit'],
-    strength:['Lower body compound: back squat 4×5 @ 75% 1RM','Single-leg work: split squats, step-downs — lunge-pattern strength transfer','Core stability: plank progressions, anti-rotation holds · 3×30 sec','Posterior chain: Romanian deadlift, glute bridge 3×10'],
-    technical:['Shadow squash: full-court movement without a ball, 15–20 min','Solo ball control: straight drives against the wall, low intensity','Grip and racket-face fundamentals — quality over speed','Video review of last season\'s match footage — one correction focus'],
-    recovery:['Easy jog or walk 15–20 min @ Zone 1','Foam rolling: quads, hip flexors, calves · 10–15 min','Static stretching: full body, 30 sec holds, extra time on hip flexors','Cold water immersion 10–12 min @ 14°C (optional)'],
+    conditioning:['Continuous aerobic run 25–35 min @ Zone 2 (60–70% HRmax)','Aerobic intervals: 4×4 min @ Zone 3 · 3 min active rest','General circuit: squats, lunges, push-ups, pull-ups · 3×10','Cycling or rowing 30 min @ moderate pace — cross-training base'],
+    strength:['Lower body compound: back squat 4×5 @ 75% 1RM','Upper body push/pull: bench press + bent-over row 3×8','Core stability: plank progressions, anti-rotation holds · 3×30 sec','Olympic lifting intro: power clean 3×5 @ technique focus'],
+    technical:['Uchikomi (repetition entries): solo and static partner reps · 15–20 min','Ukemi (breakfalls) refresher: forward, backward, side — low intensity','Solo shadow nage-waza sequences at low intensity — quality over speed','Video review + deliberate practice on one throwing technique'],
+    recovery:['Easy jog or walk 15–20 min @ Zone 1','Foam rolling: quads, hip flexors, upper back · 10–15 min','Static stretching: full body, 30 sec holds','Cold water immersion 10–12 min @ 14°C (optional)'],
   },
   phys: {
-    conditioning:['Repeated sprint ability: 10×15m shuttle with 30 sec rest','Court-based interval circuit: 6×30 sec max effort + 90 sec rest','Multi-directional agility ladder work · 5×2 min','On-court repeated efforts: 8×20 sec explosive movement + 40 sec rest'],
-    strength:['Max strength phase: squat/deadlift 5×3 @ 85–90% 1RM','Explosive power: box jumps, lateral bounds · 4×6','Rotational power: cable rotations, medicine ball throws · 3×8','Single-leg power: split-squat jumps — direct lunge-recovery transfer'],
-    pressure:['Conditioned game: restricted to boasts and straight drives, 20–30 min','Progressive pressure drilling: length and width at 60–70% → 80% pace · 4–6 rounds','Give-and-go pressure drill: continuous feeding, no let-up · point-style rounds','Ghosting under time pressure: full-court pattern on a shot clock'],
-    technical:['Length and width drilling at 70–80% speed · 3×10 min','Volley and drop-shot combinations against a feeder','Video analysis of own recent match — one correction focus','Boast-and-drive pattern practice at controlled intensity'],
-    recovery:['Contrast hydrotherapy: 3×(2 min warm / 1 min cold)','Pool session or aqua jogging 15–20 min — off-legs recovery','Therapeutic massage focused on quads, calves and shoulder','Progressive muscle relaxation + breathing 15 min'],
+    conditioning:['Speed endurance intervals: 6×30 sec max effort + 90 sec rest','Grip fighting endurance circuits: 5×2 min @ high intensity','Power endurance: 8×20 sec explosive effort + 40 sec rest','Repeated sprint ability: 10×10m with 30 sec rest'],
+    strength:['Max strength phase: squat/deadlift 5×3 @ 85–90% 1RM','Explosive power: jump squats, medicine ball throws · 4×6','Sport-specific resistance: uchikomi with resistance bands','Rotational power: cable rotations, landmine press · 3×8'],
+    technical:['Nage-waza combinations at 70–80% speed · 3×10 min rounds','Uchikomi with resistance: partner drilling at controlled intensity','Video analysis of own recent randori — 1 correction focus','Combination work: link two throws (renraku-waza) with a new entry'],
+    recovery:['Contrast hydrotherapy: 3×(2 min warm / 1 min cold)','Aqua jogging or swimming 15–20 min','Therapeutic massage of primary loaded muscle groups','Progressive muscle relaxation + breathing 15 min'],
   },
   precomp: {
-    technical:['Match-speed technical rehearsal: 3×8 min rounds','Sharpening: full rally patterns at 90–95% speed','Pre-match warm-up routine — rehearse exactly what will happen on the day','Refine one tournament-specific tactical plan with a hitting partner'],
-    pressure:['Competitive-intensity conditioned games: 80–90% pace · 3–4 rounds only','Scenario drilling: specific situations expected in the draw','Controlled match play — quality over quantity this close to competition','Game-point simulation: practice resetting after winning or losing a big rally'],
-    tactical:['Match-plan rehearsal: length/width patterns, preferred targets','Video scouting of likely opponents if the draw is known — 30–40 min','Mental rehearsal + visualisation: 15–20 min','Pre-tournament tactical debrief with coach'],
-    recovery:['Full-body massage 45–60 min','Cold water immersion 12–15 min @ 12–14°C post key sessions','9 hrs sleep; no screens 60 min before bed','Carbohydrate loading 2 days pre-tournament'],
+    technical:['Competition-speed nage-waza rehearsal: 3×8 min randori rounds','Sharpening: full throw-to-pin sequences at 90–95% speed','Competition simulation warm-up — rehearse exactly as on the day','Refine one competition entry (tokui-waza) with a training partner'],
+    tactical:['Match-plan rehearsal: kumi-kata (grip) strategy and defensive patterns','Video scouting of likely opponents — 30–40 min session','Mental rehearsal + visualisation: 15–20 min','Pre-competition tactical debrief with coach'],
+    recovery:['Full-body massage 45–60 min','Cold water immersion 12–15 min @ 12–14°C post key sessions','9 hrs sleep; no screens 60 min before bed','Nutrition: carb load 2 days pre-competition'],
   },
   comp: {
-    technical:['Pre-match activation: technical warm-up 20–25 min at 80% intensity','Maintenance rally practice: 30–40 min at moderate intensity · mid-week only','Post-match technical debrief — identify 1–2 correction points','Light touch session: low fatigue, high confidence focus'],
-    pressure:['Mid-week controlled conditioned game: 2–3 short rounds at 70% only','Avoid high-intensity pressure drilling within 48 hrs of a match','Scenario work: rehearse specific situations from the current draw at controlled pace'],
-    tactical:['Tournament-week strategy review: 20–30 min','Opponent analysis if known: preferred patterns, favoured targets','Mental preparation: visualisation, pre-match routine rehearsal'],
-    recovery:['CWI immediately post-match: 10–15 min @ 12°C','Carbohydrate + protein intake within 30 min of finishing a match','Between-match recovery: legs up, rehydrate, light stretch — repeatable routine','Sleep priority: 9+ hrs during tournament weeks'],
+    technical:['Pre-competition activation: nage-waza warm-up 20–25 min at 80% intensity','Maintenance uchikomi: 30–40 min at moderate intensity · mid-week only','Post-competition technical debrief — identify 1–2 correction points','Light randori touch session: low fatigue, high confidence focus'],
+    tactical:['Competition week strategy review: kumi-kata and entry sequencing · 20–30 min','Opponent analysis if known: preferred grips, tokui-waza (favourite technique)','Mental preparation: visualisation, competition routine rehearsal'],
+    recovery:['CWI immediately post-competition: 10–15 min @ 12°C','Carbohydrate + protein intake within 30 min of finish','Active recovery: 15–20 min easy movement day after competition','Sleep priority: 9+ hrs in competition week'],
   },
   trans: {
-    conditioning:['Cross-training: cycling, swimming, hiking — 30 min @ own pace','General movement circuit: bodyweight only, low intensity','Recreational activity of own choice — maintain enjoyment','Mobility flow: 30–40 min, extra focus on hips and shoulders'],
-    technical:['Light ball-control maintenance: 30–40 min, no partner pressure','Focus on enjoyment — free hitting without correction pressure','Optional: introduce one new shot for curiosity, no pressure to perform it'],
-    recovery:['Full passive rest days — no structured exercise','Sleep at own schedule: recovery debt repayment','Deep tissue massage of chronic problem areas (shoulder, knees)','Mindfulness or breathing practice: 10–15 min daily'],
+    conditioning:['Cross-training: cycling, swimming, hiking — 30 min @ own pace','General movement circuit: bodyweight only, low intensity','Recreational activity of own choice — maintain enjoyment','Yoga or mobility flow: 30–40 min'],
+    technical:['Light randori: 30–40 min, no partner pressure','Focus on enjoyment — free newaza (ground) practice without correction pressure','Optional: introduce one new throw for curiosity'],
+    recovery:['Full passive rest days — no structured exercise','Sleep at own schedule: recovery debt repayment','Deep tissue massage of chronic problem areas','Mindfulness or breathing practice: 10–15 min daily'],
   },
   off: {
     conditioning:['Recreational activity of own choice: 30–40 min','Unstructured movement — walks, leisure sports, gardening','No performance targets — enjoyment only'],
-    recovery:['Full passive rest — no structured recovery protocol','Sleep at own schedule','Socialise and disconnect from squash mentally'],
+    recovery:['Full passive rest — no structured recovery protocol','Sleep at own schedule','Socialise and disconnect from sport mentally'],
   },
 };
 
@@ -2796,81 +2776,20 @@ let microPlans = {}, currentMicroWeek = 0, microPlansLoaded = false;
 
 function getSessionType(id) { return sessionTypes.find(s=>s.id===id) || sessionTypes[0]; }
 
-// How many consecutive weeks (including this one) have carried the same phase —
-// used to trigger a deload week every 4th consecutive week in Prep/Specific Prep.
-function countConsecutivePhaseWeeks(weekIdx) {
-  const phase = weekPhases[weekIdx];
-  let count = 1, w = weekIdx - 1;
-  while (w >= 0 && weekPhases[w] === phase) { count++; w--; }
-  return count;
-}
-
-// Returns the Competition (tournament) whose date range covers a given ISO date, if any.
-// Competitions already store startDate/endDate, so a multi-day tournament is just any
-// date range longer than one day — no separate day-level match data needed.
-function getCompetitionForDate(dateISO) {
-  return competitions.find(c => dateISO >= c.startDate && dateISO <= c.endDate) || null;
-}
-
 function generateRecommendedPlan(weekIdx) {
   const phase = weekPhases[weekIdx];
   if (!phase || phase === 'none') {
     const empty = {}; DAYS.forEach(d => { empty[d] = [{id:'rest',type:'rest',duration:0,rpe:0,label:'',recommended:false}]; }); return empty;
   }
-  // Deload cadence: every 4th consecutive week in Prep/Specific Prep drops to the
-  // reduced-volume template — the two phases with sustained enough weekly load to need it.
-  const consecutiveWeeks = countConsecutivePhaseWeeks(weekIdx);
-  const isDeload = (phase === 'prep' || phase === 'phys') && consecutiveWeeks % 4 === 0;
-  const template = (isDeload && PHASE_WEEKLY_TEMPLATES_DELOAD[phase]) || PHASE_WEEKLY_TEMPLATES[phase] || PHASE_WEEKLY_TEMPLATES['prep'];
-
-  // Squash tournaments run multiple matches across consecutive days rather than one
-  // fixed weekly slot — detect every day this week that falls inside a registered
-  // Competition's date range and treat each one as a match day, not just the template's
-  // single default Saturday slot.
-  const weekStart = getWeekStartDate(weekIdx);
-  const tournamentDays = {};
-  DAYS.forEach((d, i) => {
-    const dayDate = new Date(weekStart); dayDate.setDate(dayDate.getDate() + i);
-    const comp = getCompetitionForDate(toISO(dayDate));
-    if (comp) tournamentDays[d] = comp;
-  });
-  const tournamentDayCount = Object.keys(tournamentDays).length;
-
+  const template = PHASE_WEEKLY_TEMPLATES[phase] || PHASE_WEEKLY_TEMPLATES['prep'];
   const plan = {};
-  DAYS.forEach((d, i) => {
-    if (tournamentDays[d]) {
-      const comp = tournamentDays[d];
-      plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'competition', duration:90, rpe:9, label:comp.title, recommended:true}];
-      return;
-    }
-    // Day immediately after a tournament block ends this week — enforced recovery,
-    // not whatever the template would normally schedule.
-    const prevDay = DAYS[i-1];
-    if (prevDay && tournamentDays[prevDay]) {
-      plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'recovery', duration:30, rpe:2, label:'', recommended:true}];
-      return;
-    }
+  DAYS.forEach(d => {
     const tpl = template[d] || [{type:'rest'}];
     plan[d] = tpl.map(t => {
       const st = getSessionType(t.type);
       return {id: Math.random().toString(36).substr(2,6), type:t.type, duration:t.dur||st.dur, rpe:t.rpe||st.rpe, label:'', recommended:true};
     });
   });
-
-  // If a tournament consumed 2+ days this week, downgrade any remaining high-intensity
-  // slot (pressure/strength) elsewhere in the week to recovery — avoids stacking fresh
-  // training load on top of tournament fatigue, same principle as the single-match
-  // downgrade rule, generalised to a multi-day block.
-  if (tournamentDayCount >= 2) {
-    DAYS.forEach(d => {
-      if (tournamentDays[d]) return;
-      const daySessions = plan[d] || [];
-      const hasHighIntensity = daySessions.some(s => s.type === 'pressure' || s.type === 'strength');
-      if (hasHighIntensity) {
-        plan[d] = [{id: Math.random().toString(36).substr(2,6), type:'recovery', duration:30, rpe:2, label:'', recommended:true}];
-      }
-    });
-  }
   return plan;
 }
 
@@ -2894,14 +2813,12 @@ function renderMicro() {
   const pg    = PHASE_GUIDANCE[phase];
   const lt    = PHASE_LOAD_TARGETS[phase] || {};
   const plan  = getMicroPlan(w);
-  const isDeloadWeek = (phase === 'prep' || phase === 'phys') && countConsecutivePhaseWeeks(w) % 4 === 0;
 
   // Load athlete checkins in background if not yet loaded from Roster tab
   if(!timDataLoaded && !_timCheckinsLoading) loadTimCheckinsForMicro();
   document.getElementById('micro-week-label').textContent = `W${w+1}`;
   document.getElementById('micro-phase-subtitle').innerHTML =
-    `${getWeekDateLabel(w)} &nbsp;·&nbsp; <span style="color:${pc.color};font-weight:700;">${pc.label}</span>${weekEvents[w] ? ' &nbsp;·&nbsp; ' + weekEvents[w].label : ''}`
-    + (isDeloadWeek ? ` &nbsp;·&nbsp; <span style="color:#8b5cf6;font-weight:700;">&#x27F3; Deload Week</span>` : '');
+    `${getWeekDateLabel(w)} &nbsp;·&nbsp; <span style="color:${pc.color};font-weight:700;">${pc.label}</span>${weekEvents[w] ? ' &nbsp;·&nbsp; ' + weekEvents[w].label : ''}`;
 
   // Competition / Camp banners — shows if this week is part of a registered event
   const comp = getCompetitionForWeek(w);
